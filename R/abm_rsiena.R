@@ -42,11 +42,11 @@ f_alternatives <- function(net, ego) {
 
 f_geodist <- function(net, ego1, ego2, degree="degree"){
   if (degree=="outdegree") {
-    geodist(dat=net, inf.replace=Inf, count.paths=FALSE, predecessors=FALSE, ignore.eval=TRUE, na.omit=TRUE)$gdist[ego1,ego2]
+    sna::geodist(dat=net, inf.replace=Inf, count.paths=FALSE, predecessors=FALSE, ignore.eval=TRUE, na.omit=TRUE)$gdist[ego1,ego2]
   } else if (degree=="indegree") {
-    geodist(dat=t(net), inf.replace=Inf, count.paths=FALSE, predecessors=FALSE, ignore.eval=TRUE, na.omit=TRUE)$gdist[ego1,ego2]
+    sna::geodist(dat=t(net), inf.replace=Inf, count.paths=FALSE, predecessors=FALSE, ignore.eval=TRUE, na.omit=TRUE)$gdist[ego1,ego2]
   } else {
-    geodist(dat=net + t(net), inf.replace=Inf, count.paths=FALSE, predecessors=FALSE, ignore.eval=TRUE, na.omit=TRUE)$gdist[ego1,ego2]
+    sna::geodist(dat=net + t(net), inf.replace=Inf, count.paths=FALSE, predecessors=FALSE, ignore.eval=TRUE, na.omit=TRUE)$gdist[ego1,ego2]
   }
 }
 
