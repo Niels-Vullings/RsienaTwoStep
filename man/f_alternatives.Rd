@@ -2,13 +2,21 @@
 % Please edit documentation in R/f_alternatives.R
 \name{f_alternatives}
 \alias{f_alternatives}
-\title{Title}
+\title{Possible networks after ministep of ego}
 \usage{
 f_alternatives(net, ego)
 }
 \arguments{
-\item{ego}{}
+\item{net}{matrix, the adjacency matrix representing the relations between actors. Valid values are 0 and 1.}
+
+\item{ego}{numeric, value indicating ego (row number of net)}
+}
+\value{
+list, a list of the alternative adjacency matrices after all possible ministeps of ego
 }
 \description{
-Title
+Possible networks after ministep of ego
+}
+\examples{
+f_alternatives(net=net1, ego=3)
 }

@@ -2,3 +2,4 @@
 
 export(f_alternatives)
 export(f_select)
+importFrom(foreach,"%dopar%")

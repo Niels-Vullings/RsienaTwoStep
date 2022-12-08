@@ -4,7 +4,7 @@
 #'
 #' @details This function selects two actors at random that are part of the network
 
-#' @param name matrix, the adjacency matrix representing the relations between actors
+#' @param net matrix, the adjacency matrix representing the relations between actors. Valid values are 0 and 1.
 #' @param steps numeric, do we want to sample one or two actors
 #'
 #' @return vector of length one or two, with the actors being sampled.
@@ -176,80 +176,10 @@ f_eval <- function(net, ego, stat, params) {
 }
 
 
-f_sim <- function(net, rate, statistics=list(f_degree, f_recip), estimates=c(-1,2), p2step=0, chain=FALSE, dist1=NULL, dist2=NULL, modet1="degree", modet2="degree"){
-  #with p2step we determine the probability whether it is just a ministep (p2step=0) or whether there is simultaneity. with p2step=1 only simultaneity.
-
-  nministep <- rate*nrow(net)
-  net_n <- net
-
-  #let us save the steps
-  nets <- list()
-  ministep <- 1
-  iteration <- 1
-  while (ministep < nministep){
-    #normal ministep of 2step?
-    normal <- sample(c(1,0), 1, prob=(c(1-p2step, p2step)))
-
-    #normal model
-    if (normal) {
-      #sample agent
-      ego <- f_select(net)
-      print(ego)
-      #options
-      options <- f_alternatives(net=net_n, ego=ego)
-      #evaluations
-      eval <- sapply(options, FUN=f_eval, ego=ego, stat=statistics, params=estimates)
-      #pick new network
-      net_n <- options[[sample(1:length(eval), size=1, prob=exp(eval)/sum(exp(eval)))]]
-       print(net_n)
-      if (chain) {nets[[iteration]] <- net_n}
-      iteration <- iteration + 1
-      ministep <- ministep + 1
-    }
-
-    #model with simultaneity
-    if (!normal) {
-      #options f_alternatives_2egos <- function(net, )
-      results <- f_alternatives_2egos(net=net_n, dist1=dist1, dist2=dist2, modet1=modet1, modet2=modet2)
-      egos <- results[[1]]
-      options <- results[[2]]
-      #evaluations ego1
-      eval1 <- sapply(options, FUN=f_eval, ego=egos[1], stat=statistics, params=estimates)
-      #evaluations ego2
-      eval2 <- sapply(options, FUN=f_eval, ego=egos[2], stat=statistics, params=estimates)
-      #pick new network
-      eval <- eval1 + eval2
-      net_n <- options[[sample(1:length(eval), size=1, prob=exp(eval)/sum(exp(eval)))]]
-      if (chain) {nets[[iteration]] <- net_n}
-      iteration <- iteration + 1
-      ministep <- ministep + 2
-    }
-
-  }
-  if (chain) { return(nets) } else { return(net_n)}
-}
-
-f_sims <- function(nsims=1000, parallel=FALSE, net, rate, statistics, estimates, p2step=0, chain=FALSE, dist1=NULL, dist2=NULL, modet1="degree", modet2="degree") {
-  # Actual function
-  if (parallel) {
-    foreach(Nsim = 1:nsims) %dopar% {
-      f_sim(net=net, rate=rate, statistics=statistics, estimates=estimates, p2step=p2step, chain=chain, dist1=dist1, dist2=dist2, modet1=modet1, modet2=modet2)
-    }
-  } else {
-    sims <- list()
-    for (i in 1:nsims) {
-      sims[[i]] <- f_sim(net=net, rate=rate, statistics=statistics, estimates=estimates, p2step=p2step, chain=chain, dist1=dist1, dist2=dist2, modet1=modet1, modet2=modet2)
-    }
-    return(sims)
-  }
-}
-
 DyadCensus.sna <- function(i, data, sims, period, groupName, varName, levls=1:3){
   unloadNamespace("igraph") # to avoid package clashes
-  require(network)
-  require(sna)
-  x <- networkExtraction(i, data, sims, period, groupName, varName)
-  if (network.edgecount(x) <= 0){x <- symmetrize(x)}
+  x <- network::network.extraction(i, data, sims, period, groupName, varName)
+  if (network::network.edgecount(x) <= 0){x <- sna::symmetrize(x)}
   # because else triad.census(x) will lead to an error
   tc <- sna::dyad.census(x)[levls]
   # names are transferred automatically
@@ -258,10 +188,8 @@ DyadCensus.sna <- function(i, data, sims, period, groupName, varName, levls=1:3)
 
 TriadCensus.sna <- function(i, data, sims, period, groupName, varName, levls=1:16){
   unloadNamespace("igraph") # to avoid package clashes
-  require(network)
-  require(sna)
-  x <- networkExtraction(i, data, sims, period, groupName, varName)
-  if (network.edgecount(x) <= 0){x <- symmetrize(x)}
+  x <- network::network.extraction(i, data, sims, period, groupName, varName)
+  if (network::network.edgecount(x) <= 0){x <- sna::symmetrize(x)}
   # because else triad.census(x) will lead to an error
   tc <- sna::triad.census(x)[levls]
   # names are transferred automatically

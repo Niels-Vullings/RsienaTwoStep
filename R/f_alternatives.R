@@ -1,12 +1,13 @@
-#' Title
+#' Possible networks after ministep of ego
 #'
-#' @param net
-#' @param ego
+#' @param net matrix, the adjacency matrix representing the relations between actors. Valid values are 0 and 1.
+#' @param ego numeric, value indicating ego (row number of net)
 #'
-#' @return
+#' @return list, a list of the alternative adjacency matrices after all possible ministeps of ego
 #' @export
 #'
 #' @examples
+#' f_alternatives(net=net1, ego=3)
 f_alternatives <- function(net, ego) {
 
   #list of all possible future networks

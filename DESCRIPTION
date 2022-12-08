@@ -7,10 +7,14 @@ Authors@R:
 Description: A crucial assumption of the SAOM as implemented in RSiena is the 'ministep'. This package allows to test the extent to which the ministep assumption is valid. It does so by simulating the evoluation of networks by allowing two actors to make decisions on tie-changes simultaneously. This can be interpreted as corporation or, more loosely, as simultaneity. The package can mix the ratio of ministeps and twosteps. There are also options to decide on which dyad is selected for the two-step; at random, connected at time1 and/or at time2 with a maximum path-length (indegree, outdegree, degree) between them at time1 and/or time2.
 License: GPL (>= 3)
 Imports: 
-    doParallel,
+    network,
     sna
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.2.2
 URL: https://github.com/JochemTolsma/RsienaTwoStep
 BugReports: https://github.com/JochemTolsma/RsienaTwoStep/issues
+Depends: 
+    R (>= 2.10),
+    foreach (>= 1.5)
+LazyData: true

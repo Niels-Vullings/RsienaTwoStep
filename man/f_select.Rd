@@ -7,9 +7,9 @@
 f_select(net, steps = 1)
 }
 \arguments{
-\item{steps}{numeric, do we want to sample one or two actors}
+\item{net}{matrix, the adjacency matrix representing the relations between actors. Valid values are 0 and 1.}
 
-\item{name}{matrix, the adjacency matrix representing the relations between actors}
+\item{steps}{numeric, do we want to sample one or two actors}
 }
 \value{
 vector of length one or two, with the actors being sampled.
