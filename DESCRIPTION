@@ -8,7 +8,9 @@ Description: A crucial assumption of the SAOM as implemented in RSiena is the 'm
 License: GPL (>= 3)
 Imports: 
     network,
-    sna
+    sna,
+    Rdpack
+RdMacros: Rdpack
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.2.2
@@ -18,3 +20,7 @@ Depends:
     R (>= 2.10),
     foreach (>= 1.5)
 LazyData: true
+Suggests: 
+    knitr,
+    rmarkdown
+VignetteBuilder: knitr

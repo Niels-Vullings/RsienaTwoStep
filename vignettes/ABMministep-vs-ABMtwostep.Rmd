@@ -1,0 +1,147 @@
+---
+title: "ABMministep-vs-ABMtwostep"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{ABMministep-vs-ABMtwostep}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(RsienaTwoStep)
+```
+
+
+# Toy data
+
+Let us have a look at the build-in datasets of `RsienaTwoStep`. 
+
+## net1
+
+### the adjacency matrix
+
+```{r}
+net1
+```
+
+### the plot
+
+```{r, message=FALSE, warning=FALSE}
+require(igraph)
+net1g <- graph_from_adjacency_matrix(net1, mode="directed")
+plot(net1g)
+```
+
+## net2
+
+### the adjacency matrix
+
+```{r}
+net2
+```
+
+### the plot
+
+```{r, message=FALSE, warning=FALSE}
+require(igraph)
+net2g <- graph_from_adjacency_matrix(net2, mode="directed")
+plot(net2g)
+```
+
+
+Make sure `igraph` is unloaded. 
+
+```{r}
+unloadNamespace("igraph")
+```
+
+---  
+
+# ABM ministep
+
+Let us suppose we want to know what the possible ministeps are for one actor part of `net1`. That is, let us assume that it is ego#2's turn to decide on tie-change. What are its options? 
+
+```{r}
+options <- f_alternatives_ministep(net=net1, ego=2)
+options
+```
+
+This function returns a list of all possible tie-changes available to ego#2. If you look closely you will see that `options[[2]]` equals the original network (i.e. ego#2 decided not to change any tie). 
+
+Which option will ego#2 choose? Naturally this will depend on how ego#2 evaluates each network. Let us suppose that ego#2 bases its decision solely on the number of ties and the number of reciprocated ties it has with others. 
+
+Let us count the reciprocated ties ego#2 has in the first option: 
+
+```{r}
+f_degree(net=options[[1]], ego=2)
+```
+And in the second (original) option: 
+
+```{r}
+f_degree(net=options[[2]], ego=2)
+```
+But what evaluation value does ego#2 attach to these networks? Well that depends on the importance of the statistic 'degree'. This is what you will normally estimate with `siena07`. 
+Let us suppose the importance for the statistic 'degree' is -1 and for the statistic 'reciprocity' is 2. 
+
+So you could calculate the evaluation of network 1 by hand: 
+
+```{r}
+-1*f_degree(net=options[[2]], ego=2) + 2* f_recip(net=options[[2]], ego=2)
+```
+Or you could use the `f_eval()` function. 
+
+```{r}
+f_eval(net=net1, ego=2, statistics=list(f_degree, f_recip), parameters=c(-1,2))
+```
+In the package you can include the following network statistics (see the RSiena manual chapter 12 for the mathematical formulation):  
+
+- degree (f_degree)  
+- reciprocity (f_recip)  
+- outdegree activity (f_outAct)  
+- indegree activity (f_inAct)  
+- outdegree popularity (f_outPop)  
+- indegree popularity (f_inPop)  
+- transitivity (f_transTrip)  
+- mediated transitivity (f_transMedTrip)  
+
+Naturally, you are free to define your own network statistics or make a merge request on GitHub. 
+
+Now, let us calculate the evaluation of all 10 possible networks: 
+
+```{r}
+eval <- sapply(options, FUN=f_eval, ego=2, statistics=list(f_degree, f_recip), parameters=c(-1,2))
+eval
+```
+So which option will ego#2 choose? Naturally this is a stochastic process. 
+Please recall the choice is based on a McFadden's choice function: 
+
+Let us force ego#2 to make a decision. 
+
+```{r}
+choice <- sample(1:length(eval), size=1, prob=exp(eval)/sum(exp(eval)))
+options[[choice]]
+```
+
+If we repeat this process, that is: 
+
+1. sample agent  
+2. construct possible alternative networks  
+3. calculate how sampled agent evaluates the possible networks  
+4. Let the agent pick a network, that is, let agent decide on a tie-change  
+5. GO BACKT TO 1 (until you think we have made enough ministeps)
+
+We have an agent based model.   
+To demonstrate:  
+
+```{r}
+f_sims(nsims=1, net=net2, rate=2, statistics=list(f_degree, f_recip), parameters = c(-1,2), chain = TRUE )
+f_sims
+```
+
