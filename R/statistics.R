@@ -13,7 +13,6 @@
 #' \insertRef{ripley2022manual}{RsienaTwoStep}
 #' @return numeric value
 #'
-#' @export
 #' @examples
 #' f_degree(net=net1, ego=3)
 #'
@@ -32,6 +31,7 @@ f_recip <- function(net, ego) {
 }
 
 #' @rdname f_degree
+#' @export
 f_outAct <- function(net, ego) {
   statistic <- sum(net[ego,])^2
   return(statistic)
@@ -91,15 +91,4 @@ f_transMedTrip <- function(net, ego) {
     }
   }
   return(statistic)
-}
-
-#'
-#' @export
-f_eval <- function(net, ego, statistics, parameters) {
-  # calculuate value of evaluation function
-  s <- 0
-  for (j in 1:length(statistics)) {
-    s <- s + parameters[j] * statistics[[j]](net, ego)
-  }
-  return(s)
 }

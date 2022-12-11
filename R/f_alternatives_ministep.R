@@ -4,14 +4,14 @@
 #' @param ego numeric, value indicating ego (row number of net)
 #' @param dist1 numeric, minimal path length between ego1 and ego2 at time1 in order to be allowed to start a coorporation. If `NULL` all dyads are allowed to start a cooperation.
 #' @param dist2 numeric, minimal path length between ego1 and ego2 at time2 in order for twostep to be counted as coorporation. See `DETAILS`.
-#' @param mode1 string indicating the type of ties being evaluated at time1. "`degree`" considers all ties as undirected. "`outdegree`" only allows directed paths starting from ego1 and ending at ego2. "`indegree`" only allows directed paths starting from ego2 and ending at ego2. See: `DETAILS`.
-#' @param mode2 string, indicating the type of ties being evaluated at time2. "`degree`" considers all ties as undirected. "`outdegree`" only allows directed paths starting from ego1 and ending at ego2. "`indegree`" only allows directed paths starting from ego2 and ending at ego2. See: `DETAILS`.
+#' @param modet1 string indicating the type of ties being evaluated at time1. "`degree`" considers all ties as undirected. "`outdegree`" only allows directed paths starting from ego1 and ending at ego2. "`indegree`" only allows directed paths starting from ego2 and ending at ego2. See: `DETAILS`.
+#' @param modet2 string, indicating the type of ties being evaluated at time2. "`degree`" considers all ties as undirected. "`outdegree`" only allows directed paths starting from ego1 and ending at ego2. "`indegree`" only allows directed paths starting from ego2 and ending at ego2. See: `DETAILS`.
 #'
 #' @description
 #' `f_alternatives_ministep` constructs the possible future networks at time2 after a ministep of `ego` given the network `net` at time1.
 #' `f_alternatives_twostep` constructs the possible future networks at time2 after a twostep of two internally sampled egos (via [`f_select`]) given the network `net` at time1.
 #' @details
-#' `f_alternatives_ministep` mimics the ministep assumption as implemented in the SAOM of [`RSiena`] \insertCite{ripley2022manual}{RsienaTwoStep}.
+#' `f_alternatives_ministep` mimics the ministep assumption as implemented in the SAOM of [`RSiena::siena07()`] \insertCite{ripley2022manual}{RsienaTwoStep}.
 #' `f_alternatives_twostep` allows two actors to simultaneously make a ministep, that is a **twostep**.
 #' Further restrictions can be set to which actors are allowed to make a twostep:
 #' 1. Two random actors
@@ -53,8 +53,8 @@ f_alternatives_twostep <- function(net, dist1=NULL, dist2=NULL, modet1="degree",
 
   if (is.null(dist1) & is.null(dist2)) { #complete random selection
     egos <- f_select(net=net, steps=2)
-    results <- f_alternatives(net=net, ego=egos[1])
-    results2 <- lapply(results, f_alternatives, ego=egos[2])
+    results <- f_alternatives_ministep(net=net, ego=egos[1])
+    results2 <- lapply(results, f_alternatives_ministep, ego=egos[2])
     results2 <- unlist(results2, recursive = FALSE)
   }
 
@@ -65,8 +65,8 @@ f_alternatives_twostep <- function(net, dist1=NULL, dist2=NULL, modet1="degree",
       dist_t1 <- f_geodist(net=net, ego1=egos[1], ego2=egos[2], degree=modet1)
       if (dist_t1<=dist1) { #check if connected at t1, if not sample again, if true construct alternative nets
         succes <- TRUE
-        results <- f_alternatives(net=net, ego=egos[1])
-        results2 <- lapply(results, f_alternatives, ego=egos[2])
+        results <- f_alternatives_ministep(net=net, ego=egos[1])
+        results2 <- lapply(results, f_alternatives_ministep, ego=egos[2])
         results2 <- unlist(results2, recursive = FALSE)
         if (succes) break
       }
@@ -79,8 +79,8 @@ f_alternatives_twostep <- function(net, dist1=NULL, dist2=NULL, modet1="degree",
       egos <- f_select(net=net, steps=2)
       dist_t1 <- f_geodist(net=net, ego1=egos[1], ego2=egos[2], degree=modet1)
       #we will contstruct all possible nets after the twosteps, even if we do not know beforehand if we need them.
-      results <- f_alternatives(net=net, ego=egos[1])
-      results2 <- lapply(results, f_alternatives, ego=egos[2])
+      results <- f_alternatives_ministep(net=net, ego=egos[1])
+      results2 <- lapply(results, f_alternatives_ministep, ego=egos[2])
 
       if (dist_t1<=dist1) { #if connected at t1, we can simply use all constructed alternative nets.
         results2 <- unlist(results2, recursive = FALSE)

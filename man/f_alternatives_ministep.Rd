@@ -24,9 +24,9 @@ f_alternatives_twostep(
 
 \item{dist2}{numeric, minimal path length between ego1 and ego2 at time2 in order for twostep to be counted as coorporation. See \code{DETAILS}.}
 
-\item{mode1}{string indicating the type of ties being evaluated at time1. "\code{degree}" considers all ties as undirected. "\code{outdegree}" only allows directed paths starting from ego1 and ending at ego2. "\code{indegree}" only allows directed paths starting from ego2 and ending at ego2. See: \code{DETAILS}.}
+\item{modet1}{string indicating the type of ties being evaluated at time1. "\code{degree}" considers all ties as undirected. "\code{outdegree}" only allows directed paths starting from ego1 and ending at ego2. "\code{indegree}" only allows directed paths starting from ego2 and ending at ego2. See: \code{DETAILS}.}
 
-\item{mode2}{string, indicating the type of ties being evaluated at time2. "\code{degree}" considers all ties as undirected. "\code{outdegree}" only allows directed paths starting from ego1 and ending at ego2. "\code{indegree}" only allows directed paths starting from ego2 and ending at ego2. See: \code{DETAILS}.}
+\item{modet2}{string, indicating the type of ties being evaluated at time2. "\code{degree}" considers all ties as undirected. "\code{outdegree}" only allows directed paths starting from ego1 and ending at ego2. "\code{indegree}" only allows directed paths starting from ego2 and ending at ego2. See: \code{DETAILS}.}
 }
 \value{
 list, a list of the alternative adjacency matrices after all possible ministeps of ego (\code{f_alternatives_ministep}) or after all possible twosteps of two egos (\code{f_alternatives_twostep})
@@ -36,7 +36,7 @@ list, a list of the alternative adjacency matrices after all possible ministeps 
 \code{f_alternatives_twostep} constructs the possible future networks at time2 after a twostep of two internally sampled egos (via \code{\link{f_select}}) given the network \code{net} at time1.
 }
 \details{
-\code{f_alternatives_ministep} mimics the ministep assumption as implemented in the SAOM of \code{\link{RSiena}} \insertCite{ripley2022manual}{RsienaTwoStep}.
+\code{f_alternatives_ministep} mimics the ministep assumption as implemented in the SAOM of \code{\link[RSiena:siena07]{RSiena::siena07()}} \insertCite{ripley2022manual}{RsienaTwoStep}.
 \code{f_alternatives_twostep} allows two actors to simultaneously make a ministep, that is a \strong{twostep}.
 Further restrictions can be set to which actors are allowed to make a twostep:
 \enumerate{
@@ -51,7 +51,7 @@ A special case is to allow two random actors to make a twostep but only consider
 }
 }
 \examples{
-f_alternatives(net=net1, ego=3)
+f_alternatives_ministep(net=net1, ego=3)
 }
 \references{
 \insertRef{ripley2022manual}{RsienaTwoStep}

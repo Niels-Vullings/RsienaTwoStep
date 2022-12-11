@@ -4,10 +4,9 @@ Version: 1.0
 Data: 2022-12-07
 Authors@R: 
     person("Jochem", "Tolsma", , "j.tolsma@rug.nl", role = c("aut", "cre"))
-Description: A crucial assumption of the SAOM as implemented in RSiena is the 'ministep'. This package allows to test the extent to which the ministep assumption is valid. It does so by simulating the evoluation of networks by allowing two actors to make decisions on tie-changes simultaneously. This can be interpreted as corporation or, more loosely, as simultaneity. The package can mix the ratio of ministeps and twosteps. There are also options to decide on which dyad is selected for the two-step; at random, connected at time1 and/or at time2 with a maximum path-length (indegree, outdegree, degree) between them at time1 and/or time2.
+Description: A crucial assumption of the SAOM as implemented in RSiena is the 'ministep': only one actor at the time is allowed to make one tie-change. This package aims to provide a method to asses the extent to which results obtained by RSiena hinge on this crucial ministep assumption. It does so by simulating the evoluation of networks by allowing two actors to make decisions on tie-changes simultaneously. Depending on the precise implementation of the two-step procedure, allowing for twosteps can be interpreted simply as allowing for simultaneity (when two actors are picked at random to simultaneously make a ministep), or as coordination (when there are either rules on which two actors are allowed to make a twostep and/or which options after the twostep count as coordination and are included in the choice set of the two actors). The package can mix the ratio of ministeps and twosteps. 
 License: GPL (>= 3)
 Imports: 
-    network,
     sna,
     Rdpack
 RdMacros: Rdpack

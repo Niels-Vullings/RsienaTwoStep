@@ -40,9 +40,9 @@ f_sims(
 
 \item{dist2}{numeric, minimal path length between ego1 and ego2 at time2 in order for twostep to be counted as coorporation.}
 
-\item{mode1}{string, indicating the type of ties being evaluated at time1. "\code{degree}" considers all ties as undirected. "\code{outdegree}" only allows directed paths starting from ego1 and ending at ego2. "\code{indegree}" only allows directed paths starting from ego2 and ending at ego2.}
+\item{modet1}{string, indicating the type of ties being evaluated at time1. "\code{degree}" considers all ties as undirected. "\code{outdegree}" only allows directed paths starting from ego1 and ending at ego2. "\code{indegree}" only allows directed paths starting from ego2 and ending at ego2.}
 
-\item{mode2}{string, indicating the type of ties being evaluated at time2. "\code{degree}" considers all ties as undirected. "\code{outdegree}" only allows directed paths starting from ego1 and ending at ego2. "\code{indegree}" only allows directed paths starting from ego2 and ending at ego2.}
+\item{modet2}{string, indicating the type of ties being evaluated at time2. "\code{degree}" considers all ties as undirected. "\code{outdegree}" only allows directed paths starting from ego1 and ending at ego2. "\code{indegree}" only allows directed paths starting from ego2 and ending at ego2.}
 }
 \value{
 If \code{chain=FALSE} a \code{list} (of length \code{nsims}) of adjacency matrices representing the final network after the simulated evolution.
@@ -59,20 +59,19 @@ For examples on how to use \code{f_sims} see: vignette("ABMministep-vs-ABMtwoste
 Before you set \code{parallel} to TRUE make sure to set-up a cluster with the package \code{doParallel} (see \code{Examples}).
 }
 \examples{
-#simulation with ministep only
-f_sims(net=net1, rate=5, statistics=list(f_degree, f_recip), parameters=c(-3,1))
+\dontrun{#simulation with ministep only
+f_sims(net=net1, rate=5, statistics=list(f_degree, f_recip),
+parameters=c(-3,1))
 
-#simulation with twosteps only
-f_sims(net=net1, rate=5, statistics=list(f_degree, f_recip), parameters=c(-3,1), p2step=1)
+#simulation with twosteps only f_sims(net=net1, rate=5,
+statistics=list(f_degree, f_recip), parameters=c(-3,1), p2step=1)
 
-#running simulations in parallel
-n.cores <- parallel::detectCores() - 1  #save one core for other work
-#create the cluster
-my.cluster <- parallel::makeCluster(n.cores, type = "PSOCK")
-#register it to be used by \%dopar\%
-#doParallel::registerDoParallel(cl = my.cluster)
-f_sims(net=net1, rate=5, parallel = TRUE, statistics=list(f_degree, f_recip), parameters=c(-3,1), p2step=1)
-
+#running simulations in parallel n.cores <- parallel::detectCores() - 1
+#save one core for other work #create the cluster my.cluster <-
+parallel::makeCluster(n.cores, type = "PSOCK") #register it to be used by
+\%dopar\% #doParallel::registerDoParallel(cl = my.cluster) f_sims(net=net1,
+rate=5, parallel = TRUE, statistics=list(f_degree, f_recip),
+parameters=c(-3,1), p2step=1) }
 }
 \seealso{
 \link{f_alternatives_ministep}, \link{f_alternatives_twostep}, \link{f_eval}
