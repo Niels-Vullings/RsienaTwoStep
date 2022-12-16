@@ -1,6 +1,13 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
+# RsienaTwoStep website
+
+For detailed instructions how to use the package, please see the
+[package website](nog%20maken!).
+
+------------------------------------------------------------------------
+
 # RsienaTwoStep
 
 <!-- badges: start -->
@@ -19,12 +26,14 @@ allowing two actors to make decisions on tie-changes simultaneously.
 
 Depending on the precise implementation of the two-step procedure,
 allowing for twosteps can be interpreted simply as:  
-- allowing for simultaneity (when two actors are picked at random to
-simultaneously make a ministep),  
-- or as coordination (when there are either rules on which two actors
-are allowed to make a twostep and/or which options after the twostep
-count as coordination and are included in the choice set of the two
-actors).
+- allowing for **simultaneity**: when two actors are picked at random to
+simultaneously make a ministep;  
+- allowing for ***weak* coordination**: two actors are picked at random
+to simultaneously make a ministep but only specific possible future
+networks are regarded as the result of coordination and included in the
+choice set of the two actors;  
+- allowing for ***strict* coordination**: only actors are sampled to
+make a twostep who are connected at time1.
 
 The package can mix the ratio of ministeps and twosteps.
 
@@ -92,65 +101,17 @@ model. However, with simultaneity this should be possible.
 ``` r
 sims1 <- f_sims(nsims=1000, parallel=TRUE, net=net1, rate=10, statistics=list(f_degree, f_recip), parameters=c(-1,2), p2step=0, chain=FALSE) #ministep only
 
-sims2 <- f_sims(nsims=1000, parallel=TRUE, net=net1, rate=10, statistics=list(f_degree, f_recip), parameters=c(-1,2), p2step=1, chain=FALSE) #twostep, random selection of dyads
+sims2 <- f_sims(nsims=1000, parallel=TRUE, net=net1, rate=10, statistics=list(f_degree, f_recip), parameters=c(-1,2), p2step=1, chain=FALSE) #twostep-simultaneity
 
-sims3 <- f_sims(nsims=1000, parallel=TRUE, net=net1, rate=10, statistics=list(f_degree, f_recip), parameters=c(-1,2), p2step=1, dist1=2, dist2=2, chain=FALSE) #twostep, but not all options are seen as coordination 
+sims3 <- f_sims(nsims=1000, parallel=TRUE, net=net1, rate=10, statistics=list(f_degree, f_recip), parameters=c(-1,2), p2step=1, dist1=2, chain=FALSE) #twostep-strict coordination
 ```
 
 ### counting dyads
 
 ``` r
-nsims <- 1000
-
-#combine results of dyad.census
-df <- foreach(1:nsims, i=icount(), .combine="rbind") %dopar% {
-  sna::dyad.census(sims3[[i]])
-}
-df <- as.data.frame(df)
-
-#bit clumsy
-df <- rbind(df, df, df)
-df$x <- rep(c("mut", "asym", "null"), each=nsims)
-df$y <- NA
-df$y[df$x=="mut"] <- df$Mut[df$x=="mut"]
-df$y[df$x=="asym"] <- df$Asym[df$x=="asym"]
-df$y[df$x=="null"] <- df$Null[df$x=="null"]
-df$type <- "twostep-coordination"
-dftwostepNR <- df
-
-df <- foreach(1:nsims, i=icount(), .combine="rbind") %dopar% {
-  sna::dyad.census(sims2[[i]])
-}
-df <- as.data.frame(df)
-
-#bit clumsy
-df <- rbind(df, df, df)
-df$x <- rep(c("mut", "asym", "null"), each=nsims)
-df$y <- NA
-df$y[df$x=="mut"] <- df$Mut[df$x=="mut"]
-df$y[df$x=="asym"] <- df$Asym[df$x=="asym"]
-df$y[df$x=="null"] <- df$Null[df$x=="null"]
-df$type <- "twostep-simultaneity"
-dftwostepR <- df
-
-df <- foreach(1:nsims, i=icount(), .combine="rbind") %dopar% {
-  sna::dyad.census(sims1[[i]])
-}
-df <- as.data.frame(df)
-
-#bit clumsy
-df <- rbind(df, df, df)
-df$x <- rep(c("mut", "asym", "null"), each=nsims)
-df$y <- NA
-df$y[df$x=="mut"] <- df$Mut[df$x=="mut"]
-df$y[df$x=="asym"] <- df$Asym[df$x=="asym"]
-df$y[df$x=="null"] <- df$Null[df$x=="null"]
-df$type <- "ministep"
-dfministep <- df
-
-## combine datasets
-
-df <- rbind(dfministep, dftwostepR, dftwostepNR)
+df_s1 <- f_dyads(sims=sims1, simtype="ministep") 
+df_s2 <- f_dyads(sims=sims2, simtype="twostep-simultaneity") 
+df_s3 <- f_dyads(sims=sims3, simtype="twostep-strict coordination") 
 ```
 
 ### plot results of the three dyadcensus
@@ -158,6 +119,9 @@ df <- rbind(dfministep, dftwostepR, dftwostepNR)
 ``` r
 library(ggplot2)
 #> Warning: package 'ggplot2' was built under R version 4.2.2
+
+## combine datasets
+df <- rbind(df_s1, df_s2, df_s2)
 
 p <- ggplot(df, aes(x=x, y=y, fill=type)) + 
   geom_violin(position=position_dodge(1)) + 

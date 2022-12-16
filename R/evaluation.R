@@ -10,7 +10,8 @@
 #' @export
 #' @examples
 #' f_eval(net=net1, ego=6, statistics=list(f_degree, f_recip),
-#' parameters=c(-2,1)) f_eval(net=net1, ego=10, statistics=list(f_degree,
+#' parameters=c(-2,1))
+#' f_eval(net=net1, ego=10, statistics=list(f_degree,
 #' f_recip, f_transTrip, f_transMedTrip), parameters=c(-2,2,7,7))
 f_eval <- function(net, ego, statistics, parameters) {
   # calculuate value of evaluation function

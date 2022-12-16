@@ -22,8 +22,10 @@ Evaluation function
 For the mathematical definition of the evaluation function see chapter 12 of the RSiena manual \insertCite{ripley2022manual}{RsienaTwoStep}.
 }
 \examples{
-f_eval(net=net1, ego=6, statistics=list(f_degree, f_recip), parameters=c(-2,1))
-f_eval(net=net1, ego=10, statistics=list(f_degree, f_recip, f_transTrip, f_transMedTrip), parameters=c(-2,2,7,7))
+f_eval(net=net1, ego=6, statistics=list(f_degree, f_recip),
+parameters=c(-2,1))
+f_eval(net=net1, ego=10, statistics=list(f_degree,
+f_recip, f_transTrip, f_transMedTrip), parameters=c(-2,2,7,7))
 }
 \references{
 \insertRef{ripley2022manual}{RsienaTwoStep}
