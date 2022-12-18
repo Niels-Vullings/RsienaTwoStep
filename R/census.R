@@ -2,14 +2,15 @@
 #'
 #' @description These functions calculate characteristics of the simulated networks. For now, only a dyad census and a triad census are implemented.
 #'
-#' @details For examples on how to use these statistics see: vignette("ABMministep-vs-ABMtwostep").
+#' @details For examples on how to use these statistics see: vignette("Introduction_RsienaTwoStep").
 #'
 #' @family networkcensus
 #' @param sims list, the result of `f_sims():` the adjacency matrix representing the relations between actors. Valid values are 0 and 1.
 #' @param simtype string, name of the simulation type used (e.g. *ministep*, *twostep*).
 #' @param forplot logical, if set to `FALSE` a dataframe is returned with in the column the network characteristic and each row represents a simulation outcome.
 #' If set to `TRUE` this dataframe is manipulated a bit, so that each row represents one specific network characteristic for each simulation outcome, this is useful for plotting.
-#'
+#' @importFrom foreach %dopar%
+#' @importFrom iterators icount
 #' @return `data.frame`
 #'
 #' @examples
@@ -41,7 +42,7 @@
 f_dyads <- function(sims, simtype="notypespecified", forplot=TRUE) {
   nsims <- length(sims)
   #combine results of dyad.census
-  df <- foreach(1:nsims, i=icount(), .combine="rbind") %dopar% {
+  df <- foreach::foreach(1:nsims, i=iterators::icount(), .combine="rbind") %dopar% {
     sna::dyad.census(sims[[i]])
   }
   df <- as.data.frame(df)
@@ -62,7 +63,7 @@ f_dyads <- function(sims, simtype="notypespecified", forplot=TRUE) {
 #' @export
 f_triads <- function(sims, simtype="notypespecified", forplot=TRUE) {
   nsims <- length(sims)
-  df <- foreach(1:nsims, i=icount(), .combine="rbind") %dopar% {
+  df <- foreach::foreach(1:nsims, i=iterators::icount(), .combine="rbind") %dopar% {
     sna::triad.census(sims[[i]])
   }
   df <- as.data.frame(df)

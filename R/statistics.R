@@ -1,6 +1,6 @@
 #' @title Network Statistics
 #'
-#' @description These functions calculate the respective network statistic for ego.
+#' @description These functions calculate the respective network statistic for ego. When multiplied with the importance of each statistic (the 'parameters') this constitutues the network evaluation of ego. See: [`f_eval`].
 #'
 #' @details For examples on how to use these statistics see: vignette("ABMministep-vs-ABMtwostep").
 #'
@@ -12,7 +12,7 @@
 #' @references
 #' \insertRef{ripley2022manual}{RsienaTwoStep}
 #' @return numeric value
-#'
+#' @seealso [`f_eval()`]
 #' @examples
 #' f_degree(net=net1, ego=3)
 #'

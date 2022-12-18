@@ -36,7 +36,7 @@ f_transMedTrip(net, ego)
 numeric value
 }
 \description{
-These functions calculate the respective network statistic for ego.
+These functions calculate the respective network statistic for ego. When multiplied with the importance of each statistic (the 'parameters') this constitutues the network evaluation of ego. See: \code{\link{f_eval}}.
 }
 \details{
 For examples on how to use these statistics see: vignette("ABMministep-vs-ABMtwostep").
@@ -49,5 +49,8 @@ f_degree(net=net1, ego=3)
 }
 \references{
 \insertRef{ripley2022manual}{RsienaTwoStep}
+}
+\seealso{
+\code{\link[=f_eval]{f_eval()}}
 }
 \concept{networkstatistics}

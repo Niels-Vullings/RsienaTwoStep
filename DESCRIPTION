@@ -1,25 +1,43 @@
 Package: RsienaTwoStep
-Title: Simulate Network Evolution Allowing Two Tie Changes Simultaneously 
+Title: Simulate Network Evolution Allowing Two Tie Changes Simultaneously
 Version: 1.0
-Data: 2022-12-07
 Authors@R: 
     person("Jochem", "Tolsma", , "j.tolsma@rug.nl", role = c("aut", "cre"))
-Description: A crucial assumption of the SAOM as implemented in RSiena is the 'ministep': only one actor at the time is allowed to make one tie-change. This package aims to provide a method to asses the extent to which results obtained by RSiena hinge on this crucial ministep assumption. It does so by simulating the evoluation of networks by allowing two actors to make decisions on tie-changes simultaneously. Depending on the precise implementation of the two-step procedure, allowing for twosteps can be interpreted simply as allowing for simultaneity (when two actors are picked at random to simultaneously make a ministep), or as coordination (when there are either rules on which two actors are allowed to make a twostep and/or which options after the twostep count as coordination and are included in the choice set of the two actors). The package can mix the ratio of ministeps and twosteps. 
+Description: A crucial assumption of the SAOM as implemented in RSiena is
+    the 'ministep': only one actor at the time is allowed to make one
+    tie-change. This package aims to provide a method to asses the extent
+    to which results obtained by RSiena hinge on this crucial ministep
+    assumption. It does so by simulating the evoluation of networks by
+    allowing two actors to make decisions on tie-changes simultaneously.
+    Depending on the precise implementation of the two-step procedure,
+    allowing for twosteps can be interpreted simply as allowing for
+    simultaneity (when two actors are picked at random to simultaneously
+    make a ministep), or as coordination (when there are either rules on
+    which two actors are allowed to make a twostep and/or which options
+    after the twostep count as coordination and are included in the choice
+    set of the two actors). The package can mix the ratio of ministeps and
+    twosteps.
 License: GPL (>= 3)
-Imports: 
-    sna,
-    Rdpack
-RdMacros: Rdpack
-Encoding: UTF-8
-Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.2.2
 URL: https://github.com/JochemTolsma/RsienaTwoStep
 BugReports: https://github.com/JochemTolsma/RsienaTwoStep/issues
 Depends: 
-    R (>= 2.10),
-    foreach (>= 1.5)
-LazyData: true
+    foreach (>= 1.5),
+    R (>= 2.10)
+Imports:
+    igraph,
+    iterators,
+    ggplot2,
+    Rdpack,
+    sna
 Suggests: 
     knitr,
     rmarkdown
-VignetteBuilder: knitr
+VignetteBuilder: 
+    knitr
+RdMacros: 
+    Rdpack
+Data: 2022-12-07
+Encoding: UTF-8
+LazyData: true
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.2.2

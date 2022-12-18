@@ -24,7 +24,7 @@ If set to \code{TRUE} this dataframe is manipulated a bit, so that each row repr
 These functions calculate characteristics of the simulated networks. For now, only a dyad census and a triad census are implemented.
 }
 \details{
-For examples on how to use these statistics see: vignette("ABMministep-vs-ABMtwostep").
+For examples on how to use these statistics see: vignette("Introduction_RsienaTwoStep").
 }
 \examples{
 \dontrun{
