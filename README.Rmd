@@ -15,7 +15,7 @@ knitr::opts_chunk$set(
 
 # RsienaTwoStep website
 
-For detailed instructions how to use the package, please see the [package website](nog maken!).
+For detailed instructions how to use the package, please see the [package website](https://jochemtolsma.github.io/RsienaTwoStep/).
 
 ---  
 
@@ -41,8 +41,17 @@ You can install the development version of RsienaTwoStep from [GitHub](https://g
 
 ```r
 # install.packages("devtools")
-devtools::install_github("JochemTolsma/RsienaTwoStep")
+devtools::install_github("JochemTolsma/RsienaTwoStep", build_vignettes=TRUE)
 ```
+
+## Vignettes
+
+Make sure to check out the vignettes: 
+
+```{r, eval=FALSE}
+browseVignettes("RsienaTwoStep")
+```
+
 
 ## Example
 
@@ -50,7 +59,6 @@ ABM-ministep and ABM-twostep simulations on toy data
 
 ```{r example}
 library(RsienaTwoStep)
-## basic example code
 ```
 
 ### our network

@@ -44,7 +44,15 @@ You can install the development version of RsienaTwoStep from
 
 ``` r
 # install.packages("devtools")
-devtools::install_github("JochemTolsma/RsienaTwoStep")
+devtools::install_github("JochemTolsma/RsienaTwoStep", build_vignettes=TRUE)
+```
+
+## Vignettes
+
+Make sure to check out the vignettes:
+
+``` r
+browseVignettes("RsienaTwoStep")
 ```
 
 ## Example
@@ -54,7 +62,6 @@ ABM-ministep and ABM-twostep simulations on toy data
 ``` r
 library(RsienaTwoStep)
 #> Loading required package: foreach
-## basic example code
 ```
 
 ### our network
@@ -64,7 +71,7 @@ net1g <- igraph::graph_from_adjacency_matrix(net1, mode="directed")
 plot(net1g)
 ```
 
-<img src="man/figures/README-unnamed-chunk-2-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-3-1.png" width="100%" />
 
 ``` r
 unloadNamespace("igraph") # to avoid clashes with package `sna`. 
@@ -138,7 +145,7 @@ p <- ggplot(df, aes(x=x, y=y, fill=type)) +
 p
 ```
 
-<img src="man/figures/README-unnamed-chunk-6-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-7-1.png" width="100%" />
 
 <!--- 
 

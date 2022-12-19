@@ -18,7 +18,8 @@ Description: A crucial assumption of the SAOM as implemented in RSiena is
     set of the two actors). The package can mix the ratio of ministeps and
     twosteps.
 License: GPL (>= 3)
-URL: https://github.com/JochemTolsma/RsienaTwoStep
+URL: https://github.com/JochemTolsma/RsienaTwoStep,
+    https://jochemtolsma.github.io/RsienaTwoStep/
 BugReports: https://github.com/JochemTolsma/RsienaTwoStep/issues
 Depends: 
     foreach (>= 1.5),
