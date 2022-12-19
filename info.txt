@@ -1,3 +1,12 @@
 info
 
-https://r-pkgs.org/whole-game.html
+1https://r-pkgs.org/whole-game.html
+
+
+imgurl <- system.file("figures/cat.png", package="hexSticker")
+sticker(imgurl, package="RsienaTwostep", p_size=14, p_color="cadetblue1", s_x=1.1, s_y=.9, s_width=1.1,
+        h_fill="white", h_color="#f39c12",
+        filename="C:/Users/CYOD-ADMIN/Desktop/temp/imgfile.png")
+
+
+usethis::use_logo("C:/Users/CYOD-ADMIN/Desktop/temp/imgfile.png")

@@ -1,6 +1,7 @@
 ---
 output: github_document
 ---
+# RsienaTwoStep <a href="https://jochemtolsma.github.io/RsienaTwoStep/"><img src="man/figures/logo.png" align="right" height="139" /></a>
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
@@ -20,7 +21,7 @@ For detailed instructions how to use the package, please see the [package websit
 ---  
 
 # RsienaTwoStep
-
+ 
 <!-- badges: start -->
 <!-- badges: end -->
 

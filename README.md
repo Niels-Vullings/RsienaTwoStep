@@ -1,10 +1,12 @@
 
+# RsienaTwoStep <a href="https://jochemtolsma.github.io/RsienaTwoStep/"><img src="man/figures/logo.png" align="right" height="139" /></a>
+
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
 # RsienaTwoStep website
 
 For detailed instructions how to use the package, please see the
-[package website](nog%20maken!).
+[package website](https://jochemtolsma.github.io/RsienaTwoStep/).
 
 ------------------------------------------------------------------------
 
