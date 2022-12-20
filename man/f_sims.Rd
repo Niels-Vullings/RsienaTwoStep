@@ -66,11 +66,13 @@ parameters=c(-3,1))
 #simulation with twosteps only f_sims(net=net1, rate=5,
 statistics=list(f_degree, f_recip), parameters=c(-3,1), p2step=1)
 
-#running simulations in parallel n.cores <- parallel::detectCores() - 1
-#save one core for other work #create the cluster my.cluster <-
-parallel::makeCluster(n.cores, type = "PSOCK") #register it to be used by
-\%dopar\% #doParallel::registerDoParallel(cl = my.cluster) f_sims(net=net1,
-rate=5, parallel = TRUE, statistics=list(f_degree, f_recip),
+#running simulations in parallel
+n.cores <- parallel::detectCores() - 1 #' #save one core for other work
+#create the cluster
+my.cluster <- parallel::makeCluster(n.cores, type = "PSOCK")
+#register it to be used by \%dopar\%
+doParallel::registerDoParallel(cl = my.cluster)
+f_sims(net=net1, rate=5, parallel = TRUE, statistics=list(f_degree, f_recip),
 parameters=c(-3,1), p2step=1) }
 }
 \seealso{

@@ -12,9 +12,6 @@ For detailed instructions how to use the package, please see the
 
 # GOAL
 
-<!-- badges: start -->
-<!-- badges: end -->
-
 The goal of `RsienaTwoStep` is to provide a method to asses the extent
 to which results obtained by `RSiena::siena07` depend on the validity of
 the ministep assumption.

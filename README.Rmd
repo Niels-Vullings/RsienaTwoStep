@@ -28,9 +28,6 @@ For detailed instructions how to use the package, please see the [package websit
 
 # GOAL
  
-<!-- badges: start -->
-<!-- badges: end -->
-
 The goal of `RsienaTwoStep` is to provide a method to asses the extent to which results obtained by `RSiena::siena07` depend on the validity of the ministep assumption.
 
 A crucial assumption of the SAOM as implemented in RSiena is the 'ministep': only one actor at the time is allowed to make one tie-change. This package aims to provide a method to asses the extent to which results obtained by RSiena hinge on this crucial ministep assumption. It does so by simulating the evolution of networks by allowing two actors to make decisions on tie-changes simultaneously.  

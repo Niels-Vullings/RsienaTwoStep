@@ -118,7 +118,7 @@ pre.numberSource a.sourceLine {
 
 ```
 
-# getting started
+# 1. Getting started
 
 
 ```{r}
@@ -126,7 +126,7 @@ rm(list=ls())
 ```
 
 
-## basic functions  
+## 1.1. Basic functions  
 
 
 ```{r}
@@ -154,7 +154,7 @@ colorize <- function(x, color) {
 
 ```
 
-## packages
+## 1.2. Packages
 
 ```{r}
 packages = c("RsienaTwoStep", "doParallel", "ggplot2")
@@ -164,7 +164,7 @@ fpackage.check(packages)
 
 ---  
 
-# setting up cluster
+# 2. Setting up cluster
 
 ```{r}
 #stopCluster(my.cluster) 
@@ -177,13 +177,12 @@ doParallel::registerDoParallel(cl = my.cluster)
 
 ---  
 
-# Structure of functions in `RsienaTwoStep`. 
+# 3. Structure of functions in `RsienaTwoStep`. 
 
 - `f_sims()`:
-  - `f_sim()`:
-    - `f_select():`
-    - `f_alternatives()`:  
-    - `f_alternatives_2egos()`:  
+    - `f_select()`:
+    - `f_alternatives_ministep()`:  
+    - `f_alternatives_twostep()`:  
       - (f_select)
       - (f_alternatives)  
       - `f_geodist()`:  
@@ -192,15 +191,15 @@ doParallel::registerDoParallel(cl = my.cluster)
 ---  
 
 
-# Running simulations on toy data
+# 4. Running simulations on toy data
 
-## Model 1: Degree and reciprocity 
+## 4.1. Model 1: Degree and reciprocity 
 
 Let us assume people really don't like to have a non-reciprocal tie but do like reciprocal ties a lot. (I only want to help you if you help me!)
 
 Thus if you start with a network without many (reciprocal) ties it would be very difficult to get more reciprocal ties in the normal model. However, with simultaneity this should be possible. 
 
-### simulate networks 
+### 4.1.1. Simulate networks 
 
 ```{r, eval=FALSE}
 sims1 <- f_sims(nsims=1000, parallel=TRUE, net=net1, rate=10, statistics=list(f_degree, f_recip), parameters=c(-1,2), p2step=0, chain=FALSE) #ministep
@@ -212,7 +211,7 @@ sims3 <- f_sims(nsims=1000, parallel=TRUE, net=net1, rate=10, statistics=list(f_
 sims4 <- f_sims(nsims=1000, parallel=TRUE, net=net1, rate=10, statistics=list(f_degree, f_recip), parameters=c(-1,2), p2step=1, dist1=2,  chain=FALSE) #twostep: strict coordination
 ```
 
-### counting dyads
+### 4.1.2. Counting dyads
 
 ```{r, eval=FALSE}
 df1 <- f_dyads(sims=sims1, simtype="ministep")
@@ -233,7 +232,7 @@ df <- x
 rm(x)
 ```
 
-### plot results of dyadcensus 
+### 4.1.3. Plot results of dyadcensus 
 
 ```{r}
 p <- ggplot(df, aes(x=x, y=y, fill=type)) + 
@@ -252,28 +251,25 @@ p
 
 ```
 
-### conclusion
+### 4.1.4. Conclusion
 
 Yes, if you allow simultaneity, we will observe more reciprocal ties after same number of possible tie-changes. 
 
 Perhaps the model with ministeps only would reach the same target values (for dyads) but probably by using more possible tie-changes. This would mean there will be more noise in the network chains, this can/will have results for other network statistics. 
-
-Thus,...I think we are on to something. 
 
 Also note, that if you make the network larger, simultaneity will less likely to be different from two consecutive ministeps, this is because the two agents do not influence each others evaluation functions. 
 
 ---  
 
 
-
-## Model 2: Degree, reciprocity, transTrip 
+## 4.2. Model 2: Degree, reciprocity, transTrip 
 
 Let us assume people really don't like to have a non-reciprocal tie but do like reciprocal ties a lot and do favor transitivity. 
 
 Is it unlikely that a transitive triad will emerge if we have coordination, because for one of the actors will not evaluate the transitive triad positively because in wrong position. Or, because reciprocal ties are more likely when actors coordinate, we will also observe more transitive triads. 
 
 
-### simulate networks 
+### 4.2.1. Simulate networks 
 
 ```{r, eval=FALSE}
 sims1 <- f_sims(nsims=1000, parallel=TRUE, net=net1, rate=5, statistics=list(f_degree, f_recip, f_transTrip), parameters=c(-2,2, 1), p2step=0, chain=FALSE) #ministep
@@ -286,7 +282,7 @@ sims4 <- f_sims(nsims=1000, parallel=TRUE, net=net1, rate=5, statistics=list(f_d
 
 ```
 
-### counting dyads
+### 4.2.2. Counting dyads
 
 ```{r, eval=FALSE}
 df1 <- f_dyads(sims=sims1, simtype="ministep")
@@ -307,7 +303,7 @@ df <- x
 rm(x)
 ```
 
-### plot results of the dyadcensus 
+### 4.2.3. Plot results of the dyadcensus 
 
 ```{r}
 p <- ggplot(df, aes(x=x, y=y, fill=type)) + 
@@ -327,7 +323,7 @@ p
 
 ```
 
-### counting triads
+### 4.2.4. Counting triads
 
 ```{r, eval=FALSE}
 df1 <- f_triads(sims=sims1, simtype="ministep")
@@ -349,7 +345,7 @@ rm(x)
 ```
 
 
-### plot results of the triadcensus 
+### 4.2.5. Plot results of the triadcensus 
 
 ```{r, results='hold'}
 # 030T *1
@@ -373,6 +369,8 @@ p1 <- ggplot(dftest, aes(x=x, y=y, fill=type)) +
                geom = "point",
                color="red", position=position_dodge(1)) 
 
+p1
+
 dftest <- df[df$x=="120D" | df$x=="120C" , ]
 p2 <- ggplot(dftest, aes(x=x, y=y, fill=type)) + 
   geom_violin(position=position_dodge(1)) + 
@@ -385,6 +383,8 @@ p2 <- ggplot(dftest, aes(x=x, y=y, fill=type)) +
   stat_summary(fun = mean,
                geom = "point",
                color="red", position=position_dodge(1)) 
+
+p2
 
 dftest <- df[df$x=="210" | df$x=="300" , ]
 p3 <- ggplot(dftest, aes(x=x, y=y, fill=type)) + 
@@ -399,22 +399,18 @@ p3 <- ggplot(dftest, aes(x=x, y=y, fill=type)) +
                geom = "point",
                color="red", position=position_dodge(1)) 
 
-p1
-p2
 p3
-
-
 
 ```
 
-## Model 3: Degree, reciprocity, transTrip, transMedTrip
+## 4.3. Model 3: Degree, reciprocity, transTrip, transMedTrip
 
 Let us assume people really don't like to have a non-reciprocal tie but do like reciprocal ties a lot and do favor transitivity. 
 
 It is now likely that a transitive triad will emerge if we have coordination, because one of the actors evaluate the transTrip and the other may positively evaluate transMedTrip positively. 
 
 
-### simulate networks
+### 4.3.1. Simulate networks
 
 ```{r, eval=FALSE}
 nsims <- 500
@@ -428,7 +424,7 @@ sims3 <- f_sims(nsims=nsims, parallel=TRUE, net=net1, rate=10, statistics=list(f
 sims4 <- f_sims(nsims=nsims, parallel=TRUE, net=net1, rate=5, statistics=list(f_degree, f_recip, f_transTrip, f_transMedTrip), parameters=c(-2,1,2,2), p2step=1, dist1=2,  chain=FALSE) #twostep: strict coordination
 ```
 
-### counting dyads
+### 4.3.2. Counting dyads
 
 ```{r, eval=FALSE}
 df1 <- f_dyads(sims=sims1, simtype="ministep")
@@ -449,7 +445,7 @@ df <- x
 rm(x)
 ```
 
-### plot results of the dyadcensus 
+### 4.3.3. Plot results of the dyadcensus 
 
 ```{r}
 p <- ggplot(df, aes(x=x, y=y, fill=type)) + 
@@ -470,7 +466,7 @@ p
 ```
 
 
-### counting triads
+### 4.3.4. Counting triads
 
 ```{r, eval=FALSE}
 df1 <- f_triads(sims=sims1, simtype="ministep")
@@ -492,7 +488,7 @@ rm(x)
 ```
 
 
-### plot results of the triadcensus 
+### 4.3.5. Plot results of the triadcensus 
 
 ```{r, results='hold'}
 # Basic violin plot
@@ -516,6 +512,7 @@ p1 <- ggplot(dftest, aes(x=x, y=y, fill=type)) +
   stat_summary(fun = mean,
                geom = "point",
                color="red", position=position_dodge(1)) 
+p1 
 
 dftest <- df[df$x=="120D" | df$x=="120C" , ]
 p2 <- ggplot(dftest, aes(x=x, y=y, fill=type)) + 
@@ -529,6 +526,7 @@ p2 <- ggplot(dftest, aes(x=x, y=y, fill=type)) +
   stat_summary(fun = mean,
                geom = "point",
                color="red", position=position_dodge(1)) 
+p2
 
 dftest <- df[df$x=="210" | df$x=="300" , ]
 p3 <- ggplot(dftest, aes(x=x, y=y, fill=type)) + 
@@ -543,11 +541,7 @@ p3 <- ggplot(dftest, aes(x=x, y=y, fill=type)) +
                geom = "point",
                color="red", position=position_dodge(1)) 
 
-p1
-p2
 p3
-
-
 
 ```
 
