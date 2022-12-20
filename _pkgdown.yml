@@ -1,4 +1,41 @@
 url: https://jochemtolsma.github.io/RsienaTwoStep/
 template:
   bootstrap: 5
-
+reference:
+- title: "ABM"
+  desc: >
+    Functions to run the ABM-ministep or ABM-twostep simulations.
+  contents:
+  - f_sims
+  - f_alternatives_ministep
+  - f_alternatives_twostep
+- title: "Network evaluation"
+  desc: "Functions to calculate the network evaluation."
+  contents:
+  - f_eval
+  - f_degree
+  - f_recip
+  - f_outAct
+  - f_inAct
+  - f_outPop
+  - f_inPop
+  - f_transTrip
+  - f_transMedTrip
+- title: "miscellaneous"
+  desc: >
+    selecting actors for the ministep or twostep and calculating the pathlength between the actors
+  contents:
+  - f_select
+  - f_geodist
+- title: "network census"
+  desc: >
+    Functions for network census
+  contents:
+  - f_dyads
+  - f_triads
+- title: "datasets"
+  desc: >
+    build in datasets
+  contents:
+  - net1
+  - net2
