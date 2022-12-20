@@ -10,7 +10,7 @@ f_dyads(sims, simtype = "notypespecified", forplot = TRUE)
 f_triads(sims, simtype = "notypespecified", forplot = TRUE)
 }
 \arguments{
-\item{sims}{list, the result of \verb{f_sims():} the adjacency matrix representing the relations between actors. Valid values are 0 and 1.}
+\item{sims}{list, the result of \code{\link[=f_sims]{f_sims()}} the adjacency matrix representing the relations between actors. Valid values are 0 and 1.}
 
 \item{simtype}{string, name of the simulation type used (e.g. \emph{ministep}, \emph{twostep}).}
 
@@ -51,5 +51,8 @@ p <- ggplot(df, aes(x=x, y=y, fill=type)) +
 
 p
 }
+}
+\seealso{
+\code{\link[RSiena:sienaGOF]{RSiena::sienaGOF()}}, \code{\link[RSiena:sienaGOF-auxiliary]{RSiena::sienaGOF-auxiliary()}}, \code{\link[RSiena:sienaGOF-auxiliary]{RSiena::TriadCensus()}}
 }
 \concept{networkcensus}

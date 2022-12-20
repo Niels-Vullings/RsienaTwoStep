@@ -28,7 +28,7 @@ f_sims(
 
 \item{rate}{numeric, the average number of possible tie-changes per actor in the simulation.}
 
-\item{statistics, }{list of names of statistic functions (see e.g. \code{?f_degree} for a list of available functions)}
+\item{statistics, }{list of names of statistic functions (see e.g. \code{\link[=f_degree]{f_degree()}} for a list of available functions)}
 
 \item{parameters, }{vector of numeric values the same length as \code{parameters}}
 
@@ -51,11 +51,11 @@ If \code{chain=TRUE} a \code{list} of lists of adjacency matrices. Each inner li
 \description{
 \code{f_sims} is the workhorse function of the package \code{RsienaTwoStep}.
 It simulates the network evolution \code{nsims} times given an existing network \code{net},
-the defined evaluation function (\code{f_eval}) by \code{statistics} and \code{parameters} and
+the defined evaluation function (\code{\link[=f_eval]{f_eval()}}) by \code{statistics} and \code{parameters} and
 the average number of possible tie changes per actor as defined by \code{rate}.
 }
 \details{
-For examples on how to use \code{f_sims} see: vignette("ABMministep-vs-ABMtwostep", package="RsienaTwoStep").
+For examples on how to use \code{f_sims} see: \link{vignette("Introduction_RsienaTwoStep", package="RsienaTwoStep")}: or the \href{https://jochemtolsma.github.io/RsienaTwoStep/}{package website}.
 Before you set \code{parallel} to TRUE make sure to set-up a cluster with the package \code{doParallel} (see \code{Examples}).
 }
 \examples{
@@ -74,5 +74,5 @@ rate=5, parallel = TRUE, statistics=list(f_degree, f_recip),
 parameters=c(-3,1), p2step=1) }
 }
 \seealso{
-\link{f_alternatives_ministep}, \link{f_alternatives_twostep}, \link{f_eval}
+\code{\link[=f_alternatives_ministep]{f_alternatives_ministep()}}, \code{\link[=f_alternatives_twostep]{f_alternatives_twostep()}}, \code{\link[=f_eval]{f_eval()}}
 }

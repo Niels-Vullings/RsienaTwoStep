@@ -1,8 +1,8 @@
 #' @title Network Statistics
 #'
-#' @description These functions calculate the respective network statistic for ego. When multiplied with the importance of each statistic (the 'parameters') this constitutues the network evaluation of ego. See: [`f_eval`].
+#' @description These functions calculate the respective network statistic for ego. When multiplied with the importance of each statistic (the 'parameters') this constitutues the network evaluation of ego. See: [`f_eval()`].
 #'
-#' @details For examples on how to use these statistics see: vignette("ABMministep-vs-ABMtwostep").
+#' @details For examples on how to use these statistics see: [vignette("Introduction_RsienaTwoStep", package="RsienaTwoStep")]:.
 #'
 #' For the mathematical definition of these network statistics see chapter 12 of the RSiena manual \insertCite{ripley2022manual}{RsienaTwoStep}.
 #' @family networkstatistics

@@ -11,7 +11,7 @@ f_eval(net, ego, statistics, parameters)
 
 \item{ego}{numeric, the ego for which we are going to calculat how its evaluates the network.}
 
-\item{statistics}{list of names of statistic functions the same length as \code{parameters}. See \code{?f_degree} for a list of available statistic functions.}
+\item{statistics}{list of names of statistic functions the same length as \code{parameters}. See e.g. \code{\link[=f_degree]{f_degree()}} for a list of available statistic functions.}
 
 \item{parameters}{vector of numeric values the same length as \code{statistics}.}
 }
@@ -31,5 +31,5 @@ f_recip, f_transTrip, f_transMedTrip), parameters=c(-2,2,7,7))
 \insertRef{ripley2022manual}{RsienaTwoStep}
 }
 \seealso{
-\code{\link[=f_alternatives_ministep]{f_alternatives_ministep()}}, \code{f_alternatives_twostep}, \code{f_sims}
+\code{\link[=f_alternatives_ministep]{f_alternatives_ministep()}}, \code{\link[=f_alternatives_twostep]{f_alternatives_twostep()}}, \code{\link[=f_sims]{f_sims()}}
 }

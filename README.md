@@ -1,16 +1,16 @@
 
-# RsienaTwoStep <a href="https://jochemtolsma.github.io/RsienaTwoStep/"><img src="man/figures/logo.png" align="right" height="139" /></a>
-
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# RsienaTwoStep website
+<a href="https://jochemtolsma.github.io/RsienaTwoStep/"><img src="man/figures/logo.png" align="left" height="139" /></a>
+
+<br> <br> <br> <br> <br>
 
 For detailed instructions how to use the package, please see the
 [package website](https://jochemtolsma.github.io/RsienaTwoStep/).
 
 ------------------------------------------------------------------------
 
-# RsienaTwoStep
+# GOAL
 
 <!-- badges: start -->
 <!-- badges: end -->
@@ -57,7 +57,9 @@ Make sure to check out the vignettes:
 browseVignettes("RsienaTwoStep")
 ```
 
-## Example
+------------------------------------------------------------------------
+
+# Examples
 
 ABM-ministep and ABM-twostep simulations on toy data
 
@@ -66,7 +68,7 @@ library(RsienaTwoStep)
 #> Loading required package: foreach
 ```
 
-### our network
+## our network
 
 ``` r
 net1g <- igraph::graph_from_adjacency_matrix(net1, mode="directed")
@@ -79,7 +81,7 @@ plot(net1g)
 unloadNamespace("igraph") # to avoid clashes with package `sna`. 
 ```
 
-### setting up cluster
+## setting up cluster
 
 This is of course not necessary but will make the simulations a lot
 faster.
@@ -105,14 +107,12 @@ Thus if you start with a network without many (reciprocal) ties it would
 be very difficult to get more reciprocal ties in the normal ministep
 model. However, with simultaneity this should be possible.
 
-### simulate networks for three conditions
+### simulate networks for two conditions
 
 ``` r
 sims1 <- f_sims(nsims=1000, parallel=TRUE, net=net1, rate=10, statistics=list(f_degree, f_recip), parameters=c(-1,2), p2step=0, chain=FALSE) #ministep only
 
 sims2 <- f_sims(nsims=1000, parallel=TRUE, net=net1, rate=10, statistics=list(f_degree, f_recip), parameters=c(-1,2), p2step=1, chain=FALSE) #twostep-simultaneity
-
-sims3 <- f_sims(nsims=1000, parallel=TRUE, net=net1, rate=10, statistics=list(f_degree, f_recip), parameters=c(-1,2), p2step=1, dist1=2, chain=FALSE) #twostep-strict coordination
 ```
 
 ### counting dyads
@@ -120,7 +120,6 @@ sims3 <- f_sims(nsims=1000, parallel=TRUE, net=net1, rate=10, statistics=list(f_
 ``` r
 df_s1 <- f_dyads(sims=sims1, simtype="ministep") 
 df_s2 <- f_dyads(sims=sims2, simtype="twostep-simultaneity") 
-df_s3 <- f_dyads(sims=sims3, simtype="twostep-strict coordination") 
 ```
 
 ### plot results of the three dyadcensus
@@ -130,7 +129,7 @@ library(ggplot2)
 #> Warning: package 'ggplot2' was built under R version 4.2.2
 
 ## combine datasets
-df <- rbind(df_s1, df_s2, df_s2)
+df <- rbind(df_s1, df_s2)
 
 p <- ggplot(df, aes(x=x, y=y, fill=type)) + 
   geom_violin(position=position_dodge(1)) + 
@@ -148,6 +147,14 @@ p
 ```
 
 <img src="man/figures/README-unnamed-chunk-7-1.png" width="100%" />
+
+# Conclusion
+
+1.  The dyad count shows the two type of simulations lead to a different
+    dyad-count.  
+2.  If two actors are allowed to change their ties simultaneously, this
+    will lead to more reciprocal ties than when actors have to make a
+    tie-change one after each other.
 
 <!--- 
 

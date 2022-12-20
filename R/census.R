@@ -5,14 +5,14 @@
 #' @details For examples on how to use these statistics see: vignette("Introduction_RsienaTwoStep").
 #'
 #' @family networkcensus
-#' @param sims list, the result of `f_sims():` the adjacency matrix representing the relations between actors. Valid values are 0 and 1.
+#' @param sims list, the result of [`f_sims()`] the adjacency matrix representing the relations between actors. Valid values are 0 and 1.
 #' @param simtype string, name of the simulation type used (e.g. *ministep*, *twostep*).
 #' @param forplot logical, if set to `FALSE` a dataframe is returned with in the column the network characteristic and each row represents a simulation outcome.
 #' If set to `TRUE` this dataframe is manipulated a bit, so that each row represents one specific network characteristic for each simulation outcome, this is useful for plotting.
 #' @importFrom foreach %dopar%
 #' @importFrom iterators icount
 #' @return `data.frame`
-#'
+#' @seealso [`RSiena::sienaGOF()`], [`RSiena::sienaGOF-auxiliary()`], [`RSiena::TriadCensus()`]
 #' @examples
 #' \dontrun{
 #' results_ministep <- f_sims(net=net1, rate=5, statistics=list(f_degree, f_recip),

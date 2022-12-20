@@ -3,11 +3,11 @@
 #' @description
 #' `f_sims` is the workhorse function of the package `RsienaTwoStep`.
 #' It simulates the network evolution `nsims` times given an existing network `net`,
-#'  the defined evaluation function (`f_eval`) by `statistics` and `parameters` and
+#'  the defined evaluation function ([`f_eval()`]) by `statistics` and `parameters` and
 #'  the average number of possible tie changes per actor as defined by `rate`.
 #'
 #' @details
-#' For examples on how to use `f_sims` see: vignette("ABMministep-vs-ABMtwostep", package="RsienaTwoStep").
+#' For examples on how to use `f_sims` see: [vignette("Introduction_RsienaTwoStep", package="RsienaTwoStep")]: or the [package website](https://jochemtolsma.github.io/RsienaTwoStep/).
 #' Before you set `parallel` to TRUE make sure to set-up a cluster with the package `doParallel` (see `Examples`).
 #'
 
@@ -16,7 +16,7 @@
 #' @param parallel TRUE/FALSE
 #' @param net matrix, the adjacency matrix representing the relations between actors. Valid values are 0 and 1.
 #' @param rate numeric, the average number of possible tie-changes per actor in the simulation.
-#' @param statistics, list of names of statistic functions (see e.g. `?f_degree` for a list of available functions)
+#' @param statistics, list of names of statistic functions (see e.g. [`f_degree()`] for a list of available functions)
 #' @param parameters, vector of numeric values the same length as `parameters`
 #' @param p2step numeric, value between range `[0,1]` setting the probability that a twostep will occur relative to a ministep.
 #' @param chain TRUE/FALSE, set to `TRUE` if you want to save all the subsequent networks (after the ministep or twostep) during the simulation. If `FALSE` only the end network is saved.
@@ -29,7 +29,7 @@
 #' If `chain=FALSE` a `list` (of length `nsims`) of adjacency matrices representing the final network after the simulated evolution.
 #' If `chain=TRUE` a `list` of lists of adjacency matrices. Each inner list represents the complete network evolution of one simulation. The outer list refers to the simulation run (with length `nsims`).
 #' @export
-#' @seealso [f_alternatives_ministep], [f_alternatives_twostep], [f_eval]
+#' @seealso [`f_alternatives_ministep()`], [`f_alternatives_twostep()`], [`f_eval()`]
 #' @examples
 #' \dontrun{#simulation with ministep only
 #' f_sims(net=net1, rate=5, statistics=list(f_degree, f_recip),

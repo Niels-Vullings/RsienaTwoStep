@@ -1,31 +1,49 @@
 #' @title Possible networks after ministep of ego
 #'
-#' @param net matrix, the adjacency matrix representing the relations between actors. Valid values are 0 and 1.
+#' @param net matrix, the adjacency matrix representing the relations between
+#'   actors. Valid values are 0 and 1.
 #' @param ego numeric, value indicating ego (row number of net)
-#' @param dist1 numeric, minimal path length between ego1 and ego2 at time1 in order to be allowed to start a coorporation. If `NULL` all dyads are allowed to start a cooperation.
-#' @param dist2 numeric, minimal path length between ego1 and ego2 at time2 in order for twostep to be counted as coorporation. See `DETAILS`.
-#' @param modet1 string indicating the type of ties being evaluated at time1. "`degree`" considers all ties as undirected. "`outdegree`" only allows directed paths starting from ego1 and ending at ego2. "`indegree`" only allows directed paths starting from ego2 and ending at ego2. See: `DETAILS`.
-#' @param modet2 string, indicating the type of ties being evaluated at time2. "`degree`" considers all ties as undirected. "`outdegree`" only allows directed paths starting from ego1 and ending at ego2. "`indegree`" only allows directed paths starting from ego2 and ending at ego2. See: `DETAILS`.
+#' @param dist1 numeric, minimal path length between ego1 and ego2 at time1 in
+#'   order to be allowed to start a coordination. If `NULL` all dyads are
+#'   allowed to start a coordination (i.e. **simultaneity**).
+#' @param dist2 numeric, minimal path length between ego1 and ego2 at time2 in
+#'   order for twostep to be counted as coordination. See `DETAILS`.
+#' @param modet1 string indicating the type of ties being evaluated at time1.
+#'   "`degree`" considers all ties as undirected. "`outdegree`" only allows
+#'   directed paths starting from ego1 and ending at ego2. "`indegree`" only
+#'   allows directed paths starting from ego2 and ending at ego1. See:
+#'   `DETAILS`.
+#' @param modet2 string, indicating the type of ties being evaluated at time2.
+#'   "`degree`" considers all ties as undirected. "`outdegree`" only allows
+#'   directed paths starting from ego1 and ending at ego2. "`indegree`" only
+#'   allows directed paths starting from ego2 and ending at ego1. See:
+#'   `DETAILS`.
 #'
-#' @description
-#' `f_alternatives_ministep` constructs the possible future networks at time2 after a ministep of `ego` given the network `net` at time1.
-#' `f_alternatives_twostep` constructs the possible future networks at time2 after a twostep of two internally sampled egos (via [`f_select`]) given the network `net` at time1.
-#' @details
-#' `f_alternatives_ministep` mimics the ministep assumption as implemented in the SAOM of [`RSiena::siena07()`] \insertCite{ripley2022manual}{RsienaTwoStep}.
-#' `f_alternatives_twostep` allows two actors to simultaneously make a ministep, that is a **twostep**.
-#' Further restrictions can be set to which actors are allowed to make a twostep:
-#' 1. Two random actors
-#' 2. Two actors who are connected at time1 in a specific way (determined by `dist1` and `mode1`)
+#' @description [`f_alternatives_ministep()`] constructs the possible future
+#' networks at time2 after a ministep of `ego` given the network `net` at time1.
+#' [`f_alternatives_twostep()`] constructs the possible future networks at time2
+#' after a twostep of two internally sampled egos (via [`f_select()`]) given the
+#' network `net` at time1.
+#' @details [`f_alternatives_ministep()`] mimics the ministep assumption as
+#' implemented in the SAOM of [`RSiena::siena07()`]
+#' \insertCite{ripley2022manual}{RsienaTwoStep}. [`f_alternatives_twostep()`] allows
+#' two actors to simultaneously make a ministep, that is a **twostep**.
+#' The function implements three types of coordination:
+#'  1. **simultaneity**: when two actors are picked at random to simultaneously make
+#' a ministep;
+#' 2. ***weak* coordination**: two actors are picked at random to
+#' simultaneously make a ministep but only specific possible future networks are
+#' regarded as the result of coordination (as determined by `dist1`, `dist2`
+#' `modet1` and `modet2`) and included in the choice set of the two actors;
+#' 3. ***strict* coordination**: only actors are sampled to make a twostep who are
+#' connected at time1 (as determined by `dist1` and `modet1`).
 #'
-#' A special case is to allow two random actors to make a twostep but only consider some of the alternative future networks as the result of cooperation, namely those networks that:
-#' 1. result from actors who are connected at time1 in a specific way (determined by `dist1` and `mode1`), **or**
-#' 2. where actors are connected at time2 in a specific way (determined by `dist2` and `mode2`)
 #' @return list, a list of the alternative adjacency matrices after all possible ministeps of ego (`f_alternatives_ministep`) or after all possible twosteps of two egos (`f_alternatives_twostep`)
 #' @export
 #' @references
 #' \insertRef{ripley2022manual}{RsienaTwoStep}
 #'
-#' @seealso f_select
+#' @seealso [`f_select()`], [`f_sims()`]
 #' @examples
 #' f_alternatives_ministep(net=net1, ego=3)
 f_alternatives_ministep <- function(net, ego) {

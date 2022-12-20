@@ -2,11 +2,11 @@
 #' @details For the mathematical definition of the evaluation function see chapter 12 of the RSiena manual \insertCite{ripley2022manual}{RsienaTwoStep}.
 #' @param net matrix, the adjacency matrix representing the relations between actors. Valid values are 0 and 1.
 #' @param ego numeric, the ego for which we are going to calculat how its evaluates the network.
-#' @param statistics list of names of statistic functions the same length as `parameters`. See `?f_degree` for a list of available statistic functions.
+#' @param statistics list of names of statistic functions the same length as `parameters`. See e.g. [`f_degree()`] for a list of available statistic functions.
 #' @param parameters vector of numeric values the same length as `statistics`.
 #' @references
 #' \insertRef{ripley2022manual}{RsienaTwoStep}
-#' @seealso [RsienaTwoStep::f_alternatives_ministep()], `f_alternatives_twostep`, `f_sims`
+#' @seealso [`f_alternatives_ministep()`], [`f_alternatives_twostep()`], [`f_sims()`]
 #' @export
 #' @examples
 #' f_eval(net=net1, ego=6, statistics=list(f_degree, f_recip),
