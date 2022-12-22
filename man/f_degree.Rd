@@ -9,6 +9,8 @@
 \alias{f_inPop}
 \alias{f_transTrip}
 \alias{f_transMedTrip}
+\alias{f_transRecTrip}
+\alias{f_cycle3}
 \title{Network Statistics}
 \usage{
 f_degree(net, ego)
@@ -26,6 +28,10 @@ f_inPop(net, ego)
 f_transTrip(net, ego)
 
 f_transMedTrip(net, ego)
+
+f_transRecTrip(net, ego)
+
+f_cycle3(net, ego)
 }
 \arguments{
 \item{net}{matrix, the adjacency matrix representing the relations between actors. Valid values are 0 and 1.}

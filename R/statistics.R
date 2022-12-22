@@ -92,3 +92,46 @@ f_transMedTrip <- function(net, ego) {
   }
   return(statistic)
 }
+
+#' @rdname f_degree
+#' @export
+f_transRecTrip <- function(net, ego) {
+  # i<->j, i->h, h->j
+  statistic <- 0
+  alters <- which(net[ego,]==1)
+  if (length(alters)>1) {
+    #check if alters are connected
+    for (alter1 in alters) {
+      for (alter2 in alters) {
+        #check first if alter is connected to ego (check for reciprocal tie i <-> j.
+        if (net[alter1, ego]==1) {
+          statistic <- statistic + net[alter2, alter1]
+        }
+      }
+    }
+  }
+  return(statistic)
+}
+
+#' @rdname f_degree
+#' @export
+f_cycle3 <- function(net, ego) {
+  # i->j, j->h, h->i
+  statistic <- 0
+  altersi <- which(net[ego,]==1) #identify alters of ego
+  if (length(altersi)>0) {
+    for (alter1 in altersi) {
+      net_temp <- net
+      net_temp[alter1, ego] <- 0
+      altersj <- which(net_temp[alter1,]==1) #identify alters of alter but not including ego
+      if (length(altersj)>0) {
+        for (alter2 in altersj) {
+          statistic <- statistic + net[alter2, ego]
+        }
+      }
+    }
+  }
+  return(statistic)
+}
+
+
