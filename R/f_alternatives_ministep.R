@@ -23,8 +23,9 @@
 #' networks at time2 after a ministep of `ego` given the network `net` at time1.
 #' [`ts_alternatives_twostep()`] constructs the possible future networks at time2
 #' after a twostep of two internally sampled egos (via [`ts_select()`]) given the
-#' network `net` at time1. [`ts_alternatives_twoministeps()`] constructs the possible future
-#' networks at time2 after two subsequent ministeps of the same `ego` given the network `net` at time1.
+#' network `net` at time1.
+#' [`ts_alternatives_simstep()`] constructs the possible future
+#' networks at time2 after two simultaneous ministeps of the same `ego` given the network `net` at time1.
 #' @details [`ts_alternatives_ministep()`] mimics the ministep assumption as
 #' implemented in the SAOM of [`RSiena::siena07()`]
 #' \insertCite{ripley2022manual}{RsienaTwoStep}.
@@ -39,10 +40,11 @@
 #' `modet1` and `modet2`) and included in the choice set of the two actors;
 #' 3. ***strict* coordination**: only actors are sampled to make a twostep who are
 #' connected at time1 (as determined by `dist1` and `modet1`).
-#' [`ts_alternatives_twoministeps()`] allows one actor to make two subsequent ministeps and thus
+#'
+#' [`ts_alternatives_simstep()`] allows one actor to make two subsequent ministeps and thus
 #' opens the door for strategic actions. That is, the first ministep may not contribute to
 #' increased satisfaction of the actor (the network after the first ministep is not evaluated
-#' more favorably than the original network) but the subsequent ministep may make this up.
+#' more favorably than the original network) but the subsequent ministep may make up for this.
 #'
 #' @return list, a list of the alternative adjacency matrices after all possible ministeps of ego (`ts_alternatives_ministep`) or after all possible twosteps of two egos (`ts_alternatives_twostep`)
 #' @export

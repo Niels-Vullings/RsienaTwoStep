@@ -29,7 +29,7 @@
 #' If `chain=FALSE` a `list` (of length `nsims`) of adjacency matrices representing the final network after the simulated evolution.
 #' If `chain=TRUE` a `list` of lists of adjacency matrices. Each inner list represents the complete network evolution of one simulation. The outer list refers to the simulation run (with length `nsims`).
 #' @export
-#' @seealso [`ts_alternatives_ministep()`], [`ts_alternatives_twostep()`], [`ts_eval()`]
+#' @seealso [`ts_alternatives_ministep()`], [`ts_alternatives_twostep()`], [`ts_alternatives_simstep()`], [`ts_eval()`]
 #' @examples
 #' \dontrun{#simulation with ministep only
 #' ts_sims(net=net1, rate=5, statistics=list(ts_degree, ts_recip),
@@ -45,7 +45,7 @@
 #' #register it to be used by %dopar%
 #' doParallel::registerDoParallel(cl = my.cluster)
 #' ts_sims(net=net1, rate=5, parallel = TRUE, statistics=list(ts_degree, ts_recip),
-#' parameters=c(-3,1), p2step=1) }
+#' parameters=c(-3,1), p2step=c(0,1,0) }
 #' @importFrom foreach %dopar%
 ts_sims <- function(nsims=1000, parallel=FALSE, net, rate, statistics, parameters, p2step=c(0,1,0), chain=FALSE, dist1=NULL, dist2=NULL, modet1="degree", modet2="degree") {
   if (parallel) {
@@ -105,12 +105,12 @@ ts_sim <- function(net, rate, statistics=list(ts_degree, ts_recip), parameters=c
       ministep <- ministep + 2
     }
 
-    #model with two sequential ministeps of the same ego
+    #model with two simultaneous ministeps of the same ego
     if (normal==3) {
       #sample agent
       ego <- ts_select(net)
       #options
-      options <- ts_alternatives_twoministeps(net=net_n, ego=ego)
+      options <- ts_alternatives_simstep(net=net_n, ego=ego)
       #evaluations
       eval <- sapply(options, FUN=ts_eval, ego=ego, statistics=statistics, parameters=parameters)
       eval <- eval - max(eval)
