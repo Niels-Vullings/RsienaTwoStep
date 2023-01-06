@@ -46,9 +46,11 @@ You can install the development version of RsienaTwoStep from
 devtools::install_github("JochemTolsma/RsienaTwoStep", build_vignettes=TRUE)
 ```
 
-## Vignettes
+## Website and Vignettes
 
-Make sure to check out the vignettes:
+Make sure to check out the [package
+website](https://jochemtolsma.github.io/RsienaTwoStep/) or browse the
+vignettes:
 
 ``` r
 browseVignettes("RsienaTwoStep")
@@ -107,16 +109,19 @@ model. However, with simultaneity this should be possible.
 ### simulate networks for two conditions
 
 ``` r
-sims1 <- f_sims(nsims=1000, parallel=TRUE, net=net1, rate=10, statistics=list(f_degree, f_recip), parameters=c(-1,2), p2step=0, chain=FALSE) #ministep only
+sims1 <- ts_sims(nsims=1000, parallel=TRUE, net=net1, rate=10, statistics=list(ts_degree, ts_recip), parameters=c(-1,2), p2step=c(1,0,0), chain=FALSE) #ministep only (one actor can make one tie change)
 
-sims2 <- f_sims(nsims=1000, parallel=TRUE, net=net1, rate=10, statistics=list(f_degree, f_recip), parameters=c(-1,2), p2step=1, chain=FALSE) #twostep-simultaneity
+sims2 <- ts_sims(nsims=1000, parallel=TRUE, net=net1, rate=10, statistics=list(ts_degree, ts_recip), parameters=c(-1,2), p2step=c(0,1,0), chain=FALSE) #twostep-simultaneity (two actors can make one tie change simultaneously)
+
+sims3 <- ts_sims(nsims=1000, parallel=TRUE, net=net1, rate=10, statistics=list(ts_degree, ts_recip), parameters=c(-1,2), p2step=c(0,0,1), chain=FALSE) #simstep (one actor can make two tie changes simultaneously)
 ```
 
 ### counting dyads
 
 ``` r
-df_s1 <- f_dyads(sims=sims1, simtype="ministep") 
-df_s2 <- f_dyads(sims=sims2, simtype="twostep-simultaneity") 
+df_s1 <- ts_dyads(sims=sims1, simtype="ministep") 
+df_s2 <- ts_dyads(sims=sims2, simtype="twostep-simultaneity") 
+df_s3 <- ts_dyads(sims=sims3, simtype="simstep") 
 ```
 
 ### plot results of the three dyadcensus
@@ -126,19 +131,20 @@ library(ggplot2)
 #> Warning: package 'ggplot2' was built under R version 4.2.2
 
 ## combine datasets
-df <- rbind(df_s1, df_s2)
+df <- rbind(df_s1, df_s2, df_s3)
 
-p <- ggplot(df, aes(x=x, y=y, fill=type)) + 
-  geom_violin(position=position_dodge(1)) + 
+p <- ggplot(df, aes(x=x, y=y, fill=factor(type, levels=c("ministep", "twostep-simultaneity", "simstep")))) + 
+  geom_violin(position=position_dodge(.8)) + 
   stat_summary(fun = mean,
                geom = "errorbar",
                fun.max = function(x) mean(x) + sd(x),
                fun.min = function(x) mean(x) - sd(x),
                width=.1,
-               color="red", position=position_dodge(1)) + 
+               color="red", position=position_dodge(.8)) + 
   stat_summary(fun = mean,
                geom = "point",
-               color="red", position=position_dodge(1)) 
+               color="red", position=position_dodge(.8)) +
+  labs(x = "dyad type", y = "dyad count", fill="simulation type")
   
 p
 ```
@@ -147,11 +153,14 @@ p
 
 # Conclusion
 
-1.  The dyad count shows the two type of simulations lead to a different
-    dyad-count.  
-2.  If two actors are allowed to change their ties simultaneously, this
+1.  If two actors are allowed to change their ties simultaneously, this
     will lead to more reciprocal ties than when actors have to make a
-    tie-change one after each other.
+    tie-change one after each other. The final network is thus also more
+    dense if we assume a twostep process compared to a ministep
+    process.  
+2.  For this network and given only degree and reciprocity as relevant
+    network statistics, the ministep and simstep model lead to similar
+    results.
 
 <!--- 
 

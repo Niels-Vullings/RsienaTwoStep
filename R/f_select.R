@@ -14,11 +14,11 @@
 #'
 #' @export
 #' @examples
-#' f_select(net=net1, steps=1)
-#' f_select(net=net1, steps=2)
-#' f_select(net=net1, dist1=2, modet1="degree")
+#' ts_select(net=net1, steps=1)
+#' ts_select(net=net1, steps=2)
+#' ts_select(net=net1, dist1=2, modet1="degree")
 #'
-f_select <- function(net, steps=1, dist1=NULL, modet1="degree"){
+ts_select <- function(net, steps=1, dist1=NULL, modet1="degree"){
   actors <- NA
   if (is.null(dist1)) {
     #sample ego1

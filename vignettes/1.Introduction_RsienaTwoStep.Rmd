@@ -1,6 +1,7 @@
 ---
 title: "Introduction_RsienaTwoStep"
 output: rmarkdown::html_vignette
+bibliography: REFERENCES.bib
 vignette: >
   %\VignetteIndexEntry{Introduction_RsienaTwoStep}
   %\VignetteEngine{knitr::rmarkdown}
@@ -12,6 +13,11 @@ knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>"
 )
+
+colorize <- function(x, color) {
+    sprintf("<span style='color: %s;'>%s</span>", color, x)
+}
+
 ```
 
 ```{r setup}
@@ -127,62 +133,37 @@ pre.numberSource a.sourceLine {
 
 ```
 
-# 1. Package structure `RsienaTwoStep`.
-
-Functions for the ABM:
-
-- `f_sims()`
-  - `f_select()`
-  - `f_alternatives_ministep()`  
-  - `f_alternatives_twostep()` 
-    - (`f_select()`)
-    - (`f_alternatives()`)  
-    - `f_geodist()`  
-  - `f_eval()`  
-    - `f_degree()` 
-    - `f_recip()`  
-    - `f_outAct()` 
-    - `f_inAct()` 
-    - `f_outPop()` 
-    - `f_inPop()`  
-    - `f_transTrip()` 
-    - `f_transMedTrip()` 
-
-Functions for network census: 
-
-- `f_dyads()`  
-- `f_triads()`  
 
 ---  
 
-# 2. Data sets
+# 1. Data sets
 
 Let us have a look at the build-in data sets of `RsienaTwoStep`. 
 
-## 2.1. net1
+## 1.1. net1
 
-### 2.1.1. the adjacency matrix
+### 1.1.1. Adjacency matrix
 
 ```{r }
 net1
 ```
 
-### 2.1.2. the plot
+### 1.1.2. Plot
 
 ```{r, message=FALSE, warning=FALSE, fig.width=7, fig.height=5}
 net1g <- igraph::graph_from_adjacency_matrix(net1, mode="directed")
 igraph::plot.igraph(net1g)
 ```
 
-## 2.2. net2
+## 1.2. net2
 
-### 2.2.1. the adjacency matrix
+### 1.2.1. Adjacency matrix
 
 ```{r}
 net2
 ```
 
-### 2.2.2. the plot
+### 1.2.2. Plot
 
 ```{r, message=FALSE, warning=FALSE, fig.width=7, fig.height=5}
 net2g <- igraph::graph_from_adjacency_matrix(net2, mode="directed")
@@ -191,9 +172,9 @@ igraph::plot.igraph(net2g)
 
 ---  
 
-# 3. ABM ministep
+# 2. ABM ministep
 
-## 3.1. the logic
+## 2.1. Logic
 
 1. sample ego  
 2. construct possible alternative future networks based on all possible ministeps of ego    
@@ -202,46 +183,49 @@ igraph::plot.igraph(net2g)
 5. GOTO 1 (STOPPING RULE: until you think we have made enough ministeps)
 
 
-## 3.2. possible networks after ministep  
+## 2.2. Possible networks after ministep  
 
 Let us suppose we want to know what the possible networks are after all possible ministeps of one actor part of `net2`. That is, let us assume that it is ego#2's turn to decide on tie-change. What are the possible networks? 
 
 ```{r}
-options <- f_alternatives_ministep(net=net2, ego=2)
+options <- ts_alternatives_ministep(net=net2, ego=2)
 options
 ```
 
 This function returns a list of all possible networks after all possible tie-changes available to ego#2 given network `net2`. If you look closely you will see that `options[[2]]` equals the original network (i.e. ego#2 decided not to change any tie). 
 
-## 3.3. network statistics 
+## 2.3. Network statistics 
 
 Which option will ego#2 choose? Naturally this will depend on which network characteristics (or statistics) ego#2 finds relevant. Let us suppose that ego#2 bases its decision solely on the number of ties it sends to others and the number of reciprocated ties it has with others. 
 
 Let us count the number of ties ego#2 sends to alters. 
 
 ```{r}
-f_degree(net=options[[1]], ego=2)
+ts_degree(net=options[[1]], ego=2)
 ```
 And in the second (original) option: 
 
 ```{r}
-f_degree(net=options[[2]], ego=2)
+ts_degree(net=options[[2]], ego=2)
 ```
 
-In the package `RsienaTwoStep` there are functions for the following network statistics $s$ (see the RSiena manual chapter 12 for the mathematical formulation):
+In the package `RsienaTwoStep` there are functions for the following network statistics $s$ (see @ripley2022manual Chapter 12 for the mathematical formulation):
 
-  - degree: `f_degree()` 
-  - reciprocity: `f_recip()`  
-  - outdegree activity: `f_outAct()` 
-  - indegree activity: `f_inAct()` 
-  - outdegree popularity: `f_outPop()` 
-  - indegree popularity: `f_inPop()`  
-  - transitivity: `f_transTrip()` 
-  - mediated transitivity: `f_transMedTrip()` 
+  - degree: `ts_degree()` 
+  - reciprocity: `ts_recip()`  
+  - outdegree activity: `ts_outAct()` 
+  - indegree activity: `ts_inAct()` 
+  - outdegree popularity: `ts_outPop()` 
+  - indegree popularity: `ts_inPop()`  
+  - transitivity: `ts_transTrip()` 
+  - mediated transitivity: `ts_transMedTrip()`  
+  - transitive reciprocated triplets: `ts_transRecTrip()` 
+  - number of three-cycles: `ts_cycle3()`  
+  
     
 Naturally, you are free to define your own network statistics. 
 
-## 3.4. evaluation function 
+## 2.4. Evaluation function 
 
 But what evaluation value does ego#2 attach to these network statistics and consequently to the network (in its vicinity) as a whole? Well these are the parameters, $\beta$, you will normally estimate with `RSiena::siena07()`. 
 Let us suppose the importance for the statistic 'degree' is -1 and for the statistic 'reciprocity' is 2. 
@@ -258,19 +242,22 @@ $$f_{eval}(\mathbf{s_{i}},\mathbf{\beta}) = \mathbf{s_i}^\mathsf{T}\mathbf{\beta
 or with a little help of the network statistic functions:  
 
 ```{r}
-f_degree(net=options[[2]], ego=2)*-1 + f_recip(net=options[[2]], ego=2)*2
+ts_degree(net=options[[2]], ego=2)*-1 + ts_recip(net=options[[2]], ego=2)*2
 ```
-Or you could use the `f_eval()`. 
+Or you could use the `ts_eval()`. 
 
 ```{r}
-eval <- f_eval(net=options[[2]], ego=2, statistics=list(f_degree, f_recip), parameters=c(-1,2))
+eval <- ts_eval(net=options[[2]], ego=2, statistics=list(ts_degree, ts_recip), parameters=c(-1,2))
 eval
 ```
 Now, let us calculate the evaluation of all 5 possible networks: 
 ```{r}
-eval <- sapply(options, FUN=f_eval, ego=2, statistics=list(f_degree, f_recip), parameters=c(-1,2))
+eval <- sapply(options, FUN=ts_eval, ego=2, statistics=list(ts_degree, ts_recip), parameters=c(-1,2))
 eval
 ```
+
+## 2.5. Choice function 
+
 So which option will ego#2 choose? Naturally this will be a stochastic process. But we see the last option has the highest evaluation. 
 We use McFadden's choice function (for more information see [wiki](https://en.wikipedia.org/wiki/Discrete_choice)), that is let $P_{ni}$ be the probability that ego $n$ chooses network/alternative $i$. The choice function is then given by:  
 
@@ -300,19 +287,23 @@ If we repeat this process, that is...:
 
 ...we have an agent based model.   
 
+## 2.6. Stopping rule  
+
 But how many ministeps do we allow? Well, normally this is estimated by `siena07` by the `rate` parameter. If we do not make this rate parameter conditional on actor covariates or on network characteristics, the rate parameter can be interpreted as the average number of ministeps each actor in the network is allowed to make before time is up. Let us suppose the `rate` parameter is 2 `r rate<-2`. Thus in total the number of possible ministeps will be `nrow(net2)*rate`: 10. For a more detailed - **and more correct** interpretation of the rate parameter in `siena07` see: [www.jochemtolsma.nl](www.jochemtolsma.nl/courses/complete-networks/socio6)
 
-To demonstrate:  
+## 2.7. Example  
+
+To demonstrate the network evolution:  
 
 ```{r}
-f_sims(nsims=1, net=net2, rate=2, statistics=list(f_degree, f_recip), parameters = c(-1,2), chain = TRUE )
+ts_sims(nsims=1, net=net2, rate=2, statistics=list(ts_degree, ts_recip), parameters = c(-1,2), p2step=c(1,0,0), chain = TRUE )
 ```
 
 ---  
 
-# 4. ABM twostep
+# 3. ABM twostep
 
-## 4.1. general logic
+## 3.1. Logic
 
 The general logic of the ABM that allows for twosteps is very similar to the ABM ministep model: 
 
@@ -322,59 +313,227 @@ The general logic of the ABM that allows for twosteps is very similar to the ABM
 4. Let the agents together pick the subsequent network, that is, let agents decide on the twostep (the simultaneous two ministeps)  
 5. GOTO 1 (STOPPING RULE: until you think we have made enough ministeps/twosteps)
 
-### 4.1.1. Sample two agents
+## 3.2. Sample two agents
 
-a. Simultaneity: agents are sampled randomly  
-b. Strict coordination: only specific dyads are sampled (with a specific distance between them, based on either out-, in- or reciprical ties)  
-c. weak coordination: agents are sampled randomly but only specific choices/actions are regarded as coordination and, consequently only some of the possible alternative networks are included in the choice set for the dyad. see below.  
+a. **Simultaneity**: agents are sampled randomly  
+b. **Strict coordination**: only specific dyads are sampled (with a specific distance between them, based on either out-, in- or reciprocal ties)  
+c. **Weak coordination**: agents are sampled randomly but only specific twosteps are regarded as 'coordinated' twosteps and, consequently only some of the possible alternative networks are included in the choice set for the dyad. 
 
-### 4.1.2. Construct alternative networks  
+## 3.3. Possible networks after twostep
 
-we simply let first agent1 make all possible ministeps and then conditional on these alternative networks let agent2 make all possible ministeps. Please note that the order in which we let agents make the ministeps is not important. We simple construct all the networks that could result from agent1 and agent2 make a simultaneous ministep.  
+If we want to allow for simultaneity, we simply let first agent1 make all possible ministeps and then conditional on these alternative networks let agent2 make all possible ministeps. Please note that the order in which we let agents make the ministeps is not important. We simple construct all the networks that could result from agent1 and agent2 make a simultaneous ministep.  
 
-#### Exception  
+> `r colorize("Exception:", "red")`  
+> With weak coordination we will assess which possible alternative networks impact the evaluation function of both egos. Only those possible alternative networks are regarded as the result of coordination and included in the choice set. Thus, it is not necessarry for ego1 and ego2 to be connected at time1 but then they should at least be connected at time2 in such a way that they influence each others evaluation function.  
+> The implementation in the current version of `RsieneTwoStep` is, however, a bit different. With weak coordination we simple assess the distance between ego1 and ego2 at time1 and time2. If at eithter time1 *or* time2 the distance is within the set threshold, we regard the twostep as a coordinated twostep.   
 
-With weak coordination we will assess which possible alternative networks impact the evaluation function of both egos. Only those possible alternative networks are regarded as the result of coordination and included in the choice set. Thus, it is not necessarry for ego1 and ego2 to be connected at time1 but then they should at least be connected at time2 in such a way that they influence each others evaluation function.  
+## 3.4. Network statistics  
+
+We use the same network statistics as for the ABM ministep. But please note, that not all existing network statistics of `RSiena` make sense. See for example the figure below. Suppose the evaluation of the transitive triad for actor *i* depends on whether path *i* to *j* was the closing path (i.e., created after path *h* to *j*) or not. In a twostep, both ties may be created simultaneously and we cannot distinguish these two routes. 
 
 
-### 4.1.3. Evaluation rule
+```{r, echo=FALSE, fig.width=7, fig.height=5, results="hold", fig.cap="twostep versus ministeps"}
+triad <- matrix(rep(0,9), nrow=3, ncol=3)
+triad[1,3] <- 1
+triadg <- igraph::graph_from_adjacency_matrix(triad, mode="directed")
+igraph::V(triadg)$label <- c("i", "j", "h")
+igraph::V(triadg)$size <- 50
+l <- igraph::layout.grid(triadg)
+l[3,1] <- .5
+l <- igraph::norm_coords(l, ymin=0, ymax=1, xmin=0, xmax=1)
+triadg1 <- triadg
+
+triad[3,2] <- 1
+triadg <- igraph::graph_from_adjacency_matrix(triad, mode="directed")
+igraph::V(triadg)$label <- c("i", "j", "h")
+igraph::V(triadg)$size <- 50
+igraph::E(triadg)$color <- c("grey", "red")
+triadg2 <- triadg
+
+triad[3,2] <- 0
+triad[1,2] <- 1
+triadg <- igraph::graph_from_adjacency_matrix(triad, mode="directed")
+igraph::V(triadg)$label <- c("i", "j", "h")
+igraph::V(triadg)$size <- 50
+igraph::E(triadg)$color <- c("red", "grey")
+triadg3 <- triadg
+
+triad[3,2] <- 1
+triad[1,2] <- 1
+triadg <- igraph::graph_from_adjacency_matrix(triad, mode="directed")
+igraph::V(triadg)$label <- c("i", "j", "h")
+igraph::V(triadg)$size <- 50
+igraph::E(triadg)$color <- c("red", "grey", "red")
+triadg4 <- triadg
+
+par(mfrow=c(3,3))
+mat <- matrix(c(0,2,0,1,0,4,0,3,0), 3, byrow = TRUE)
+layout(mat)
+par(mar=c(.1, .1, .1, .1))
+igraph::plot.igraph(triadg1, layout=l)
+igraph::plot.igraph(triadg2, layout=l)
+igraph::plot.igraph(triadg3, layout=l)
+igraph::plot.igraph(triadg4, layout=l)
+par(mfrow=c(1,1))
+par(new = TRUE, ## add a new layer
+            mar = c(0,0,0,0)) ## with no margins margins
+## set up the plotting area for this layer
+plot(1,1,xlim=c(0,1),ylim=c(0,1),type='n',xlab='',ylab='', frame.plot=FALSE, axes=FALSE) 
+arrows(0.2,0.3,0.4,0.1, length=.15, lty=2) ## add arrow
+arrows(0.2,0.7,0.4,0.9, length=.15, lty=2) ## add arrow
+arrows(.6,0.9,.8,0.7, length=.15, lty=2) ## add arrow
+arrows(0.6,0.1,0.8,0.3, length=.15, lty=2) ## add arrow
+arrows(0.6,0.1,0.8,0.3, length=.15, lty=2) ## add arrow
+arrows(0.3,0.5,0.7,0.5, length=.15, lty=3) ## add arrow
+
+
+```
+<br> 
+  
+*note: Dashed arrows represent ministeps (long dash) or twostep (short dash); solid arrows represent initial ties (grey) or created ties (red).*
+
+
+## 3.5. Evaluation function
 
 We start by letting each involved agent evaluate all possible networks based on the individual evaluation functions. 
 Thus agent1 gives an evaluation and agent2 gives an evaluation.  
-Next we have to decide how these separate evaluations are to be combined. We could for example take the highest evaluation. For now, in `RsienaTwoStep` we simply take the mean of the two evaluations. 
+Next we have to decide how to combine the separate evaluations of the two agents. For now, in `RsienaTwoStep`, we simply take the mean of the two separate evaluations as the final evaluation score. 
 
-### 4.1.4. Decision rule
+## 3.6. Choice function
 
-Here also we follow the same logic. If we know the evaluation score of each network we simply apply a Mc Fadden's choice function. That is the actors together 'decide' on the future network out of the possible alternative networks in the choice set, given the combined evaluation of these networks.  
+Here we follow the same logic as before. If we know the evaluation score of each network we simply apply a Mc Fadden's choice function. That is, the actors together 'decide' on the future network out of the possible alternative networks in the choice set, given the combined evaluation of these networks. Thus we see the dyad formed by agent1 and agent2 as the decision agent. Please not that agents (or rather the dyad) thus favor the network with the highest combined 'utility' score. This is not necessarily the network that would give one of the two agents the highest satisfaction.  
 
-### 4.1.5. Stopping rule
+## 3.7. Stopping rule
 
-Once again the logic is exactly similar. However, we count a twostep as two ministeps. Thus if each actor is allowed to make on average 8 minstep, actors are allowed to make on average 4 twosteps. 
+Once again the logic is exactly similar. However, we count a twostep as two ministeps. Thus if each actor is allowed to make on average 8 ministeps, actors are allowed to make on average 4 twosteps. 
 
-## 4.2. Example
+## 3.8. Example
 
 ```{r}
-f_sims(nsims = 1, net = net2, rate = 2, statistics = list(f_degree, f_recip), parameters = c(-1, 2), p2step=1, chain = TRUE)
-```  
+ts_sims(nsims = 1, net = net2, rate = 2, statistics = list(ts_degree, ts_recip), parameters = c(-1, 2), p2step=c(0,1,0), chain = TRUE)
+```
+
 ---  
+
+# 4. ABM simstep
+
+## 4.1. Logic  
+
+A second way in which the ministep assumption can be relaxed is to allow the same actor to make two ministeps simultaneously. Suppose a triad formed by actors *i*, *j* and *h* and a tie between *h* and *j*. 
+
+
+```{r, echo=FALSE, fig.width=7, fig.height=5, results="hold", fig.cap="simstep versus ministeps"}
+triad <- matrix(rep(0,9), nrow=3, ncol=3)
+triad[3,2] <- 1
+triadg <- igraph::graph_from_adjacency_matrix(triad, mode="directed")
+igraph::V(triadg)$label <- c("i", "j", "h")
+igraph::V(triadg)$size <- 50
+l <- igraph::layout.grid(triadg)
+l[3,1] <- .5
+l <- igraph::norm_coords(l, ymin=0, ymax=1, xmin=0, xmax=1)
+triadg1 <- triadg
+
+triad[1,3] <- 1
+triadg <- igraph::graph_from_adjacency_matrix(triad, mode="directed")
+igraph::V(triadg)$label <- c("i", "j", "h")
+igraph::V(triadg)$size <- 50
+igraph::E(triadg)$color <- c("red", "grey")
+triadg2 <- triadg
+
+triad[1,3] <- 0
+triad[1,2] <- 1
+triadg <- igraph::graph_from_adjacency_matrix(triad, mode="directed")
+igraph::V(triadg)$label <- c("i", "j", "h")
+igraph::V(triadg)$size <- 50
+igraph::E(triadg)$color <- c("red", "grey")
+triadg3 <- triadg
+
+triad[1,3] <- 1
+triad[1,2] <- 1
+triadg <- igraph::graph_from_adjacency_matrix(triad, mode="directed")
+igraph::V(triadg)$label <- c("i", "j", "h")
+igraph::V(triadg)$size <- 50
+igraph::E(triadg)$color <- c("red", "red", "grey")
+triadg4 <- triadg
+
+par(mfrow=c(3,3))
+mat <- matrix(c(0,2,0,1,0,4,0,3,0), 3, byrow = TRUE)
+layout(mat)
+par(mar=c(.1, .1, .1, .1))
+igraph::plot.igraph(triadg1, layout=l)
+igraph::plot.igraph(triadg2, layout=l)
+igraph::plot.igraph(triadg3, layout=l)
+igraph::plot.igraph(triadg4, layout=l)
+par(mfrow=c(1,1))
+par(new = TRUE, ## add a new layer
+            mar = c(0,0,0,0)) ## with no margins margins
+## set up the plotting area for this layer
+plot(1,1,xlim=c(0,1),ylim=c(0,1),type='n',xlab='',ylab='', frame.plot=FALSE, axes=FALSE) 
+arrows(0.2,0.3,0.4,0.1, length=.15, lty=2) ## add arrow
+arrows(0.2,0.7,0.4,0.9, length=.15, lty=2) ## add arrow
+arrows(.6,0.9,.8,0.7, length=.15, lty=2) ## add arrow
+arrows(0.6,0.1,0.8,0.3, length=.15, lty=2) ## add arrow
+arrows(0.3,0.5,0.7,0.5, length=.15, lty=3) ## add arrow
+arrows(0.3,0.5,0.7,0.5, length=.15, lty=3) ## add arrow
+
+
+
+```
+<br> 
+
+*note: Dashed arrows represent ministeps (long dash) or simstep (short dash); solid arrows represent initial ties (grey) or created ties (red).*
+
+
+Suppose, actors evaluate transitive triplet structures positively. Normally, under the ministep assumption, actor *i* should first make a tie to actor *h* (or *j*) and only when it is its turn again to make a tie change, make a tie to actor *j* (or *h*). Naturally, in larger networks a lot could have happened in the mean time. Given the network structure at the time, actor *i* is allowed to make the second ministep, actor *i* may not favor making the additional tie to actor *j* (or *h*) anymore.  
+Also, actor *i* may not even want to create a tie to actor *h* or *j* if it is not already sure it can close the triad immediately afterwards (or even simultaneously). Naturally, in real life situations, it is not that strange to create multiple ties at (almost) the same time. See for example the paper on the impact of Kudos on running behavior [@FRANKEN2023151]. If you are on Strava (or on any other social media for that matter), it is very common to give multiple kudos (of likes) to different people in your network at - more or less - the same time.  
+
+## 4.2. Possible networks after simstep  
+
+Simply all networks that could arise after two sequential ministeps made by one actor (including the no change option). Please note that the choice set only contains unique network configurations.  
+
+## 4.3. Network statistics  
+
+We use the same network statistics as for the ABM ministep. But please note, that not all existing network statistics of `RSiena` make sense. See for example the figure above. Suppose the evaluation of the transitive triad for actor *i* depends on whether path *i* to *j* was the closing path or the path *i* to *h*. In a simstep, both ties may be created simultaneously and we cannot distinguish these two routes.  
+
+## 4.4. Evaluation function  
+
+Identical to ABM ministep.  
+
+## 4.5. Choice function.  
+
+Identical to ABM ministep.
+
+## 4.6. Stopping rule  
+
+Once again the logic is exactly similar. However, we count a simstep as two ministeps. Thus if each actor is allowed to make on average 8 ministeps, actors are allowed to make on average 4 simsteps. 
+
+## 4.7. Example
+
+```{r}
+ts_sims(nsims = 1, net = net2, rate = 2, statistics = list(ts_degree, ts_recip, ts_outAct), parameters = c(-2, 2,2), p2step=c(0,0,1), chain = TRUE)
+```
+
+
+--- 
+
 
 # 5. Network census
 
-## 5.1. simulate networks  
+## 5.1. Simulate networks  
 
 Let us simulate five times the outcome of a ABM twostep process and only save the final network
 
 ```{r}
-nets <- f_sims(nsims = 5, net = net2, rate = 2, statistics = list(f_degree, f_recip), parameters = c(-1, 2), p2step=1, chain = FALSE)
+nets <- ts_sims(nsims = 5, net = net2, rate = 2, statistics = list(ts_degree, ts_recip), parameters = c(-1, 2), p2step=c(0,1,1), chain = FALSE)
 ```
 
 ## 5.2. Dyad and triad configurations  
 
 Now we want to count the dyad and triad configurations. 
 
-```{r}
-df_dyads <- f_dyads(nets, forplot = FALSE, simtype="twostep: random")  
-df_triads <- f_triads(nets, forplot = FALSE, simtype="twostep: random") 
+```{r, warning=FALSE}
+df_dyads <- ts_dyads(nets, forplot = FALSE, simtype="twostep: random")  
+df_triads <- ts_triads(nets, forplot = FALSE, simtype="twostep: random") 
 ```
 
 ```{r, results="hold"}
@@ -382,14 +541,14 @@ df_dyads
 df_triads
 ```
 
-## 5.3. violin plots  
+## 5.3. Violin plots  
 
 If you want to make violin plots of these census, it is best to set the option `forplot` to `TRUE`. 
 
 Just as an example: 
 
 ```{r}
-df_dyads2 <- f_dyads(nets, forplot = TRUE, simtype="twostep: random")  
+df_dyads2 <- ts_dyads(nets, forplot = TRUE, simtype="twostep: random")  
 ```
 
 ```{r, fig.width=7, fig.height=5}
@@ -411,7 +570,8 @@ p
 
 ```
 
-
-
 ---  
 
+# References
+
+<!---note to self: two sequential ministeps is not the same as two simultaneous ministeps! RsienaTwoStep only impliments simultaneity.--> 

@@ -1,8 +1,8 @@
 #' @title Network Statistics
 #'
-#' @description These functions calculate the respective network statistic for ego. When multiplied with the importance of each statistic (the 'parameters') this constitutues the network evaluation of ego. See: [`f_eval()`].
+#' @description These functions calculate the respective network statistic for ego. When multiplied with the importance of each statistic (the 'parameters') this constitutues the network evaluation of ego. See: [`ts_eval()`].
 #'
-#' @details For examples on how to use these statistics see: [vignette("Introduction_RsienaTwoStep", package="RsienaTwoStep")]:.
+#' @details For examples on how to use these statistics see: `vignette("1.Introduction_RsienaTwoStep", package="RsienaTwoStep")`.
 #'
 #' For the mathematical definition of these network statistics see chapter 12 of the RSiena manual \insertCite{ripley2022manual}{RsienaTwoStep}.
 #' @family networkstatistics
@@ -12,57 +12,57 @@
 #' @references
 #' \insertRef{ripley2022manual}{RsienaTwoStep}
 #' @return numeric value
-#' @seealso [`f_eval()`]
+#' @seealso [`ts_eval()`]
 #' @examples
-#' f_degree(net=net1, ego=3)
+#' ts_degree(net=net1, ego=3)
 #'
 #' @importFrom Rdpack reprompt
 #' @export
-f_degree <- function(net, ego) {
+ts_degree <- function(net, ego) {
   statistic <- sum(net[ego,])
   return(statistic)
 }
 
-#' @rdname f_degree
+#' @rdname ts_degree
 #' @export
-f_recip <- function(net, ego) {
+ts_recip <- function(net, ego) {
   statistic <- sum(net[ego,]==1 & t(net)[ego,]==1)
   return(statistic)
 }
 
-#' @rdname f_degree
+#' @rdname ts_degree
 #' @export
-f_outAct <- function(net, ego) {
+ts_outAct <- function(net, ego) {
   statistic <- sum(net[ego,])^2
   return(statistic)
 }
 
-#' @rdname f_degree
+#' @rdname ts_degree
 #' @export
-f_inAct <- function(net, ego) {
+ts_inAct <- function(net, ego) {
   statistic <- sum(t(net)[ego,])*sum(net[ego,])
   return(statistic)
 }
 
-#' @rdname f_degree
+#' @rdname ts_degree
 #' @export
-f_outPop <- function(net, ego) {
+ts_outPop <- function(net, ego) {
   outdegrees <- rowSums(net) #outdegrees of alters
   statistic <- sum(net[ego,] * outdegrees)
   return(statistic)
 }
 
-#' @rdname f_degree
+#' @rdname ts_degree
 #' @export
-f_inPop <- function(net, ego) {
+ts_inPop <- function(net, ego) {
   indegrees <- colSums(net) #indegrees of alters
   statistic <- sum(net[ego,] * indegrees)
   return(statistic)
 }
 
-#' @rdname f_degree
+#' @rdname ts_degree
 #' @export
-f_transTrip <- function(net, ego) {
+ts_transTrip <- function(net, ego) {
   statistic <- 0
   alters <- which(net[ego,]==1)
   if (length(alters)>1) {
@@ -76,9 +76,9 @@ f_transTrip <- function(net, ego) {
   return(statistic)
 }
 
-#' @rdname f_degree
+#' @rdname ts_degree
 #' @export
-f_transMedTrip <- function(net, ego) {
+ts_transMedTrip <- function(net, ego) {
   statistic <- 0
   alters1 <- which(net[ego,]==1) #ego connected to by outdegree
   alters2 <- which(t(net)[ego,]==1) #ego connected to by indegree
@@ -93,9 +93,9 @@ f_transMedTrip <- function(net, ego) {
   return(statistic)
 }
 
-#' @rdname f_degree
+#' @rdname ts_degree
 #' @export
-f_transRecTrip <- function(net, ego) {
+ts_transRecTrip <- function(net, ego) {
   # i<->j, i->h, h->j
   statistic <- 0
   alters <- which(net[ego,]==1)
@@ -113,9 +113,9 @@ f_transRecTrip <- function(net, ego) {
   return(statistic)
 }
 
-#' @rdname f_degree
+#' @rdname ts_degree
 #' @export
-f_cycle3 <- function(net, ego) {
+ts_cycle3 <- function(net, ego) {
   # i->j, j->h, h->i
   statistic <- 0
   altersi <- which(net[ego,]==1) #identify alters of ego

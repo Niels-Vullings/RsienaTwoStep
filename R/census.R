@@ -5,7 +5,7 @@
 #' @details For examples on how to use these statistics see: vignette("Introduction_RsienaTwoStep").
 #'
 #' @family networkcensus
-#' @param sims list, the result of [`f_sims()`] the adjacency matrix representing the relations between actors. Valid values are 0 and 1.
+#' @param sims list, the result of [`ts_sims()`] the adjacency matrix representing the relations between actors. Valid values are 0 and 1.
 #' @param simtype string, name of the simulation type used (e.g. *ministep*, *twostep*).
 #' @param forplot logical, if set to `FALSE` a dataframe is returned with in the column the network characteristic and each row represents a simulation outcome.
 #' If set to `TRUE` this dataframe is manipulated a bit, so that each row represents one specific network characteristic for each simulation outcome, this is useful for plotting.
@@ -15,15 +15,15 @@
 #' @seealso [`RSiena::sienaGOF()`], [`RSiena::sienaGOF-auxiliary()`], [`RSiena::TriadCensus()`]
 #' @examples
 #' \dontrun{
-#' results_ministep <- f_sims(net=net1, rate=5, statistics=list(f_degree, f_recip),
+#' results_ministep <- ts_sims(net=net1, rate=5, statistics=list(ts_degree, ts_recip),
 #' parameters=c(-3,1))
-#' results_twostep <- f_sims(net=net1, rate=5, statistics=list(f_degree, f_recip),
+#' results_twostep <- ts_sims(net=net1, rate=5, statistics=list(ts_degree, ts_recip),
 #' parameters=c(-3,1), p2step=1)
 #'
-#' df_ms <- f_dyads(sims=results_ministep, simtype="ministep")
-#' df_ts <- f_dyads(sims=results_twostep, simtype="twostep")
+#' dts_ms <- ts_dyads(sims=results_ministep, simtype="ministep")
+#' dts_ts <- ts_dyads(sims=results_twostep, simtype="twostep")
 #'
-#' df <- rbind(df_ms, df_ts)
+#' df <- rbind(dts_ms, dts_ts)
 #' p <- ggplot(df, aes(x=x, y=y, fill=type)) +
 #'  geom_violin(position=position_dodge(1)) +
 #'  stat_summary(fun = mean,
@@ -39,7 +39,7 @@
 #'p
 #'}
 #' @export
-f_dyads <- function(sims, simtype="notypespecified", forplot=TRUE) {
+ts_dyads <- function(sims, simtype="notypespecified", forplot=TRUE) {
   nsims <- length(sims)
   #combine results of dyad.census
   df <- foreach::foreach(1:nsims, i=iterators::icount(), .combine="rbind") %dopar% {
@@ -59,9 +59,9 @@ f_dyads <- function(sims, simtype="notypespecified", forplot=TRUE) {
   return(df)
 }
 
-#' @rdname f_dyads
+#' @rdname ts_dyads
 #' @export
-f_triads <- function(sims, simtype="notypespecified", forplot=TRUE) {
+ts_triads <- function(sims, simtype="notypespecified", forplot=TRUE) {
   nsims <- length(sims)
   df <- foreach::foreach(1:nsims, i=iterators::icount(), .combine="rbind") %dopar% {
     sna::triad.census(sims[[i]])
