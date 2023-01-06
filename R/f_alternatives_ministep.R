@@ -69,7 +69,7 @@ ts_alternatives_ministep <- function(net, ego) {
 
 #' @rdname ts_alternatives_ministep
 #' @export
-ts_alternatives_twoministeps <- function(net, ego) {
+ts_alternatives_simstep <- function(net, ego) {
   #first ministep
   results <- ts_alternatives_ministep(net=net, ego=ego)
   #second ministep
