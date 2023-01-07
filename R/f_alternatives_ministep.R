@@ -1,4 +1,4 @@
-#' @title Possible networks after ministep of ego
+#' @title Possible networks after ministep, simstep or twostep
 #'
 #' @param net matrix, the adjacency matrix representing the relations between
 #'   actors. Valid values are 0 and 1.

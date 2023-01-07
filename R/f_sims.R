@@ -31,24 +31,7 @@
 #' @export
 #' @seealso [`ts_alternatives_ministep()`], [`ts_alternatives_twostep()`], [`ts_alternatives_simstep()`], [`ts_eval()`]
 #' @examples
-#' #twostep
 #' ts_sims(net=net2, nsims=2, rate=2, parallel=FALSE, statistics=list(ts_degree, ts_recip), parameters=c(-2,1), p2step=c(0,1,0))
-#' \dontrun{
-#' #simulation with ministep only
-#' ts_sims(net=net1, rate=5, statistics=list(ts_degree, ts_recip),
-#' parameters=c(-3,1), p2step=c(1,0,0))
-#'
-#' #simulation with twosteps only ts_sims(net=net1, rate=5,
-#' statistics=list(ts_degree, ts_recip), parameters=c(-3,1), p2step=c(0,1,0)
-#'
-#' #running simulations in parallel
-#' n.cores <- parallel::detectCores() - 1 #' #save one core for other work
-#' #create the cluster
-#' my.cluster <- parallel::makeCluster(n.cores, type = "PSOCK")
-#' #register it to be used by %dopar%
-#' doParallel::registerDoParallel(cl = my.cluster)
-#' ts_sims(net=net1, rate=5, parallel = TRUE, statistics=list(ts_degree, ts_recip),
-#' parameters=c(-3,1), p2step=c(0,1,0) }
 #' @importFrom foreach %dopar%
 ts_sims <- function(nsims=1000, parallel=FALSE, net, rate, statistics, parameters, p2step=c(0,1,0), chain=FALSE, dist1=NULL, dist2=NULL, modet1="degree", modet2="degree") {
   if (parallel) {
