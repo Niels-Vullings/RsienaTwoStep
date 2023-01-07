@@ -6,7 +6,7 @@ reference:
   desc: >
     Functions to run the ABM-ministep or ABM-twostep simulations.
   contents:
-  - ts_sims
+  - '`ts_sims`'
   - ts_alternatives_ministep
   - ts_alternatives_twostep
   - ts_alternatives_simstep
