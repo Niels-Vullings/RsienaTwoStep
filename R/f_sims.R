@@ -31,7 +31,10 @@
 #' @export
 #' @seealso [`ts_alternatives_ministep()`], [`ts_alternatives_twostep()`], [`ts_alternatives_simstep()`], [`ts_eval()`]
 #' @examples
-#' \dontrun{#simulation with ministep only
+#' #twostep
+#' ts_sims(net=net2, nsims=2, rate=2, parallel=FALSE, statistics=list(ts_degree, ts_recip), parameters=c(-2,1), p2step=c(0,1,0))
+#' \dontrun{
+#' #simulation with ministep only
 #' ts_sims(net=net1, rate=5, statistics=list(ts_degree, ts_recip),
 #' parameters=c(-3,1), p2step=c(1,0,0))
 #'

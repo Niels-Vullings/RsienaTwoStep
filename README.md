@@ -10,20 +10,24 @@ For detailed instructions how to use the package, please see the
 
 ------------------------------------------------------------------------
 
-# GOAL
+# 1. GOAL
 
 The goal of `RsienaTwoStep` is to provide a method to asses the extent
 to which results obtained by `RSiena::siena07` depend on the validity of
-the ministep assumption.
+the **ministep** assumption.
 
 A crucial assumption of the SAOM as implemented in RSiena is the
-‘ministep’: only one actor at the time is allowed to make one
+**ministep**: only one actor at the time is allowed to make one
 tie-change. This package aims to provide a method to asses the extent to
 which results obtained by RSiena hinge on this crucial ministep
 assumption. It does so by simulating the evolution of networks by
-allowing two actors to make decisions on tie-changes simultaneously.
+allowing **twosteps** - two actors are allowed to make one tie-change
+simultaneously - and by allowing **simsteps** - one actor is allowed to
+make two tie-changes simultaneously.
 
-Depending on the precise implementation of the two-step procedure,
+## 1.1. Twostep
+
+Depending on the precise implementation of the twostep procedure,
 allowing for twosteps can be interpreted simply as:  
 - allowing for **simultaneity**: when two actors are picked at random to
 simultaneously make a ministep;  
@@ -34,9 +38,21 @@ choice set of the two actors;
 - allowing for ***strict* coordination**: only actors are sampled to
 make a twostep who are connected at time1.
 
-The package can mix the ratio of ministeps and twosteps.
+## 1.2. Simstep
 
-## Installation
+Allowing for simsteps can be interpreted as:  
+- allowing for **simultaneity**: one actor simply can make two ties at
+the same tie;  
+- allowing for **strategic action**: if we see the ‘simultaneously’
+created ties as sequential ties, an actor may create one tie (not
+necessarily positively evaluated by itself) to ensure that a highly
+positively evaluated second tie can created next.
+
+## 1.3. Mixing steps
+
+The package can mix the ratio of ministeps, twosteps and simsteps.
+
+# 2. Installation
 
 You can install the development version of RsienaTwoStep from
 [GitHub](https://github.com/) with:
@@ -46,7 +62,7 @@ You can install the development version of RsienaTwoStep from
 devtools::install_github("JochemTolsma/RsienaTwoStep", build_vignettes=TRUE)
 ```
 
-## Website and Vignettes
+## 2.1. Website and Vignettes
 
 Make sure to check out the [package
 website](https://jochemtolsma.github.io/RsienaTwoStep/) or browse the
@@ -58,7 +74,7 @@ browseVignettes("RsienaTwoStep")
 
 ------------------------------------------------------------------------
 
-# Examples
+# 3. Examples
 
 ABM-ministep and ABM-twostep simulations on toy data
 
@@ -67,7 +83,7 @@ library(RsienaTwoStep)
 #> Loading required package: foreach
 ```
 
-## our network
+## 3.1. Our network
 
 ``` r
 net1g <- igraph::graph_from_adjacency_matrix(net1, mode="directed")
@@ -80,7 +96,7 @@ plot(net1g)
 unloadNamespace("igraph") # to avoid clashes with package `sna`. 
 ```
 
-## setting up cluster
+## 3.2. setting up cluster
 
 This is of course not necessary but will make the simulations a lot
 faster.
@@ -97,7 +113,7 @@ my.cluster <- parallel::makeCluster(n.cores, type = "PSOCK")
 doParallel::registerDoParallel(cl = my.cluster)
 ```
 
-## Degree and reciprocity
+## 3.3. Degree and reciprocity
 
 Let us assume people really don’t like to have a non-reciprocal tie but
 do like reciprocal ties a lot. (I only want to help you if you help me!)
@@ -106,17 +122,25 @@ Thus if you start with a network without many (reciprocal) ties it would
 be very difficult to get more reciprocal ties in the normal ministep
 model. However, with simultaneity this should be possible.
 
-### simulate networks for two conditions
+### 3.3.1. Simulate networks
+
+We can now simulate network given different assumptions with respect to
+tie-changes. Below we simulate according to the traditional ministep
+assumption, a twostep assumption and a simstep assumption.
 
 ``` r
 sims1 <- ts_sims(nsims=1000, parallel=TRUE, net=net1, rate=10, statistics=list(ts_degree, ts_recip), parameters=c(-1,2), p2step=c(1,0,0), chain=FALSE) #ministep only (one actor can make one tie change)
 
-sims2 <- ts_sims(nsims=1000, parallel=TRUE, net=net1, rate=10, statistics=list(ts_degree, ts_recip), parameters=c(-1,2), p2step=c(0,1,0), chain=FALSE) #twostep-simultaneity (two actors can make one tie change simultaneously)
+sims2 <- ts_sims(nsims=1000, parallel=TRUE, net=net1, rate=10, statistics=list(ts_degree, ts_recip), parameters=c(-1,2), p2step=c(0,1,0), chain=FALSE) #twostep-simultaneity (two random actors can make one tie change simultaneously)
 
 sims3 <- ts_sims(nsims=1000, parallel=TRUE, net=net1, rate=10, statistics=list(ts_degree, ts_recip), parameters=c(-1,2), p2step=c(0,0,1), chain=FALSE) #simstep (one actor can make two tie changes simultaneously)
 ```
 
-### counting dyads
+### 3.3.2. Network census
+
+The package `RsienaTwoStep` has build in functions for a dyad census and
+a triad census. Let us compare the dyad census of our simulated
+networks.
 
 ``` r
 df_s1 <- ts_dyads(sims=sims1, simtype="ministep") 
@@ -124,7 +148,7 @@ df_s2 <- ts_dyads(sims=sims2, simtype="twostep-simultaneity")
 df_s3 <- ts_dyads(sims=sims3, simtype="simstep") 
 ```
 
-### plot results of the three dyadcensus
+### 3.3.3. Plot dyadcensus
 
 ``` r
 library(ggplot2)
@@ -151,7 +175,7 @@ p
 
 <img src="man/figures/README-unnamed-chunk-7-1.png" width="100%" />
 
-# Conclusion
+# 4. Conclusion
 
 1.  If two actors are allowed to change their ties simultaneously, this
     will lead to more reciprocal ties than when actors have to make a
