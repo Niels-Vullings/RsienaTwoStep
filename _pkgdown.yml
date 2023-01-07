@@ -40,11 +40,3 @@ reference:
   contents:
   - ts_select
   - ts_geodist
-articles:
-- title: Articles
-  navbar: ~
-  contents:
-  - Introduction_RsienaTwoStep
-  - articles/MinistepToTwoStep
-  - articles/RsienaWorkflow
-
