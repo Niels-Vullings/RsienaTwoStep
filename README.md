@@ -3,11 +3,6 @@
 
 <a href="https://jochemtolsma.github.io/RsienaTwoStep/"><img src="man/figures/logo.png" align="left" height="139" /></a>
 
-<br> <br> <br> <br> <br>
-
-For detailed instructions how to use the package, please see the
-[package website](https://jochemtolsma.github.io/RsienaTwoStep/).
-
 ------------------------------------------------------------------------
 
 # 1. GOAL

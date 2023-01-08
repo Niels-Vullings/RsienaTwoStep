@@ -46,10 +46,6 @@ h1, .h1, h2, .h2, h3, .h3 {
   margin-top: 24px;
 }
 
-
-
-
-
 .button1 {
   background-color: grey; /* Red */ 
   border: 2px solid black;
@@ -99,16 +95,21 @@ body{ /* Normal  */
 }
 
 h1 { /* Header 1 */
-    font-size: 20px;
+    font-size: 22px;
   font-weight: bold;
 }
 
 h2 { /* Header 2 */
-    font-size: 18px;
+    font-size: 20px;
   color: DarkBlue;
 }
 
 h3 { /* Header 3 */
+    font-size: 18px;
+  color: DarkBlue;
+}
+
+h4 { /* Header 4 */
     font-size: 16px;
   color: DarkBlue;
 }
@@ -150,7 +151,7 @@ net1
 
 ### 1.1.2. Plot
 
-```{r, message=FALSE, warning=FALSE, fig.width=7, fig.height=5}
+```{r, message=FALSE, warning=FALSE, fig.width=7, fig.height=5, fig.cap="Figure 1.1.2. net1"}
 net1g <- igraph::graph_from_adjacency_matrix(net1, mode="directed")
 igraph::plot.igraph(net1g)
 ```
@@ -165,7 +166,7 @@ net2
 
 ### 1.2.2. Plot
 
-```{r, message=FALSE, warning=FALSE, fig.width=7, fig.height=5}
+```{r, message=FALSE, warning=FALSE, fig.width=7, fig.height=5, fig.cap="Figure 1.2.2. net1"}
 net2g <- igraph::graph_from_adjacency_matrix(net2, mode="directed")
 igraph::plot.igraph(net2g)
 ```
@@ -192,7 +193,7 @@ options <- ts_alternatives_ministep(net=net2, ego=2)
 options
 ```
 
-This function returns a list of all possible networks after all possible tie-changes available to ego#2 given network `net2`. If you look closely you will see that `options[[2]]` equals the original network (i.e. ego#2 decided not to change any tie). 
+`ts_alternatives_ministep()` returns a list of all possible networks after all possible tie-changes available to ego#2 given network `net2`. If you look closely you will see that `options[[2]]` equals the original network (i.e. ego#2 decided not to change any tie). 
 
 ## 2.3. Network statistics 
 
@@ -209,7 +210,7 @@ And in the second (original) option:
 ts_degree(net=options[[2]], ego=2)
 ```
 
-In the package `RsienaTwoStep` there are functions for the following network statistics $s$ (see @ripley2022manual Chapter 12 for the mathematical formulation):
+In the package `RsienaTwoStep` there are functions for the following network statistics $s$: 
 
   - degree: `ts_degree()` 
   - reciprocity: `ts_recip()`  
@@ -222,8 +223,7 @@ In the package `RsienaTwoStep` there are functions for the following network sta
   - transitive reciprocated triplets: `ts_transRecTrip()` 
   - number of three-cycles: `ts_cycle3()`  
   
-    
-Naturally, you are free to define your own network statistics. 
+See @ripley2022manual (Chapter 12) for the mathematical formulation. Naturally, you are free to define your own network statistics. 
 
 ## 2.4. Evaluation function 
 
@@ -289,7 +289,7 @@ If we repeat this process, that is...:
 
 ## 2.6. Stopping rule  
 
-But how many ministeps do we allow? Well, normally this is estimated by `siena07` by the `rate` parameter. If we do not make this rate parameter conditional on actor covariates or on network characteristics, the rate parameter can be interpreted as the average number of ministeps each actor in the network is allowed to make before time is up. Let us suppose the `rate` parameter is 2 `r rate<-2`. Thus in total the number of possible ministeps will be `nrow(net2)*rate`: 10. For a more detailed - **and more correct** interpretation of the rate parameter in `siena07` see: [www.jochemtolsma.nl](www.jochemtolsma.nl/courses/complete-networks/socio6)
+But how many ministeps do we allow? Well, normally this is estimated by `siena07` by the `rate` parameter. If we do not make this rate parameter conditional on actor covariates or on network characteristics, the rate parameter can be interpreted as the average number of ministeps each actor in the network is allowed to make before time is up. Let us suppose the `rate` parameter is 2 `r rate<-2`. Thus in total the number of possible ministeps will be `nrow(net2)*rate`: 10. For a more detailed - **and more correct** -  interpretation of the rate parameter in `siena07` see: [www.jochemtolsma.nl](www.jochemtolsma.nl/courses/complete-networks/socio6)
 
 ## 2.7. Example  
 
@@ -332,7 +332,7 @@ If we want to allow for simultaneity, we simply let first agent1 make all possib
 We use the same network statistics as for the ABM ministep. But please note, that not all existing network statistics of `RSiena` make sense. See for example the figure below. Suppose the evaluation of the transitive triad for actor *i* depends on whether path *i* to *j* was the closing path (i.e., created after path *h* to *j*) or not. In a twostep, both ties may be created simultaneously and we cannot distinguish these two routes. 
 
 
-```{r, echo=FALSE, fig.width=7, fig.height=5, results="hold", fig.cap="twostep versus ministeps"}
+```{r, echo=FALSE, fig.width=7, fig.height=5, results="hold", fig.cap="Figure 3.4. Twostep versus ministeps"}
 triad <- matrix(rep(0,9), nrow=3, ncol=3)
 triad[1,3] <- 1
 triadg <- igraph::graph_from_adjacency_matrix(triad, mode="directed")
@@ -388,8 +388,6 @@ arrows(0.3,0.5,0.7,0.5, length=.15, lty=3) ## add arrow
 
 
 ```
-<br> 
-  
 *note: Dashed arrows represent ministeps (long dash) or twostep (short dash); solid arrows represent initial ties (grey) or created ties (red).*
 
 
@@ -422,7 +420,7 @@ ts_sims(nsims = 1, net = net2, rate = 2, statistics = list(ts_degree, ts_recip),
 A second way in which the ministep assumption can be relaxed is to allow the same actor to make two ministeps simultaneously. Suppose a triad formed by actors *i*, *j* and *h* and a tie between *h* and *j*. 
 
 
-```{r, echo=FALSE, fig.width=7, fig.height=5, results="hold", fig.cap="simstep versus ministeps"}
+```{r, echo=FALSE, fig.width=7, fig.height=5, results="hold", fig.cap="Figure 4.1. Simstep versus ministeps"}
 triad <- matrix(rep(0,9), nrow=3, ncol=3)
 triad[3,2] <- 1
 triadg <- igraph::graph_from_adjacency_matrix(triad, mode="directed")
@@ -479,13 +477,11 @@ arrows(0.3,0.5,0.7,0.5, length=.15, lty=3) ## add arrow
 
 
 ```
-<br> 
-
 *note: Dashed arrows represent ministeps (long dash) or simstep (short dash); solid arrows represent initial ties (grey) or created ties (red).*
 
 
 Suppose, actors evaluate transitive triplet structures positively. Normally, under the ministep assumption, actor *i* should first make a tie to actor *h* (or *j*) and only when it is its turn again to make a tie change, make a tie to actor *j* (or *h*). Naturally, in larger networks a lot could have happened in the mean time. Given the network structure at the time, actor *i* is allowed to make the second ministep, actor *i* may not favor making the additional tie to actor *j* (or *h*) anymore.  
-Also, actor *i* may not even want to create a tie to actor *h* or *j* if it is not already sure it can close the triad immediately afterwards (or even simultaneously). Naturally, in real life situations, it is not that strange to create multiple ties at (almost) the same time. See for example the paper on the impact of Kudos on running behavior [@FRANKEN2023151]. If you are on Strava (or on any other social media for that matter), it is very common to give multiple kudos (of likes) to different people in your network at - more or less - the same time.  
+Also, actor *i* may not even want to create a tie to actor *h* or *j* if it is not already sure it can close the triad immediately afterwards (or even simultaneously). Naturally, in real life situations, it is not that strange to create multiple ties at (almost) the same time. See for example the paper on the impact of Kudos on running behavior [@FRANKEN2023151]. If you are on Strava (or on any other social media for that matter), it is very common to give multiple kudos (or likes) to different people in your network at - more or less - the same time.  
 
 ## 4.2. Possible networks after simstep  
 
@@ -493,7 +489,7 @@ Simply all networks that could arise after two sequential ministeps made by one 
 
 ## 4.3. Network statistics  
 
-We use the same network statistics as for the ABM ministep. But please note, that not all existing network statistics of `RSiena` make sense. See for example the figure above. Suppose the evaluation of the transitive triad for actor *i* depends on whether path *i* to *j* was the closing path or the path *i* to *h*. In a simstep, both ties may be created simultaneously and we cannot distinguish these two routes.  
+We use the same network statistics as for the ABM ministep. But please note, that not all existing network statistics of `RSiena` make sense. See for example Figure 4.1. above. Suppose the evaluation of the transitive triad for actor *i* depends on whether path *i* to *j* was the closing path or the path *i* to *h*. In a simstep, both ties may be created simultaneously and we cannot distinguish these two routes.  
 
 ## 4.4. Evaluation function  
 
@@ -551,7 +547,7 @@ Just as an example:
 df_dyads2 <- ts_dyads(nets, forplot = TRUE, simtype="twostep: random")  
 ```
 
-```{r, fig.width=7, fig.height=5}
+```{r, fig.width=7, fig.height=5, fig.cap="Figure 5.3. Dyad census"}
 library(ggplot2)
 p <- ggplot(df_dyads2, aes(x=x, y=y, fill=type)) + 
   geom_violin(position=position_dodge(1)) + 

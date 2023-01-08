@@ -15,15 +15,6 @@ knitr::opts_chunk$set(
 
  <a href="https://jochemtolsma.github.io/RsienaTwoStep/"><img src="man/figures/logo.png" align="left" height="139" /></a>
 
-<br> 
-<br>
-<br>
-<br>
-<br>
-
-
-For detailed instructions how to use the package, please see the [package website](https://jochemtolsma.github.io/RsienaTwoStep/).
-
 ---  
 
 # 1. GOAL
@@ -70,7 +61,7 @@ browseVignettes("RsienaTwoStep")
 
 # 3. Examples
 
-ABM-ministep and ABM-twostep simulations on toy data
+ABM-ministep, ABM-twostep and ABM-ministep simulations on toy data
 
 ```{r example}
 library(RsienaTwoStep)
@@ -78,10 +69,9 @@ library(RsienaTwoStep)
 
 ## 3.1. Our network
 
-```{r, message=FALSE, warning=FALSE}
+```{r, message=FALSE, warning=FALSE, results='hold'}
 net1g <- igraph::graph_from_adjacency_matrix(net1, mode="directed")
 plot(net1g)
-unloadNamespace("igraph") # to avoid clashes with package `sna`. 
 ```
 
 ## 3.2. setting up cluster 
@@ -130,10 +120,10 @@ df_s3 <- ts_dyads(sims=sims3, simtype="simstep")
 
 ### 3.3.3. Plot dyadcensus 
 
-```{r}
+```{r, warning=FALSE}
 library(ggplot2)
 
-## combine datasets
+# combine datasets
 df <- rbind(df_s1, df_s2, df_s3)
 
 p <- ggplot(df, aes(x=x, y=y, fill=factor(type, levels=c("ministep", "twostep-simultaneity", "simstep")))) + 
@@ -151,6 +141,8 @@ p <- ggplot(df, aes(x=x, y=y, fill=factor(type, levels=c("ministep", "twostep-si
   
 p
 ```
+
+---  
 
 # 4. Conclusion
 
