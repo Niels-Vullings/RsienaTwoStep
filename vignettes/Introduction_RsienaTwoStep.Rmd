@@ -153,6 +153,7 @@ net1
 
 ```{r, message=FALSE, warning=FALSE, fig.width=7, fig.height=5, fig.cap="Figure 1.1.2. net1"}
 net1g <- igraph::graph_from_adjacency_matrix(net1, mode="directed")
+par(mar=c(.1, .1, .1, .1))
 igraph::plot.igraph(net1g)
 ```
 
@@ -166,8 +167,9 @@ net2
 
 ### 1.2.2. Plot
 
-```{r, message=FALSE, warning=FALSE, fig.width=7, fig.height=5, fig.cap="Figure 1.2.2. net1"}
+```{r, message=FALSE, warning=FALSE, fig.width=7, fig.height=5, fig.cap="Figure 1.2.2. net2"}
 net2g <- igraph::graph_from_adjacency_matrix(net2, mode="directed")
+par(mar=c(.1, .1, .1, .1))
 igraph::plot.igraph(net2g)
 ```
 
@@ -204,6 +206,7 @@ Let us count the number of ties ego#2 sends to alters.
 ```{r}
 ts_degree(net=options[[1]], ego=2)
 ```
+
 And in the second (original) option: 
 
 ```{r}
@@ -289,7 +292,7 @@ If we repeat this process, that is...:
 
 ## 2.6. Stopping rule  
 
-But how many ministeps do we allow? Well, normally this is estimated by `siena07` by the `rate` parameter. If we do not make this rate parameter conditional on actor covariates or on network characteristics, the rate parameter can be interpreted as the average number of ministeps each actor in the network is allowed to make before time is up. Let us suppose the `rate` parameter is 2 `r rate<-2`. Thus in total the number of possible ministeps will be `nrow(net2)*rate`: 10. For a more detailed - **and more correct** -  interpretation of the rate parameter in `siena07` see: [www.jochemtolsma.nl](www.jochemtolsma.nl/courses/complete-networks/socio6)
+But how many ministeps do we allow? Well, normally this is estimated by `siena07` by the `rate` parameter. If we do not make this rate parameter conditional on actor covariates or on network characteristics, the rate parameter can be interpreted as the average number of ministeps each actor in the network is allowed to make before time is up. Let us suppose the `rate` parameter is 2 `r rate<-2`. Thus in total the number of possible ministeps will be `nrow(net2)*rate`: 10. For a more detailed - **and more correct** -  interpretation of the rate parameter in `siena07` see: [www.jochemtolsma.nl](www.jochemtolsma.nl/courses/complete-networks/socio6).
 
 ## 2.7. Example  
 
@@ -399,11 +402,11 @@ Next we have to decide how to combine the separate evaluations of the two agents
 
 ## 3.6. Choice function
 
-Here we follow the same logic as before. If we know the evaluation score of each network we simply apply a Mc Fadden's choice function. That is, the actors together 'decide' on the future network out of the possible alternative networks in the choice set, given the combined evaluation of these networks. Thus we see the dyad formed by agent1 and agent2 as the decision agent. Please not that agents (or rather the dyad) thus favor the network with the highest combined 'utility' score. This is not necessarily the network that would give one of the two agents the highest satisfaction.  
+Here we follow the same logic as before. If we know the evaluation score of each network we simply apply a Mc Fadden's choice function. That is, the actors together 'decide' on the future network out of the possible alternative networks in the choice set, given the combined evaluation of these networks. Thus we see the dyad formed by agent1 and agent2 as the decision agent. Please note that agents (or rather the dyad) thus favor the network with the highest combined 'utility' score. This is not necessarily the network that would give one of the two agents the highest satisfaction.  
 
 ## 3.7. Stopping rule
 
-Once again the logic is exactly similar. However, we count a twostep as two ministeps. Thus if each actor is allowed to make on average 8 ministeps, actors are allowed to make on average 4 twosteps. 
+Once again the logic is exactly similar. However, we count a twostep as two ministeps. Thus, if each actor is allowed to make on average 8 ministeps, actors are allowed to make on average 4 twosteps. 
 
 ## 3.8. Example
 
@@ -570,4 +573,4 @@ p
 
 # References
 
-<!---note to self: two sequential ministeps is not the same as two simultaneous ministeps! RsienaTwoStep only impliments simultaneity.--> 
+<!---note to self: two sequential ministeps is not the same as two simultaneous ministeps! RsienaTwoStep only implements simultaneity.--> 

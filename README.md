@@ -8,8 +8,8 @@
 # 1. GOAL
 
 The goal of `RsienaTwoStep` is to provide a method to asses the extent
-to which results obtained by `RSiena::siena07` depend on the validity of
-the **ministep** assumption.
+to which results obtained by `RSiena::siena07()` depend on the validity
+of the **ministep** assumption.
 
 A crucial assumption of the SAOM as implemented in RSiena is the
 **ministep**: only one actor at the time is allowed to make one
@@ -71,7 +71,7 @@ browseVignettes("RsienaTwoStep")
 
 # 3. Examples
 
-ABM-ministep and ABM-twostep simulations on toy data
+ABM-ministep, ABM-twostep and ABM-ministep simulations on toy data
 
 ``` r
 library(RsienaTwoStep)
@@ -86,10 +86,6 @@ plot(net1g)
 ```
 
 <img src="man/figures/README-unnamed-chunk-3-1.png" width="100%" />
-
-``` r
-unloadNamespace("igraph") # to avoid clashes with package `sna`. 
-```
 
 ## 3.2. setting up cluster
 
@@ -147,9 +143,8 @@ df_s3 <- ts_dyads(sims=sims3, simtype="simstep")
 
 ``` r
 library(ggplot2)
-#> Warning: package 'ggplot2' was built under R version 4.2.2
 
-## combine datasets
+# combine datasets
 df <- rbind(df_s1, df_s2, df_s3)
 
 p <- ggplot(df, aes(x=x, y=y, fill=factor(type, levels=c("ministep", "twostep-simultaneity", "simstep")))) + 
@@ -169,6 +164,8 @@ p
 ```
 
 <img src="man/figures/README-unnamed-chunk-7-1.png" width="100%" />
+
+------------------------------------------------------------------------
 
 # 4. Conclusion
 

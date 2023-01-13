@@ -19,7 +19,7 @@ knitr::opts_chunk$set(
 
 # 1. GOAL
  
-The goal of `RsienaTwoStep` is to provide a method to asses the extent to which results obtained by `RSiena::siena07` depend on the validity of the **ministep** assumption.
+The goal of `RsienaTwoStep` is to provide a method to asses the extent to which results obtained by `RSiena::siena07()` depend on the validity of the **ministep** assumption.
 
 A crucial assumption of the SAOM as implemented in RSiena is the **ministep**: only one actor at the time is allowed to make one tie-change. This package aims to provide a method to asses the extent to which results obtained by RSiena hinge on this crucial ministep assumption. It does so by simulating the evolution of networks by allowing **twosteps** - two actors are allowed to make one tie-change simultaneously - and by allowing **simsteps** - one actor is allowed to make two tie-changes simultaneously.  
 
