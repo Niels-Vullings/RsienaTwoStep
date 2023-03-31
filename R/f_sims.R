@@ -15,6 +15,7 @@
 #' @param nsims numeric, number of simulations.
 #' @param parallel TRUE/FALSE
 #' @param net matrix, the adjacency matrix representing the relations between actors. Valid values are 0 and 1.
+#' @param ccovar data frame with named time-constant covariates
 #' @param rate numeric, the average number of possible tie-changes per actor in the simulation.
 #' @param statistics, list of names of statistic functions (see e.g. [`ts_degree()`] for a list of available functions)
 #' @param parameters, numeric vector the same length as `parameters`
@@ -33,21 +34,21 @@
 #' @examples
 #' ts_sims(net=net2, nsims=2, rate=2, parallel=FALSE, statistics=list(ts_degree, ts_recip), parameters=c(-2,1), p2step=c(0,1,0))
 #' @importFrom foreach %dopar%
-ts_sims <- function(nsims=1000, parallel=FALSE, net, rate, statistics, parameters, p2step=c(0,1,0), chain=FALSE, dist1=NULL, dist2=NULL, modet1="degree", modet2="degree") {
+ts_sims <- function(nsims=1000, parallel=FALSE, net, ccovar, rate, statistics, parameters, p2step=c(0,1,0), chain=FALSE, dist1=NULL, dist2=NULL, modet1="degree", modet2="degree") {
   if (parallel) {
     foreach::foreach(Nsim = 1:nsims) %dopar% {
-      ts_sim(net=net, rate=rate, statistics=statistics, parameters=parameters, p2step=p2step, chain=chain, dist1=dist1, dist2=dist2, modet1=modet1, modet2=modet2)
+      ts_sim(net=net, ccovar=ccovar, rate=rate, statistics=statistics, parameters=parameters, p2step=p2step, chain=chain, dist1=dist1, dist2=dist2, modet1=modet1, modet2=modet2)
     }
   } else {
     sims <- list()
     for (i in 1:nsims) {
-      sims[[i]] <- ts_sim(net=net, rate=rate, statistics=statistics, parameters=parameters, p2step=p2step, chain=chain, dist1=dist1, dist2=dist2, modet1=modet1, modet2=modet2)
+      sims[[i]] <- ts_sim(net=net, ccovar=ccovar, rate=rate, statistics=statistics, parameters=parameters, p2step=p2step, chain=chain, dist1=dist1, dist2=dist2, modet1=modet1, modet2=modet2)
     }
     return(sims)
   }
 }
 
-ts_sim <- function(net, rate, statistics=list(ts_degree, ts_recip), parameters=c(-1,2), p2step=c(0,1,0), chain=FALSE, dist1=NULL, dist2=NULL, modet1="degree", modet2="degree"){
+ts_sim <- function(net, ccovar, rate, statistics=list(ts_degree, ts_recip), parameters=c(-1,2), p2step=c(0,1,0), chain=FALSE, dist1=NULL, dist2=NULL, modet1="degree", modet2="degree"){
   nministep <- rate*nrow(net) + 1
   net_n <- net
   nets <- list()
@@ -64,7 +65,7 @@ ts_sim <- function(net, rate, statistics=list(ts_degree, ts_recip), parameters=c
       #options
       options <- ts_alternatives_ministep(net=net_n, ego=ego)
       #evaluations
-      eval <- sapply(options, FUN=ts_eval, ego=ego, statistics=statistics, parameters=parameters)
+      eval <- sapply(options, FUN=ts_eval,  ccovar=ccovar, ego=ego, statistics=statistics, parameters=parameters)
       eval <- eval - max(eval)
       #pick new network
       net_n <- options[[sample(1:length(eval), size=1, prob=exp(eval)/sum(exp(eval)))]]
@@ -79,9 +80,9 @@ ts_sim <- function(net, rate, statistics=list(ts_degree, ts_recip), parameters=c
       egos <- results[[1]] #sampled dyad
       options <- results[[2]] #all possible future networks after the twostep
       #evaluations ego1
-      eval1 <- sapply(options, FUN=ts_eval, ego=egos[1], statistics=statistics, parameters=parameters)
+      eval1 <- sapply(options, FUN=ts_eval,  ccovar=ccovar, ego=egos[1], statistics=statistics, parameters=parameters)
       #evaluations ego2
-      eval2 <- sapply(options, FUN=ts_eval, ego=egos[2], statistics=statistics, parameters=parameters)
+      eval2 <- sapply(options, FUN=ts_eval,  ccovar=ccovar, ego=egos[2], statistics=statistics, parameters=parameters)
       #pick new network
       eval <- eval1 + eval2
       eval <- eval - max(eval)
@@ -98,7 +99,7 @@ ts_sim <- function(net, rate, statistics=list(ts_degree, ts_recip), parameters=c
       #options
       options <- ts_alternatives_simstep(net=net_n, ego=ego)
       #evaluations
-      eval <- sapply(options, FUN=ts_eval, ego=ego, statistics=statistics, parameters=parameters)
+      eval <- sapply(options, FUN=ts_eval,  ccovar=ccovar, ego=ego, statistics=statistics, parameters=parameters)
       eval <- eval - max(eval)
       #pick new network
       net_n <- options[[sample(1:length(eval), size=1, prob=exp(eval)/sum(exp(eval)))]]

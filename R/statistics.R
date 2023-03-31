@@ -1,12 +1,13 @@
 #' @title Network Statistics
 #'
-#' @description These functions calculate the respective network statistic for ego. When multiplied with the importance of each statistic (the 'parameters') this constitutues the network evaluation of ego. See: [`ts_eval()`].
+#' @description These functions calculate the respective network statistic for ego. When multiplied with the importance of each statistic (the 'parameters') this constitutes the network evaluation of ego. See: [`ts_eval()`].
 #'
 #' @details For examples on how to use these statistics see: `vignette("1.Introduction_RsienaTwoStep", package="RsienaTwoStep")`.
 #'
 #' For the mathematical definition of these network statistics see chapter 12 of the RSiena manual \insertCite{ripley2022manual}{RsienaTwoStep}.
 #' @family networkstatistics
 #' @param net matrix, the adjacency matrix representing the relations between actors. Valid values are 0 and 1.
+#' @param cov numeric, covariate scores
 #' @param ego numeric, the ego for which we want to calculate the network statistic.
 #'
 #' @references
@@ -134,4 +135,46 @@ ts_cycle3 <- function(net, ego) {
   return(statistic)
 }
 
+#' @rdname ts_degree
+#' @export
+ts_egoX <- function(net, ego, cov) {
+  statistic <- cov[ego]*sum(net[ego,])
+  return(statistic)
+}
+
+#' @rdname ts_degree
+#' @export
+ts_altX <- function(net, ego, cov) {
+  statistic <- 0
+  alters <- which(net[ego,]==1)
+  statistic <- sum(cov[alters])
+  return(statistic)
+}
+
+#' @rdname ts_degree
+#' @export
+ts_diffX <- function(net, ego, cov) {
+  statistic <- 0
+  alters <- which(net[ego,]==1)
+  statistic <- sum(cov[alters] - cov[ego])
+  return(statistic)
+}
+
+#' @rdname ts_degree
+#' @export
+ts_absdiffX <- function(net, ego, cov) {
+  statistic <- 0
+  alters <- which(net[ego,]==1)
+  statistic <- sum(abs(cov[alters] - cov[ego]))
+  return(statistic)
+}
+
+#' @rdname ts_degree
+#' @export
+ts_sameX <- function(net, ego, cov) {
+  statistic <- 0
+  alters <- which(net[ego,]==1)
+  statistic <- sum(cov[alters] == cov[ego])
+  return(statistic)
+}
 
