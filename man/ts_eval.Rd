@@ -4,14 +4,16 @@
 \alias{ts_eval}
 \title{Evaluation function}
 \usage{
-ts_eval(net, ego, statistics, parameters)
+ts_eval(net, ego, statistics, ccovar = NULL, parameters)
 }
 \arguments{
 \item{net}{matrix, the adjacency matrix representing the relations between actors. Valid values are 0 and 1.}
 
-\item{ego}{numeric, the ego for which we are going to calculat how its evaluates the network.}
+\item{ego}{numeric, the ego for which we are going to calculate how its evaluates the network.}
 
 \item{statistics}{list of names of statistic functions the same length as \code{parameters}. See e.g. \code{\link[=ts_degree]{ts_degree()}} for a list of available statistic functions.}
+
+\item{ccovar}{data frame with named time-constant covariates}
 
 \item{parameters}{vector of numeric values the same length as \code{statistics}.}
 }
@@ -24,8 +26,8 @@ For the mathematical definition of the evaluation function see chapter 12 of the
 \examples{
 ts_eval(net=net1, ego=6, statistics=list(ts_degree, ts_recip),
 parameters=c(-2,1))
-ts_eval(net=net1, ego=10, statistics=list(ts_degree,
-ts_recip, ts_transTrip, ts_transMedTrip), parameters=c(-2,2,7,7))
+ts_eval(net=net1, ego=10, ccovar=df_ccovar1, statistics=list(ts_degree, ts_recip, ts_transTrip, ts_transMedTrip, list(ts_egoX, "cov1")),
+ parameters=c(-2,2,7,7,1))
 }
 \references{
 \insertRef{ripley2022manual}{RsienaTwoStep}

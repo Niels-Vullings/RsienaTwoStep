@@ -5,3 +5,4 @@
 #'
 #' @format ## `df_ccovar1`
 #' Dataset of time constant covariates, to be used with 'net1'
+"df_ccovar1"

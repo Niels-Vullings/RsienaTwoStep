@@ -8,6 +8,7 @@ ts_sims(
   nsims = 1000,
   parallel = FALSE,
   net,
+  ccovar = NULL,
   rate,
   statistics,
   parameters,
@@ -25,6 +26,8 @@ ts_sims(
 \item{parallel}{TRUE/FALSE}
 
 \item{net}{matrix, the adjacency matrix representing the relations between actors. Valid values are 0 and 1.}
+
+\item{ccovar}{data frame with named time-constant covariates}
 
 \item{rate}{numeric, the average number of possible tie-changes per actor in the simulation.}
 

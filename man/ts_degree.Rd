@@ -11,6 +11,11 @@
 \alias{ts_transMedTrip}
 \alias{ts_transRecTrip}
 \alias{ts_cycle3}
+\alias{ts_egoX}
+\alias{ts_altX}
+\alias{ts_diffX}
+\alias{ts_absdiffX}
+\alias{ts_sameX}
 \title{Network Statistics}
 \usage{
 ts_degree(net, ego)
@@ -32,17 +37,29 @@ ts_transMedTrip(net, ego)
 ts_transRecTrip(net, ego)
 
 ts_cycle3(net, ego)
+
+ts_egoX(net, ego, cov)
+
+ts_altX(net, ego, cov)
+
+ts_diffX(net, ego, cov)
+
+ts_absdiffX(net, ego, cov)
+
+ts_sameX(net, ego, cov)
 }
 \arguments{
 \item{net}{matrix, the adjacency matrix representing the relations between actors. Valid values are 0 and 1.}
 
 \item{ego}{numeric, the ego for which we want to calculate the network statistic.}
+
+\item{cov}{numeric, covariate scores}
 }
 \value{
 numeric value
 }
 \description{
-These functions calculate the respective network statistic for ego. When multiplied with the importance of each statistic (the 'parameters') this constitutues the network evaluation of ego. See: \code{\link[=ts_eval]{ts_eval()}}.
+These functions calculate the respective network statistic for ego. When multiplied with the importance of each statistic (the 'parameters') this constitutes the network evaluation of ego. See: \code{\link[=ts_eval]{ts_eval()}}.
 }
 \details{
 For examples on how to use these statistics see: \code{vignette("1.Introduction_RsienaTwoStep", package="RsienaTwoStep")}.

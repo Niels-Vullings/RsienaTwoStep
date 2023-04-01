@@ -14,27 +14,46 @@
 #'
 #' @param nsims numeric, number of simulations.
 #' @param parallel TRUE/FALSE
-#' @param net matrix, the adjacency matrix representing the relations between actors. Valid values are 0 and 1.
+#' @param net matrix, the adjacency matrix representing the relations between
+#'   actors. Valid values are 0 and 1.
 #' @param ccovar data frame with named time-constant covariates
-#' @param rate numeric, the average number of possible tie-changes per actor in the simulation.
-#' @param statistics, list of names of statistic functions (see e.g. [`ts_degree()`] for a list of available functions)
+#' @param rate numeric, the average number of possible tie-changes per actor in
+#'   the simulation.
+#' @param statistics, list of names of statistic functions (see e.g.
+#'   [`ts_degree()`] for a list of available functions)
 #' @param parameters, numeric vector the same length as `parameters`
-#' @param p2step numeric vector of length 3, setting the ratio of *ministep*, *twostep* and *twoministeps*.
-#' @param chain TRUE/FALSE, set to `TRUE` if you want to save all the subsequent networks (after the ministep or twostep) during the simulation. If `FALSE` only the end network is saved.
-#' @param dist1 numeric, minimal path length between ego1 and ego2 at time1 in order to be allowed to start a coorporation. If `NULL` all dyads are allowed to start a cooperation.
-#' @param dist2 numeric, minimal path length between ego1 and ego2 at time2 in order for twostep to be counted as coorporation.
-#' @param modet1 string, indicating the type of ties being evaluated at time1. "`degree`" considers all ties as undirected. "`outdegree`" only allows directed paths starting from ego1 and ending at ego2. "`indegree`" only allows directed paths starting from ego2 and ending at ego2.
-#' @param modet2 string, indicating the type of ties being evaluated at time2. "`degree`" considers all ties as undirected. "`outdegree`" only allows directed paths starting from ego1 and ending at ego2. "`indegree`" only allows directed paths starting from ego2 and ending at ego2.
+#' @param p2step numeric vector of length 3, setting the ratio of *ministep*,
+#'   *twostep* and *twoministeps*.
+#' @param chain TRUE/FALSE, set to `TRUE` if you want to save all the subsequent
+#'   networks (after the ministep or twostep) during the simulation. If `FALSE`
+#'   only the end network is saved.
+#' @param dist1 numeric, minimal path length between ego1 and ego2 at time1 in
+#'   order to be allowed to start a coorporation. If `NULL` all dyads are
+#'   allowed to start a cooperation.
+#' @param dist2 numeric, minimal path length between ego1 and ego2 at time2 in
+#'   order for twostep to be counted as coorporation.
+#' @param modet1 string, indicating the type of ties being evaluated at time1.
+#'   "`degree`" considers all ties as undirected. "`outdegree`" only allows
+#'   directed paths starting from ego1 and ending at ego2. "`indegree`" only
+#'   allows directed paths starting from ego2 and ending at ego2.
+#' @param modet2 string, indicating the type of ties being evaluated at time2.
+#'   "`degree`" considers all ties as undirected. "`outdegree`" only allows
+#'   directed paths starting from ego1 and ending at ego2. "`indegree`" only
+#'   allows directed paths starting from ego2 and ending at ego2.
 #'
-#' @return
-#' If `chain=FALSE` a `list` (of length `nsims`) of adjacency matrices representing the final network after the simulated evolution.
-#' If `chain=TRUE` a `list` of lists of adjacency matrices. Each inner list represents the complete network evolution of one simulation. The outer list refers to the simulation run (with length `nsims`).
+#' @return If `chain=FALSE` a `list` (of length `nsims`) of adjacency matrices
+#' representing the final network after the simulated evolution. If `chain=TRUE`
+#' a `list` of lists of adjacency matrices. Each inner list represents the
+#' complete network evolution of one simulation. The outer list refers to the
+#' simulation run (with length `nsims`).
 #' @export
-#' @seealso [`ts_alternatives_ministep()`], [`ts_alternatives_twostep()`], [`ts_alternatives_simstep()`], [`ts_eval()`]
+#' @seealso [`ts_alternatives_ministep()`], [`ts_alternatives_twostep()`],
+#'   [`ts_alternatives_simstep()`], [`ts_eval()`]
 #' @examples
-#' ts_sims(net=net2, nsims=2, rate=2, parallel=FALSE, statistics=list(ts_degree, ts_recip), parameters=c(-2,1), p2step=c(0,1,0))
+#' ts_sims(net=net2, nsims=2, rate=2, parallel=FALSE, statistics=list(ts_degree, ts_recip),
+#' parameters=c(-2,1), p2step=c(0,1,0))
 #' @importFrom foreach %dopar%
-ts_sims <- function(nsims=1000, parallel=FALSE, net, ccovar, rate, statistics, parameters, p2step=c(0,1,0), chain=FALSE, dist1=NULL, dist2=NULL, modet1="degree", modet2="degree") {
+ts_sims <- function(nsims=1000, parallel=FALSE, net, ccovar=NULL, rate, statistics, parameters, p2step=c(0,1,0), chain=FALSE, dist1=NULL, dist2=NULL, modet1="degree", modet2="degree") {
   if (parallel) {
     foreach::foreach(Nsim = 1:nsims) %dopar% {
       ts_sim(net=net, ccovar=ccovar, rate=rate, statistics=statistics, parameters=parameters, p2step=p2step, chain=chain, dist1=dist1, dist2=dist2, modet1=modet1, modet2=modet2)
