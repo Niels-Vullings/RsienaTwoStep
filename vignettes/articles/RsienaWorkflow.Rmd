@@ -299,6 +299,10 @@ rm(x)
 load("./data/processed/20221221sims4.Rdata")
 sims4 <- x
 rm(x)
+
+load("./data/processed/20230114sims5.Rdata")
+sims5 <- x
+rm(x)
 ```
 
 ## 3.3. Counting dyads
@@ -369,7 +373,7 @@ p
 ### 3.4.2. Plotting dyad census selection 
 
 ```{r}
-df <- rbind(dfrs_siena, df_ts1, df_ts2, df_ts3, df_ts4)
+
 
 df_sel <- df[df$x!="null", ]
 
@@ -466,8 +470,8 @@ load("./data/processed/20221223sims3m2.Rdata")
 sims3m2 <- x
 load("./data/processed/20221224sims4m2.Rdata")
 sims4m2 <- x
-load("./data/processed/2023XXXXsims5m2.Rdata")
-sims4m2 <- x
+load("./data/processed/20230114sims5m2.Rdata")
+sims5m2 <- x
 rm(x)
 ```
 
@@ -505,6 +509,7 @@ df_ts1m2 <- ts_dyads(sims=sims1m2, simtype="ministep")
 df_ts2m2 <- ts_dyads(sims=sims2m2, simtype="twostep-simultaneity")
 df_ts3m2 <- ts_dyads(sims=sims3m2, simtype="twostep-weak coordination") 
 df_ts4m2 <- ts_dyads(sims=sims4m2, simtype="twostep-strict coordination")
+df_ts5m2 <- ts_dyads(sims=sims5m2, simtype="simstep")
 ```
 
 ## 4.4. Plotting dyad_census
@@ -512,9 +517,9 @@ df_ts4m2 <- ts_dyads(sims=sims4m2, simtype="twostep-strict coordination")
 ### 4.4.1. All three dyad types  
 
 ```{r}
-df <- rbind(dfrs_sienam2, df_ts1m2, df_ts2m2, df_ts3m2, df_ts4m2)
+df <- rbind(dfrs_sienam2, df_ts1m2, df_ts2m2, df_ts3m2, df_ts4m2, df_ts5m2)
 
-p <- ggplot(df, aes(x=x, y=y, fill=factor(type, levels=c("rsiena", "ministep", "twostep-simultaneity", "twostep-weak coordination", "twostep-strict coordination"))) ) + 
+p <- ggplot(df, aes(x=x, y=y, fill=factor(type, levels=c("rsiena", "ministep", "twostep-simultaneity", "twostep-weak coordination", "twostep-strict coordination", "simstep"))) ) + 
   geom_violin(position=position_dodge(.8)) + 
   stat_summary(fun = mean,
                geom = "errorbar",
@@ -535,7 +540,7 @@ p
 ```{r}
 df_sel <- df[df$x!="null", ]
 
-p <- ggplot(df_sel, aes(x=x, y=y, fill=factor(type, levels=c("rsiena", "ministep", "twostep-simultaneity", "twostep-weak coordination", "twostep-strict coordination"))) ) + 
+p <- ggplot(df_sel, aes(x=x, y=y, fill=factor(type, levels=c("rsiena", "ministep", "twostep-simultaneity", "twostep-weak coordination", "twostep-strict coordination", "simstep"))) ) + 
   geom_violin(position=position_dodge(.8)) + 
   stat_summary(fun = mean,
                geom = "errorbar",
@@ -594,6 +599,7 @@ df_ts1m2 <- ts_triads(sims=sims1m2, simtype="ministep")
 df_ts2m2 <- ts_triads(sims=sims2m2, simtype="twostep-simultaneity")
 df_ts3m2 <- ts_triads(sims=sims3m2, simtype="twostep-weak coordination") 
 df_ts4m2 <- ts_triads(sims=sims4m2, simtype="twostep-strict coordination")
+df_ts5m2 <- ts_triads(sims=sims5m2, simtype="simstep")
 ```
 
 
@@ -602,9 +608,9 @@ df_ts4m2 <- ts_triads(sims=sims4m2, simtype="twostep-strict coordination")
 ### 4.6.1. All triad types  
 
 ```{r}
-df <- rbind(dfrs_sienam2, df_ts1m2, df_ts2m2, df_ts3m2, df_ts4m2)
+df <- rbind(dfrs_sienam2, df_ts1m2, df_ts2m2, df_ts3m2, df_ts4m2, df_ts5m2)
 
-p <- ggplot(df, aes(x=x, y=y, fill=factor(type, levels=c("rsiena", "ministep", "twostep-simultaneity", "twostep-weak coordination", "twostep-strict coordination")))) + 
+p <- ggplot(df, aes(x=x, y=y, fill=factor(type, levels=c("rsiena", "ministep", "twostep-simultaneity", "twostep-weak coordination", "twostep-strict coordination", "simstep")))) + 
   geom_violin(position=position_dodge(1)) + 
   stat_summary(fun = mean,
                geom = "errorbar",
@@ -625,7 +631,7 @@ p
 ```{r}
 df_sel <- df[df$x=="030C" | df$x=="120C",]
 
-p <- ggplot(df_sel, aes(x=x, y=y, fill=factor(type, levels=c("rsiena", "ministep", "twostep-simultaneity", "twostep-weak coordination", "twostep-strict coordination")))) + 
+p <- ggplot(df_sel, aes(x=x, y=y, fill=factor(type, levels=c("rsiena", "ministep", "twostep-simultaneity", "twostep-weak coordination", "twostep-strict coordination", "simstep")))) + 
   geom_violin(position=position_dodge(.8)) + 
   stat_summary(fun = mean,
                geom = "errorbar",
@@ -646,7 +652,7 @@ p
 ```{r}
 df_sel <- df[df$x=="210" | df$x=="300",]
 
-p <- ggplot(df_sel, aes(x=x, y=y, fill=factor(type, levels=c("rsiena", "ministep", "twostep-simultaneity", "twostep-weak coordination", "twostep-strict coordination")))) + 
+p <- ggplot(df_sel, aes(x=x, y=y, fill=factor(type, levels=c("rsiena", "ministep", "twostep-simultaneity", "twostep-weak coordination", "twostep-strict coordination", "simstep")))) + 
   geom_violin(position=position_dodge(.8)) + 
   stat_summary(fun = mean,
                geom = "errorbar",
@@ -671,7 +677,7 @@ p
 - Both forms of coordination (weak and strict) lead to more reciprocated ties.  
 - The dyad and triad census of the networks simulated assuming 'weak coordination' deviate the most from the other simulated networks. The assumption made under weak coordination is that also actors who are **`r colorize("not", "red")` connected at time t0** can initiate a coordinated tie-change. Hence, it is called weak coordination. However, these actors only evaluate twostep tie changes that lead to a connection at time t2. In other words, their choice set is reduced.  
 - Under strict coordination, it is assumed that only actors **connected at time t0** can start a coordination. Hence, it is called strict coordination. These actors evaluate all twostep tie changes (also those that would be the result of two independent ministeps). In our ABM we specified that there was only strict coordination (parameter `p2step=c(0,1,0`). This will probably mean that some actors made a lot more tie-changes than others. It may be worthwhile to mix twosteps with ministeps and simsteps (i.e., `p2step=c(0.33,0.33,0.34)`).  
-- Conclusion for simstep: .... 
+- Under the simstep assumption, we observe more asymmetric dyads. This, intuitively makes sense, because you cannot make a reciprocated tie all by yourself. More surprisingly is that also cyclic triads (030C and 120C) seem to occur relatively often. Whether or not this is solely the results of the abundance of asymetric dyads remains to be investigated. 
 
 
 
