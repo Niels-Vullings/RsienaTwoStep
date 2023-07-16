@@ -85,3 +85,13 @@ ts_triads <- function(sims, simtype="notypespecified", forplot=TRUE) {
   df$type <- simtype
   return(df)
 }
+
+ts_nacf <- function(sims, simtype="notypespecified", forplot=TRUE, cov) {
+  nsims <- length(sims)
+  df <- foreach::foreach(1:nsims, i=iterators::icount(), .combine="rbind") %dopar% {
+    sna::nacf(sims[[i]], cov, type = "moran", neighborhood.type = "out", demean = TRUE)[2]
+  }
+  df <- as.data.frame(df)
+  df$type <- simtype
+  return(df)
+}

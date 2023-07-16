@@ -167,7 +167,7 @@ fpackage.check(packages)
 Please see: `RSiena::SienaGOF()`.  
 
 I want to be able to have a dyadcensus/triadcensus in the GOF of Rsiena. 
-Thus, need to add this. 
+Thus, these functions have been added to `RsienaTwoStep`.  
 
 ```{r}
 
@@ -192,6 +192,7 @@ TriadCensus.sna <- function(i, data, sims, period, groupName, varName, levls=1:1
   require(sna)
   x <- networkExtraction(i, data, sims, period, groupName, varName)
   if (network.edgecount(x) <= 0){x <- symmetrize(x)}
+  
   # because else triad.census(x) will lead to an error
   tc <- sna::triad.census(x)[levls]
   # names are transferred automatically
@@ -200,20 +201,51 @@ TriadCensus.sna <- function(i, data, sims, period, groupName, varName, levls=1:1
 
 TriadCensus.sna <- cmpfun(TriadCensus.sna)
 
+
+Nacf.sna <- function(i, data, sims, period, groupName, varName, cov){
+  unloadNamespace("igraph") # to avoid package clashes
+  require(network)
+  require(sna)
+  x <- networkExtraction(i, data, sims, period, groupName, varName)
+  if (network.edgecount(x) <= 0){x <- symmetrize(x)}
+  x <- as.sociomatrix.sna(x)
+  # because else triad.census(x) will lead to an error
+  snaM1 <- sna::nacf(x, cov, type = "moran", neighborhood.type = "out", demean = TRUE)[2]
+  snaM1
+}
+
+Nacf.sna <- cmpfun(Nacf.sna)
+
+
+network.ts <- function(i, data, sims, period, groupName, varName){
+  unloadNamespace("igraph") # to avoid package clashes
+  require(network)
+  require(sna)
+  x <- networkExtraction(i, data, sims, period, groupName, varName)
+  x
+}
+network.ts <- cmpfun(network.ts)
+
+
+
 ```
 
 ---  
 
 # 2. Setting up cluster
 
-```{r}
+```{r, results='hide'}
 #stopCluster(my.cluster) 
 n.cores <- parallel::detectCores() - 1  #save one core for other work
 # create the cluster
 my.cluster <- parallel::makeCluster(n.cores, type = "PSOCK")
 # register it to be used by %dopar%
 doParallel::registerDoParallel(cl = my.cluster)
+
+parallel::clusterEvalQ(my.cluster, library("network"))
+parallel::clusterEvalQ(my.cluster, library("RSiena"))
 ```
+
 
 ---  
 
@@ -309,7 +341,7 @@ rm(x)
 
 ### 3.3.1. RSiena
 
-```{r}
+```{r, message=FALSE}
 gofi <- sienaGOF(ans1,
                  DyadCensus.sna, 
                  verbose = TRUE,
@@ -479,7 +511,7 @@ rm(x)
 
 ### 4.3.1. RSiena
 
-```{r}
+```{r, message=FALSE}
 gofi <- sienaGOF(ans2,
                  DyadCensus.sna, 
                  verbose = TRUE,
@@ -561,7 +593,7 @@ p
 ## 4.5. Counting triads
 
 ### 4.5.1. RSiena
-```{r}
+```{r, message=FALSE}
 nsims <- 1000
 gofi <- sienaGOF(ans2,
                  TriadCensus.sna, 
@@ -670,7 +702,452 @@ p
 
 ---  
 
-# 5. Conclusion 
+# 5. Model 3: Degree, reciprocity, transitive triplets, 3cycle, smoke similarity, alcohol alter, alcohol ego, alcohol ego X alcohol alter 
+
+## 5.1. Running `Siena07()
+
+preparing the dataset
+```{r}
+mynet <- sienaDependent(array(c(s501, s502), dim=c(50, 50, 2)))
+alcohol <- s50a
+smoke <- s50s
+smoke <- coCovar(smoke[, 1])
+alcohol <- coCovar(alcohol[, 1])
+mydata <- sienaDataCreate(mynet, smoke, alcohol)
+```
+
+
+```{r, eval=FALSE}
+myalgorithm <- sienaAlgorithmCreate(seed=1293, cond=FALSE) #toggle set conditional to retrieve the rate parameter in theta!
+myeff <- getEffects(mydata)
+myeff <- includeEffects(myeff, transTrip, cycle3)
+myeff <- includeEffects(myeff, egoX, altX, egoXaltX, interaction1 = "alcohol")
+myeff <- includeEffects(myeff, simX, interaction1 = "smoke")
+ans3 <- siena07(myalgorithm, data=mydata, effects=myeff, batch=TRUE, returnDeps = TRUE)
+```
+
+
+```{r, eval=FALSE}
+fsave(ans3, file="ans3.Rdata")
+```
+
+```{r, eval=TRUE, echo=FALSE}
+load("./data/processed/20230401ans3.Rdata")
+ans3 <- x
+rm(x)
+```
+
+let's have a look
+```{r}
+ans3
+```
+
+This result is not very interesting because the covariates do not have an important impact on the selection processes. 
+
+Let us briefly demonstrate that our RsienaTwoStep simulation leads to same network configurations
+
+
+
+## 5.2. Simulate networks via `RsienaTwoStep`
+
+`r colorize("These simulations took two days to complete on a simple HP Elitebook 855 G7", "red" )`
+
+Prepare dataset for RsienaTwoStep Simulations. 
+
+```{r, eval=FALSE}
+alcohol <- s50a[,1] 
+smoke <- s50s[,1] 
+df <- data.frame(alcohol=alcohol, smoke=smoke)
+```
+
+
+```{r, eval=FALSE, class.source="watch-out"}
+#ministep
+sims1m3 <- ts_sims(nsims=100, parallel=TRUE, net=s501, ccovar=df, rate=summary(ans3)$theta[1], statistics=list(ts_degree, ts_recip, ts_transTrip, ts_cycle3, list(ts_simX, "smoke"), list(ts_altX, "alcohol"), list(ts_egoX, "alcohol"), list(ts_egoXaltX, "alcohol")), parameters=summary(ans3)$theta[2:9], p2step=c(1,0,0), chain=FALSE)
+
+fsave(sims1m3, file="sims1m3.Rdata")
+```
+
+
+
+```{r, eval=TRUE, echo=FALSE}
+load("./data/processed/20230501sims1m3.Rdata")
+sims1m3 <- x
+rm(x)
+```
+
+
+
+
+## 5.3. Counting dyads
+
+### 5.3.1. RSiena
+
+```{r, message=FALSE}
+gofi <- sienaGOF(ans3,
+                 DyadCensus.sna, 
+                 verbose = TRUE,
+                 join = TRUE, 
+                 cluster = my.cluster,
+                 varName = "mynet")
+
+
+```
+
+```{r}
+dfrs <- as.data.frame(gofi[[1]]$Simulations)
+names(dfrs) <- c("Mut", "Asym", "Null")
+
+df <- rbind(dfrs, dfrs, dfrs)
+df$x <- rep(c("mut", "asym", "null"), each=nrow(dfrs))
+df$y <- NA
+df$y[df$x=="mut"] <- df$Mut[df$x=="mut"]
+df$y[df$x=="asym"] <- df$Asym[df$x=="asym"]
+df$y[df$x=="null"] <- df$Null[df$x=="null"]
+df$type <- "rsiena"
+dfrs_sienam3 <- df
+rm(list=c("df", "dfrs"))
+```
+
+### 5.3.2. RsienaTwoStep 
+
+```{r}
+df_ts1m3 <- ts_dyads(sims=sims1m3, simtype="ministep") 
+```
+
+```{r}
+df <- rbind(dfrs_sienam3, df_ts1m3)
+
+p <- ggplot(df, aes(x=x, y=y, fill=factor(type, levels=c("rsiena", "ministep"))) ) + 
+  geom_violin(position=position_dodge(.8)) + 
+  stat_summary(fun = mean,
+               geom = "errorbar",
+               fun.max = function(x) mean(x) + sd(x),
+               fun.min = function(x) mean(x) - sd(x),
+               width=.1,
+               color="red", position=position_dodge(.8)) + 
+  stat_summary(fun = mean,
+               geom = "point",
+               color="red", position=position_dodge(.8)) +
+  labs(x = "dyad type", y = "dyad count", fill="simulation type")
+
+p
+
+```
+
+
+
+## 5.4 Assessing segregation
+
+### 5.4.1. Rsiena
+
+```{r}
+gofi <- sienaGOF(ans3,
+                 Nacf.sna, 
+                 verbose = TRUE,
+                 join = TRUE, 
+                 cluster = my.cluster,
+                 varName = "mynet", 
+                 cov=mydata$cCovars$smoke)
+
+ 
+# sims <- ans3$sims
+# sims[[1]]
+# sna::as.sociomatrix.sna(sims[[1]])
+# 
+# net <- networkExtraction(i=NULL, obsData=ans3$f, sims=ans3$sims, period=1, groupName="Data1", varName="mynet")
+# 
+# sna::as.sociomatrix.sna(net)
+# s502 == sna::as.sociomatrix.sna(net)
+```
+
+```{r}
+dfrs <- as.data.frame(gofi[[1]]$Simulations)
+dfrs$type <- "rsiena"
+names(dfrs)[1] <- "MoranI"
+```
+
+### 5.4.2. RsienaTwoStep
+
+
+
+```{r}
+df_ts1m3 <- ts_nacf(sims=sims1m3, simtype="ministep", cov=mydata$cCovars$smoke) 
+names(df_ts1m3)[1] <- "MoranI" 
+
+```
+
+```{r}
+df <- rbind(dfrs, df_ts1m3)
+
+p <- ggplot(df, aes(x=factor(type, levels=c("rsiena", "ministep")), y=MoranI, fill=factor(type, levels=c("rsiena", "ministep")))) + 
+  geom_violin(position=position_dodge(.8)) + 
+  stat_summary(fun = mean,
+               geom = "errorbar",
+               fun.max = function(x) mean(x) + sd(x),
+               fun.min = function(x) mean(x) - sd(x),
+               width=.1,
+               color="red", position=position_dodge(.8)) + 
+  stat_summary(fun = mean,
+               geom = "point",
+               color="red", position=position_dodge(.8)) +
+  labs(x = "sim type", y = "Smoke \n MoranI", fill="sim type")
+
+p
+
+
+```
+Okay, it seems RsienaTwoStep is programmed correctly. 
+
+# 6. Model 4: Model 3 with smoke segregation
+
+## 6.1. Simulate networks via `RsienaTwoStep`
+
+Let us now, simulate a model with segregation. Or more precisely, that pupils have a preference for a tie with someone with similar smoking behavior. We take as starting point the estimates of `ans3`. 
+
+
+```{r, eval=FALSE, class.source="watch-out"}
+est <- summary(ans3)$theta[2:9]
+est[5] <- .8 #count carefully :-(
+est
+```
+
+Now simulate under the different twostep conditions. 
+
+Prepare dataset for RsienaTwoStep Simulations (again). 
+
+```{r, eval=FALSE}
+alcohol <- s50a[,1] 
+smoke <- s50s[,1] 
+df <- data.frame(alcohol=alcohol, smoke=smoke)
+```
+
+
+```{r, eval=FALSE, class.source="watch-out"}
+sims1m3b <- ts_sims(nsims=100, parallel=TRUE, net=s501, ccovar=df, rate=summary(ans3)$theta[1], statistics=list(ts_degree, ts_recip, ts_transTrip, ts_cycle3, list(ts_simX, "smoke"), list(ts_altX, "alcohol"), list(ts_egoX, "alcohol"), list(ts_egoXaltX, "alcohol")), parameters=est, p2step=c(1,0,0), chain=FALSE)
+
+fsave(sims1m3b, file="sims1m3b.Rdata")
+
+#simultaneity
+sims2m3 <- ts_sims(nsims=100, parallel=TRUE, net=s501, ccovar=df, rate=summary(ans3)$theta[1], statistics=list(ts_degree, ts_recip, ts_transTrip, ts_cycle3, list(ts_simX, "smoke"), list(ts_altX, "alcohol"), list(ts_egoX, "alcohol"), list(ts_egoXaltX, "alcohol")), parameters=est, p2step=c(0,1,0), chain=FALSE)
+fsave(sims2m3, file="sims2m3.Rdata")
+
+#weak coordination
+sims3m3 <- ts_sims(nsims=100, parallel=TRUE, net=s501, ccovar=df, rate=summary(ans3)$theta[1], statistics=list(ts_degree, ts_recip, ts_transTrip, ts_cycle3, list(ts_simX, "smoke"), list(ts_altX, "alcohol"), list(ts_egoX, "alcohol"), list(ts_egoXaltX, "alcohol")), parameters=est, p2step=c(0,1,0), dist1=2, dist2=2, chain=FALSE)
+fsave(sims3m3, file="sims3m3.Rdata")
+
+#strict coordination
+sims4m3 <- ts_sims(nsims=100, parallel=TRUE, net=s501, ccovar=df, rate=summary(ans3)$theta[1], statistics=list(ts_degree, ts_recip, ts_transTrip, ts_cycle3, list(ts_simX, "smoke"), list(ts_altX, "alcohol"), list(ts_egoX, "alcohol"), list(ts_egoXaltX, "alcohol")), parameters=est, p2step=c(0,1,0), dist1=2, chain=FALSE)
+fsave(sims4m3, file="sims4m3.Rdata")
+
+#simstep
+sims5m3 <- ts_sims(nsims=100, parallel=TRUE, net=s501, ccovar=df, rate=summary(ans3)$theta[1], statistics=list(ts_degree, ts_recip, ts_transTrip, ts_cycle3, list(ts_simX, "smoke"), list(ts_altX, "alcohol"), list(ts_egoX, "alcohol"), list(ts_egoXaltX, "alcohol")), parameters=est, p2step=c(0,0,1), chain=FALSE)
+fsave(sims5m3, file="sims5m3.Rdata")
+
+```
+
+
+```{r, eval=TRUE, echo=FALSE}
+load("./data/processed/20230501sims1m3.Rdata")
+sims1m3 <- x
+load("./data/processed/20230507sims1m3b.Rdata")
+sims1m3b <- x
+load("./data/processed/20230507sims2m3.Rdata")
+sims2m3 <- x
+load("./data/processed/20230507sims3m3.Rdata")
+sims3m3 <- x
+load("./data/processed/20230507sims4m3.Rdata")
+sims4m3 <- x
+load("./data/processed/20230507sims5m3.Rdata")
+sims5m3 <- x
+rm(x)
+```
+
+
+
+## 6.2 counting dyads RsienaTwoStep 
+
+```{r}
+df_ts1m3 <- ts_dyads(sims=sims1m3, simtype="ministep-original") 
+df_ts1m3b <- ts_dyads(sims=sims1m3b, simtype="ministep-with segregation") 
+df_ts2m3 <- ts_dyads(sims=sims2m3, simtype="twostep-simultaneity") 
+df_ts3m3 <- ts_dyads(sims=sims3m3, simtype="twostep-weak coordination") 
+df_ts4m3 <- ts_dyads(sims=sims4m3, simtype= "twostep-strict coordination") 
+df_ts5m3 <- ts_dyads(sims=sims5m3, simtype="simstep") 
+
+```
+
+### 6.2.1 Plotting all dyads
+
+```{r}
+df <- rbind(df_ts1m3, df_ts1m3b, df_ts2m3, df_ts3m3, df_ts4m3, df_ts5m3)
+
+p <- ggplot(df, aes(x=x, y=y, fill=factor(type, levels=c("ministep-original", "ministep-with segregation", "twostep-simultaneity","twostep-weak coordination", "twostep-strict coordination","simstep" ))) ) + 
+  geom_violin(position=position_dodge(.8)) + 
+  stat_summary(fun = mean,
+               geom = "errorbar",
+               fun.max = function(x) mean(x) + sd(x),
+               fun.min = function(x) mean(x) - sd(x),
+               width=.1,
+               color="red", position=position_dodge(.8)) + 
+  stat_summary(fun = mean,
+               geom = "point",
+               color="red", position=position_dodge(.8)) +
+  labs(x = "dyad type", y = "dyad count", fill="simulation type")
+
+p
+
+```
+
+### 6.2.1 Plotting dyads selection
+
+```{r}
+df_sel <- df[df$x=="asym" | df$x=="mut",]
+
+p <- ggplot(df_sel, aes(x=x, y=y, fill=factor(type, levels=c("ministep-original", "ministep-with segregation", "twostep-simultaneity","twostep-weak coordination", "twostep-strict coordination","simstep" ))) ) + 
+  geom_violin(position=position_dodge(.8)) + 
+  stat_summary(fun = mean,
+               geom = "errorbar",
+               fun.max = function(x) mean(x) + sd(x),
+               fun.min = function(x) mean(x) - sd(x),
+               width=.1,
+               color="red", position=position_dodge(.8)) + 
+  stat_summary(fun = mean,
+               geom = "point",
+               color="red", position=position_dodge(.8)) +
+  labs(x = "dyad type", y = "dyad count", fill="simulation type")
+
+p
+
+```
+
+## 6.3 counting triads RsienaTwoStep 
+
+```{r}
+df_ts1m3 <- ts_triads(sims=sims1m3, simtype="ministep-original") 
+df_ts1m3b <- ts_triads(sims=sims1m3b, simtype="ministep-with segregation") 
+df_ts2m3 <- ts_triads(sims=sims2m3, simtype="twostep-simultaneity") 
+df_ts3m3 <- ts_triads(sims=sims3m3, simtype="twostep-weak coordination") 
+df_ts4m3 <- ts_triads(sims=sims4m3, simtype= "twostep-strict coordination") 
+df_ts5m3 <- ts_triads(sims=sims5m3, simtype="simstep") 
+
+```
+
+### 6.3.1. Plotting all triad types  
+
+```{r}
+df <- rbind(df_ts1m3, df_ts1m3b, df_ts2m3, df_ts3m3, df_ts4m3, df_ts5m3)
+
+p <- ggplot(df, aes(x=x, y=y, fill=factor(type, levels=c("ministep-original", "ministep-with segregation", "twostep-simultaneity", "twostep-weak coordination", "twostep-strict coordination", "simstep")))) + 
+  geom_violin(position=position_dodge(1)) + 
+  stat_summary(fun = mean,
+               geom = "errorbar",
+               fun.max = function(x) mean(x) + sd(x),
+               fun.min = function(x) mean(x) - sd(x),
+               width=.1,
+               color="red", position=position_dodge(1)) + 
+  stat_summary(fun = mean,
+               geom = "point",
+               color="red", position=position_dodge(1)) +
+  labs(x = "triad type", y = "triad count", fill="simulation type")
+
+p
+```
+
+### 6.3.2 Plotting triad census selection I
+
+```{r}
+df_sel <- df[df$x=="030C" | df$x=="120C",]
+
+p <- ggplot(df_sel, aes(x=x, y=y, fill=factor(type, levels=c("ministep-original", "ministep-with segregation", "twostep-simultaneity", "twostep-weak coordination", "twostep-strict coordination", "simstep")))) + 
+  geom_violin(position=position_dodge(.8)) + 
+  stat_summary(fun = mean,
+               geom = "errorbar",
+               fun.max = function(x) mean(x) + sd(x),
+               fun.min = function(x) mean(x) - sd(x),
+               width=.1,
+               color="red", position=position_dodge(.8)) + 
+  stat_summary(fun = mean,
+               geom = "point",
+               color="red", position=position_dodge(.8)) +
+  labs(x = "(cyclic) triad types", y = "triad count", fill="simulation type")
+
+p
+```
+### 6.3.3 Plotting triad census selection II
+
+```{r}
+df_sel <- df[df$x=="210" | df$x=="300",]
+
+p <- ggplot(df_sel, aes(x=x, y=y, fill=factor(type, levels=c("ministep-original", "ministep-with segregation", "twostep-simultaneity", "twostep-weak coordination", "twostep-strict coordination", "simstep")))) + 
+  geom_violin(position=position_dodge(.8)) + 
+  stat_summary(fun = mean,
+               geom = "errorbar",
+               fun.max = function(x) mean(x) + sd(x),
+               fun.min = function(x) mean(x) - sd(x),
+               width=.1,
+               color="red", position=position_dodge(.8)) + 
+  stat_summary(fun = mean,
+               geom = "point",
+               color="red", position=position_dodge(.8)) +
+  labs(x = "(cyclic) triad types", y = "triad count", fill="simulation type")
+
+p
+```
+
+
+## 6.4 Assessing segregation RsienaTwoStep
+
+```{r}
+df_ts1m3 <- ts_nacf(sims=sims1m3, simtype="ministep-original", cov=mydata$cCovars$smoke) 
+names(df_ts1m3)[1] <- "MoranI" 
+df_ts1m3b <- ts_nacf(sims=sims1m3b, simtype="ministep-with segregation", cov=mydata$cCovars$smoke) 
+names(df_ts1m3b)[1] <- "MoranI" 
+df_ts2m3 <- ts_nacf(sims=sims2m3, simtype="twostep-simultaneity", cov=mydata$cCovars$smoke) 
+names(df_ts2m3)[1] <- "MoranI" 
+df_ts3m3 <- ts_nacf(sims=sims3m3, simtype="twostep-weak coordination", cov=mydata$cCovars$smoke) 
+names(df_ts3m3)[1] <- "MoranI" 
+df_ts4m3 <- ts_nacf(sims=sims4m3, simtype="twostep-strict coordination", cov=mydata$cCovars$smoke) 
+names(df_ts4m3)[1] <- "MoranI" 
+df_ts5m3 <- ts_nacf(sims=sims5m3, simtype="simstep", cov=mydata$cCovars$smoke) 
+names(df_ts5m3)[1] <- "MoranI" 
+
+```
+
+
+```{r}
+df <- rbind(df_ts1m3, df_ts1m3b, df_ts2m3, df_ts3m3, df_ts4m3, df_ts5m3)
+
+p <- ggplot(df, aes(x=factor(type , levels=c("ministep-original", "ministep-with segregation", "twostep-simultaneity","twostep-weak coordination", "twostep-strict coordination","simstep")), y=MoranI, fill=factor(type, levels=c("ministep-original", "ministep-with segregation", "twostep-simultaneity","twostep-weak coordination", "twostep-strict coordination","simstep")))) + 
+  geom_violin(position=position_dodge(.8)) + 
+  stat_summary(fun = mean,
+               geom = "errorbar",
+               fun.max = function(x) mean(x) + sd(x),
+               fun.min = function(x) mean(x) - sd(x),
+               width=.1,
+               color="red", position=position_dodge(.8)) + 
+  stat_summary(fun = mean,
+               geom = "point",
+               color="red", position=position_dodge(.8)) +
+  labs(x = "sim type", y = "Smoke \n MoranI", fill="sim type")  + 
+  ylim(0, 1) + 
+  theme(axis.text.x=element_blank())
+        
+#  labs(x = "sim type", y = "Smoke \n MoranI", fill="sim type") 
+#+
+#  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1))
+
+p
+
+
+
+```
+
+
+---  
+
+
+# 7. Conclusion 
 
 - The networks simulated by `RsienaTwoStep` assuming the ministep assumption lead to identical results as the simulated networks of `RSiena`. We can hence conclude that (at least for the used statistics) `RsienaTwoStep` is programmed correctly.  
 - For both model specifications, we observe that allowing for simultaneity does not really impact the observed dyads and triads in the network, although reciprocated ties seem a bit more likely. This is reassuring. A tentative conclusion would be that for relatively sparse and large networks it 'does not matter' to disregard simultaneous tie changes.  

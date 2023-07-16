@@ -160,6 +160,15 @@ ts_diffX <- function(net, ego, cov) {
   return(statistic)
 }
 
+
+ts_simX <- function(net, ego, cov) {
+  statistic <- 0
+  alters <- which(net[ego,]==1)
+  statistic <- sum((1 - (abs(cov[alters] - cov[ego])/attributes(cov)$range)) - attributes(cov)$simMean)
+  return(statistic)
+}
+
+
 #' @rdname ts_degree
 #' @export
 ts_absdiffX <- function(net, ego, cov) {
@@ -178,3 +187,11 @@ ts_sameX <- function(net, ego, cov) {
   return(statistic)
 }
 
+#' @rdname ts_degree
+#' @export
+ts_egoXaltX <- function(net, ego, cov) {
+  statistic <- 0
+  alters <- which(net[ego,]==1)
+  statistic <-  cov[ego]*sum(cov[alters])
+  return(statistic)
+}

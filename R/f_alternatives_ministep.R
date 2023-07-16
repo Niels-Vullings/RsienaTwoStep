@@ -100,14 +100,21 @@ ts_alternatives_twostep <- function(net, dist1=NULL, dist2=NULL, modet1="degree"
   }
 
   if (!is.null(dist1) & is.null(dist2)) { #ego1 and ego2 should be connected at t1
-    repeat {
-      egos <- ts_select(net=net, steps=2) #need to optimize the ts_select function (only select ego1 among those who have at least alters that fit condition, than sample ego2 among those alters)
-      dist_t1 <- ts_geodist(net=net, ego1=egos[1], ego2=egos[2], degree=modet1)
-      if (dist_t1<=dist1) { #check if connected at t1, if not sample again, if true construct alternative nets
-        results <- ts_alternatives_ministep(net=net, ego=egos[1])
-        results2 <- lapply(results, ts_alternatives_ministep, ego=egos[2])
-        results2 <- unlist(results2, recursive = FALSE)
-        break
+    if (sum(net, na.rm=TRUE)==0) {
+      egos <- NULL
+      results2 <- NULL
+    }
+
+    if (sum(net, na.rm=TRUE)!=0) {
+      repeat {
+        egos <- ts_select(net=net, steps=2) #need to optimize the ts_select function (only select ego1 among those who have at least alters that fit condition, than sample ego2 among those alters)
+        dist_t1 <- ts_geodist(net=net, ego1=egos[1], ego2=egos[2], degree=modet1)
+        if (dist_t1<=dist1) { #check if connected at t1, if not sample again, if true construct alternative nets
+          results <- ts_alternatives_ministep(net=net, ego=egos[1])
+          results2 <- lapply(results, ts_alternatives_ministep, ego=egos[2])
+          results2 <- unlist(results2, recursive = FALSE)
+          break
+        }
       }
     }
   }

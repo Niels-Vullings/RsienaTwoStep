@@ -16,6 +16,7 @@
 \alias{ts_diffX}
 \alias{ts_absdiffX}
 \alias{ts_sameX}
+\alias{ts_egoXaltX}
 \title{Network Statistics}
 \usage{
 ts_degree(net, ego)
@@ -47,6 +48,8 @@ ts_diffX(net, ego, cov)
 ts_absdiffX(net, ego, cov)
 
 ts_sameX(net, ego, cov)
+
+ts_egoXaltX(net, ego, cov)
 }
 \arguments{
 \item{net}{matrix, the adjacency matrix representing the relations between actors. Valid values are 0 and 1.}

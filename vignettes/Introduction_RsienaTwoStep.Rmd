@@ -235,8 +235,8 @@ Let us suppose the importance for the statistic 'degree' is -1 and for the stati
 
 So you could calculate the evaluation of the network saved in `options[[2]]` by hand: 
 
-$$f_{eval}(\mathbf{s_{i}},\mathbf{\beta}) = \mathbf{s_i}^\mathsf{T}\mathbf{\beta} $$
-
+$$f^{eval}_{n}(\mathbf{s_{i}},\mathbf{\beta}) = \mathbf{s_i}^\mathsf{T}\mathbf{\beta}, $$
+with $f^{eval}_{n}$ the evaluation function for agent $n$. $\mathbf{s_{i}}$ are the network statistics for network $i$ and $\mathbf{\beta}$ the corresponding parameters (or importance).
 
 ```{r}
 1*-1 + 0*2
@@ -265,7 +265,7 @@ So which option will ego#2 choose? Naturally this will be a stochastic process. 
 We use McFadden's choice function (for more information see [wiki](https://en.wikipedia.org/wiki/Discrete_choice)), that is let $P_{ni}$ be the probability that ego $n$ chooses network/alternative $i$. The choice function is then given by:  
 
 
-$$P_{ni} = \frac{exp(\mathbf{s_i}^\mathsf{T}\mathbf{\beta} )}{\Sigma_{j=1}^J exp(\mathbf{s_j}^\mathsf{T}\mathbf{\beta} )},$$  
+$$P_{n,i} = \frac{exp(\mathbf{s_i}^\mathsf{T}\mathbf{\beta} )}{\Sigma_{j=1}^J exp(\mathbf{s_j}^\mathsf{T}\mathbf{\beta} )},$$  
 
 with $s_i$ a vector of the value of each network statistics for network $i$ and $\beta$ is the vector of parameter values. Hence, $\mathbf{s_i}^\mathsf{T}\mathbf{\beta}$ is the value of the evaluation for network $i$.
 
@@ -400,9 +400,16 @@ We start by letting each involved agent evaluate all possible networks based on 
 Thus agent1 gives an evaluation and agent2 gives an evaluation.  
 Next we have to decide how to combine the separate evaluations of the two agents. For now, in `RsienaTwoStep`, we simply take the mean of the two separate evaluations as the final evaluation score. 
 
+$$f^{eval}_{nm}(\mathbf{s_{i}},\mathbf{\beta}) = f^{eval}_{n}(\mathbf{s_{i}},\mathbf{\beta})  + f^{eval}_{m}(\mathbf{s_{i}},\mathbf{\beta})$$
+
+
+
 ## 3.6. Choice function
 
 Here we follow the same logic as before. If we know the evaluation score of each network we simply apply a Mc Fadden's choice function. That is, the actors together 'decide' on the future network out of the possible alternative networks in the choice set, given the combined evaluation of these networks. Thus we see the dyad formed by agent1 and agent2 as the decision agent. Please note that agents (or rather the dyad) thus favor the network with the highest combined 'utility' score. This is not necessarily the network that would give one of the two agents the highest satisfaction.  
+
+
+$$P_{nm,i} = \frac{exp(f^{eval}_{n}(\mathbf{s_{i}},\mathbf{\beta}) + f^{eval}_{m}(\mathbf{s_{i}},\mathbf{\beta})) }{\Sigma_{j=1}^J exp(f^{eval}_{n}(\mathbf{s_{j}},\mathbf{\beta}) + f^{eval}_{m}(\mathbf{s_{j}},\mathbf{\beta}))},$$  
 
 ## 3.7. Stopping rule
 

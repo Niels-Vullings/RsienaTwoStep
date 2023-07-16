@@ -25,31 +25,49 @@ ts_sims(
 
 \item{parallel}{TRUE/FALSE}
 
-\item{net}{matrix, the adjacency matrix representing the relations between actors. Valid values are 0 and 1.}
+\item{net}{matrix, the adjacency matrix representing the relations between
+actors. Valid values are 0 and 1.}
 
 \item{ccovar}{data frame with named time-constant covariates}
 
-\item{rate}{numeric, the average number of possible tie-changes per actor in the simulation.}
+\item{rate}{numeric, the average number of possible tie-changes per actor in
+the simulation.}
 
-\item{statistics, }{list of names of statistic functions (see e.g. \code{\link[=ts_degree]{ts_degree()}} for a list of available functions)}
+\item{statistics, }{list of names of statistic functions (see e.g.
+\code{\link[=ts_degree]{ts_degree()}} for a list of available functions)}
 
 \item{parameters, }{numeric vector the same length as \code{parameters}}
 
-\item{p2step}{numeric vector of length 3, setting the ratio of \emph{ministep}, \emph{twostep} and \emph{twoministeps}.}
+\item{p2step}{numeric vector of length 3, setting the ratio of \emph{ministep},
+\emph{twostep} and \emph{twoministeps}.}
 
-\item{chain}{TRUE/FALSE, set to \code{TRUE} if you want to save all the subsequent networks (after the ministep or twostep) during the simulation. If \code{FALSE} only the end network is saved.}
+\item{chain}{TRUE/FALSE, set to \code{TRUE} if you want to save all the subsequent
+networks (after the ministep or twostep) during the simulation. If \code{FALSE}
+only the end network is saved.}
 
-\item{dist1}{numeric, minimal path length between ego1 and ego2 at time1 in order to be allowed to start a coorporation. If \code{NULL} all dyads are allowed to start a cooperation.}
+\item{dist1}{numeric, minimal path length between ego1 and ego2 at time1 in
+order to be allowed to start a coorporation. If \code{NULL} all dyads are
+allowed to start a cooperation.}
 
-\item{dist2}{numeric, minimal path length between ego1 and ego2 at time2 in order for twostep to be counted as coorporation.}
+\item{dist2}{numeric, minimal path length between ego1 and ego2 at time2 in
+order for twostep to be counted as coorporation.}
 
-\item{modet1}{string, indicating the type of ties being evaluated at time1. "\code{degree}" considers all ties as undirected. "\code{outdegree}" only allows directed paths starting from ego1 and ending at ego2. "\code{indegree}" only allows directed paths starting from ego2 and ending at ego2.}
+\item{modet1}{string, indicating the type of ties being evaluated at time1.
+"\code{degree}" considers all ties as undirected. "\code{outdegree}" only allows
+directed paths starting from ego1 and ending at ego2. "\code{indegree}" only
+allows directed paths starting from ego2 and ending at ego2.}
 
-\item{modet2}{string, indicating the type of ties being evaluated at time2. "\code{degree}" considers all ties as undirected. "\code{outdegree}" only allows directed paths starting from ego1 and ending at ego2. "\code{indegree}" only allows directed paths starting from ego2 and ending at ego2.}
+\item{modet2}{string, indicating the type of ties being evaluated at time2.
+"\code{degree}" considers all ties as undirected. "\code{outdegree}" only allows
+directed paths starting from ego1 and ending at ego2. "\code{indegree}" only
+allows directed paths starting from ego2 and ending at ego2.}
 }
 \value{
-If \code{chain=FALSE} a \code{list} (of length \code{nsims}) of adjacency matrices representing the final network after the simulated evolution.
-If \code{chain=TRUE} a \code{list} of lists of adjacency matrices. Each inner list represents the complete network evolution of one simulation. The outer list refers to the simulation run (with length \code{nsims}).
+If \code{chain=FALSE} a \code{list} (of length \code{nsims}) of adjacency matrices
+representing the final network after the simulated evolution. If \code{chain=TRUE}
+a \code{list} of lists of adjacency matrices. Each inner list represents the
+complete network evolution of one simulation. The outer list refers to the
+simulation run (with length \code{nsims}).
 }
 \description{
 \code{ts_sims} is the workhorse function of the package \code{RsienaTwoStep}.
@@ -62,8 +80,10 @@ For examples on how to use \code{ts_sims} see: \code{vignette("1.Introduction_Rs
 Before you set \code{parallel} to TRUE make sure to set-up a cluster with the package \code{doParallel} (see \code{Examples}).
 }
 \examples{
-ts_sims(net=net2, nsims=2, rate=2, parallel=FALSE, statistics=list(ts_degree, ts_recip), parameters=c(-2,1), p2step=c(0,1,0))
+ts_sims(net=net2, nsims=2, rate=2, parallel=FALSE, statistics=list(ts_degree, ts_recip),
+parameters=c(-2,1), p2step=c(0,1,0))
 }
 \seealso{
-\code{\link[=ts_alternatives_ministep]{ts_alternatives_ministep()}}, \code{\link[=ts_alternatives_twostep]{ts_alternatives_twostep()}}, \code{\link[=ts_alternatives_simstep]{ts_alternatives_simstep()}}, \code{\link[=ts_eval]{ts_eval()}}
+\code{\link[=ts_alternatives_ministep]{ts_alternatives_ministep()}}, \code{\link[=ts_alternatives_twostep]{ts_alternatives_twostep()}},
+\code{\link[=ts_alternatives_simstep]{ts_alternatives_simstep()}}, \code{\link[=ts_eval]{ts_eval()}}
 }
