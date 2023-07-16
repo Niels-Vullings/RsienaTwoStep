@@ -3,10 +3,9 @@ pkgdown: 2.0.7
 pkgdown_sha: ~
 articles:
   MinistepToTwoStep: MinistepToTwoStep.html
-  RetrieveParameters: RetrieveParameters.html
   RsienaWorkflow: RsienaWorkflow.html
   Introduction_RsienaTwoStep: Introduction_RsienaTwoStep.html
-last_built: 2023-01-18T07:46Z
+last_built: 2023-01-18T07:57Z
 urls:
   reference: https://jochemtolsma.github.io/RsienaTwoStep/reference
   article: https://jochemtolsma.github.io/RsienaTwoStep/articles
