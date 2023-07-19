@@ -144,4 +144,3 @@ ts_sim <- function(net, ccovar, rate, statistics=list(ts_degree, ts_recip), para
   }
   if (chain) { return(nets) } else { return(net_n)}
 }
-

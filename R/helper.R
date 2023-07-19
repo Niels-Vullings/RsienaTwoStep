@@ -3,22 +3,7 @@
 #' @description These functions calculate the respective network statistic for ego. When multiplied with the importance of each statistic (the 'parameters') this constitutes the network evaluation of ego. See: [`ts_eval()`].
 #'
 #' @param cov numeric, covariate scores
-ts_centering <- function(cov) {
-  attr(cov, "mean") <- mean(cov)
-  centered <- cov - attributes(cov)$mean
-  return(centered)
-}
 
-ts_simij <- function(cov) {
-  rv <- max(cov, na.rm=TRUE) - min(cov, na.rm=TRUE)
-  mat1 <- matrix(cov, nrow = length(cov), ncol = length(cov), byrow = TRUE)
-  mat2 <- t(mat1)
-  simij <- 1 - (abs(mat1 - mat2)/rv)
-  diag(simij) <- NA
-  attr(cov, "simMean") <- mean(simij, na.rm=TRUE)
-  attr(cov, "range") <- rv
-  return(cov)
-}
 
 DyadCensus.sna <- function(i, data, sims, period, groupName, varName, levls=1:3){
   unloadNamespace("igraph") # to avoid package clashes

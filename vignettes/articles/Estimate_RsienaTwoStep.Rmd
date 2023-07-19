@@ -213,6 +213,10 @@ n.cores <- parallel::detectCores() - 1  #save one core for other work
 my.cluster <- parallel::makeCluster(n.cores, type = "PSOCK")
 # register it to be used by %dopar%
 doParallel::registerDoParallel(cl = my.cluster)
+
+parallel::clusterEvalQ(my.cluster, library("RsienaTwoStep"))
+parallel::clusterEvalQ(my.cluster, library("RSiena"))
+parallel::clusterEvalQ(my.cluster, library("network"))
 ```
 
 ---  
@@ -258,327 +262,171 @@ ans1
 
 
 ```{r}
-target_degree <- sum(s502) /  ((dim(s502)[1])^2 - dim(s502)[1])
-target_recip <- (sum(s502 == 1 & t(s502)==1)) / sum(s502) #edgewise reciprocity
+simrate <- sum(abs(s502 - s501))
 
-# library(sna)
-# sna::grecip(s502, measure="dyadic.nonnull")
-# dyad.census(s502)
-# 35/(35 + 46)
-# 
-# sna::grecip(s502, measure="edgewise")
-# 
-# 
-# gden(s502, mode="digraph", ignore.eval=FALSE)
-# 
-# sum(sna::degree(s502, cmode="outdegree"))
-```
-
-```{r}
 simdegree <- foreach(i= 1:nrow(s502), .combine="c") %dopar%
-  ts_degree(net=s502, ego=i)
-simdegree <- mean(simdgree)
+  ts_degree(net=s502, ego=i) |>
+  sum()
 
 simrecip <- foreach(i= 1:nrow(s502), .combine="c") %dopar%
-  ts_recip(net=s502, ego=i)
-simrecip <- mean(simrecip)
+  ts_recip(net=s502, ego=i) |>
+  sum()
 
-simtrans <- foreach(i= 1:nrow(s502), .combine="c") %dopar%
-  ts_transTrip(net=s502, ego=i)
-simtrans <- mean(simtrans) 
+targets_jt <- c(simrate, simdegree, simrecip)
+
+targets_jt
+ans1$targets
 ```
 
 
 
-## 3.3 Set initial values
+# error function
 
 ```{r}
-s_rate <- 4 
-s_degree <- -1.5
-s_recip <- 3
+f.error <- function(startvalues=NULL, targets=NULL, net=NULL, statistics=NULL, p2step=c(1,0,0), ans=NULL){
+  
+  if (is.null(startvalues)) startvalues <- ans$theta
+  if (is.null(targets)) targets <- ans$targets
+  if (is.null(net)) net <- (ans$f$Data1$depvars$mynet)[,,1]
+  if (is.null(statistics)) {
+    statistics <- ans$effects$shortName
+    statistics[statistics=="density"] <- "degree"
+    statistics <- as.list((paste0("ts_", statistics))[-1])
+    statistics <- lapply(statistics, get)
+  }
+  
+  #estimate model
+  Z <- rep(NA, length(targets))
+  sims1 <- ts_sims(nsims=1, parallel=TRUE, net=net, rate=startvalues[1], statistics=statistics, parameters=startvalues[-1], p2step=p2step, chain=FALSE)
+  Z[1] <- sum(abs(sims1[[1]] - net))
+  
+  for (j in 1:length(statistics)) {
+    Z[j + 1] <- foreach(i= 1:nrow(sims1[[1]]), .combine="c") %dopar%
+      statistics[[j]](net=sims1[[1]], ego=i) |>
+      sum()
+    }  
+    
+  update <- Z - targets
+  update
+}
 ```
 
-# 3.4 simulate 
 
+```{r}
+f.error(ans=ans1)
+```
+
+
+```{r}
+ts_robmun <- function(startvalues=NULL, targets=NULL, net=NULL, statistics=NULL, p2step=c(1,0,0), ans=NULL, b=0.5, verbose=TRUE, nite=100) {
+  
+  if (is.null(startvalues)) startvalues <- ans$theta
+
+  x = startvalues 
+  dif = Inf
+  ite = 0
+  ite2 = 1 #try to keep an constant as long as the sequence sn has not crossed the observed values
+  r = x
+  r_sub = x #for the subphase
+  update = 0
+  
+  while (dif > .0001 & ite < nite){
+    ite = ite + 1 #number of iterations
+    a = (1/ite2)^b
+    update_old = update
+    update = f.error(startvalues=x, targets=targets, net=net, statistics=statistics, p2step=p2step, ans=ans)
+    x = x - diag(ans$dinv)*a*update #if ans is not provided divide bij nnodes?
+    r = rbind(r,x) # save results
+    r_sub = rbind(r_sub,x) # save results
+    if (sum(abs(sign(update) - sign(update_old)) == 2)>1 )  {
+      ite2 = ite2 + 1 
+      x <- colMeans(r_sub) #for new subphase take average of sequence as new starting value
+      r_sub <- x 
+    }
+    if ((ite %% 3) == 0){
+      dif = sum(abs(x - r[ite-2])) #TO DO: check how is implemented
+    }
+    if (verbose) print(x)
+    if (verbose) print(paste0("ite: ", ite))
+    if (verbose) print(paste0("ite2: ", ite2))
+  }
+  return(r)
+}  
+
+```
+
+```{r}
+
+res <- ts_robmun(startvalues= ans1$theta + c(-3,2,1), ans=ans1)
+{plot(1:101, res[,1])
+abline(h=res[1,1])}
+
+{plot(1:101, res[,2])
+  abline(h=res[1,2])}
+  
+```
 
 https://stats.stackexchange.com/questions/514680/root-finding-via-robbins-monro-method-a-real-and-simple-example
 
 
 
+
+# more complex model
+
+preparing the dataset
 ```{r}
-f.error <- function(x){
-  #estimate model
-  sims1 <- ts_sims(nsims=1, parallel=TRUE, net=s501, rate=summary(ans1)$theta[1], statistics=list(ts_degree, ts_recip), parameters=c(x, summary(ans1)$theta[3]), p2step=c(1,0,0), chain=FALSE)
-  sim_degree <- gden(sims1[[1]]) 
-  sim_recip <- grecip(sims1[[1]], measure="edgewise")
-   dif1 <- (sim_degree - target_degree) #+ rnorm(n=1,mean=0,sd=0.1) 
-   dif2 <- (sim_recip - target_recip) #+ rnorm(n=1,mean=0,sd=0.1) 
-   dif1 + dif2
-}
+mynet <- sienaDependent(array(c(s501, s502), dim=c(50, 50, 2)))
+alcohol <- s50a
+smoke <- s50s
+smoke <- coCovar(smoke[, 1])
+alcohol <- coCovar(alcohol[, 1])
+mydata <- sienaDataCreate(mynet, smoke, alcohol)
 
-x = -2.2 # starting value (should not too far away from solution)
-dif = Inf
-ite = 0
-ite2 = 1 #try to keep an constant as long as the sequence sn has not crossed the observed values
-r = x
-r_sub = x #for the subphase
-b = 0.5
-update = 0
-while (dif > .0001 & ite < 100){
-  ite = ite + 1 #number of iterations
-  a = (1/ite2)^b
-  update_old = update
-  update = f.error(x)
-  x = x - a*update
-  r = c(r,x) # save results
-  r_sub = c(r_sub,x) # save results
-  if (abs(sign(update) - sign(update_old)) == 2 )  {
-    ite2 = ite2 + 1 
-    x <- mean(r_sub) #for new subphase take average of sequence as new starting value
-    r_sub <- x 
-  }
-  if ((ite %% 3) == 0){
-    dif = abs(x - r[ite-2])
-  }
-  print(x)
-}
-plot(1:length(r),r)
-
+myeff <- getEffects(mydata)
+myeff <- includeEffects(myeff, transTrip, cycle3)
+myeff <- includeEffects(myeff, egoX, altX, egoXaltX, interaction1 = "alcohol")
+myeff <- includeEffects(myeff, simX, interaction1 = "smoke")
+ans2 <- siena07(myalgorithm, data=mydata, effects=myeff, batch=TRUE, returnDeps = TRUE)
 ```
 
 
-multivariate case
+#to do: rebuild package with new effects
 
+retrieve effects in correct format for rsienatwostep
 ```{r}
-#function to simulate model and calculate deviation scores
-f.error <- function(x){
-  #estimate model
-  sims1 <- ts_sims(nsims=1, parallel=TRUE, net=s501, rate=summary(ans1)$theta[1], statistics=list(ts_degree, ts_recip), parameters=unlist(x), p2step=c(1,0,0), chain=FALSE)
-  sim_degree <- gden(sims1[[1]]) 
-  sim_recip <- grecip(sims1[[1]], measure="edgewise")
-   dif1 <- (sim_degree - target_degree) #+ rnorm(n=1,mean=0,sd=0.1) 
-   dif2 <- (sim_recip - target_recip) #+ rnorm(n=1,mean=0,sd=0.1) 
-   dif1 + dif2 #total error
-}
-
-#starting values
-x = list(s_degree=s_degree,s_recip=s_recip)
-r = x
-r_sub = x #for the subphase
-
-#sample parameter 
-pm <- sample(1:length(x), 1)
-
-# initialize model parameters
-dif = list(Inf, Inf)
-ite = list(0,0)
-ite2 = list(1,1) #try to keep an constant as long as the sequence sn has not crossed the observed values
-b = 0.5
-update = list(0,0)
-
-
-while (dif[[pm]] > .0001 & ite[[pm]] < 100){
-  ite[[pm]] = ite[[pm]] + 1 #number of iterations
-  a = (1/ite2[[pm]])^b
-  update_old[[pm]] = update[[pm]]
-  update[[pm]] = f.error(x)
-  x[[pm]] = x[[pm]] - a*update[[pm]]
-  r[[pm]] = c(r[[pm]],x[[pm]]) # save results
-  r_sub[[pm]] = c(r_sub[[pm]],x[[pm]]) # save results
-  if (abs(sign(update[[pm]]) - sign(update_old[[pm]])) == 2 )  {
-    ite2[[pm]] = ite2[[pm]] + 1 
-    x[[pm]] <- mean(r_sub[[pm]]) #for new subphase take average of sequence as new starting value
-    r_sub[[pm]] <- x[[pm]] 
-  }
-  if ((ite[[pm]] %% 3) == 0){
-    dif[[pm]] = abs(x[[pm]] - r[[pm]][ite[[pm]]-2])
-  }
-  print(x[[pm]])
-}
-plot(1:length(r[[pm]]),r[[pm]])
-
+ans <- ans2
+ statistics <- ans$effects$shortName
+    statistics[statistics=="density"] <- "degree"
+    statistics <- as.list((paste0("ts_", statistics))[-1])
+    statistics <- lapply(statistics, get)
+    
+    str(ans$effects,1)
+    length(statistics)
+    
+    for (i in 1:length(statistics)) {
+      if (ans$effects$interaction1[i+1]!="") {
+        statistics[[i]] <- list(statistics[[i]], ans$effects$interaction1[i+1] )
+      }
+    }
+    
+    ans$effects$interaction1
 ```
 
-#different loop
-
-This one works!!! 
+retrieve the dataframe for rsienaincorrect format
 ```{r}
-f.error <- function(x){
-  #estimate model
-  sims1 <- ts_sims(nsims=1, parallel=TRUE, net=s501, rate=summary(ans1)$theta[1], statistics=list(ts_degree, ts_recip), parameters=unlist(x), p2step=c(0,1,0), chain=FALSE)
-  sim_degree <- gden(sims1[[1]]) 
-  sim_recip <- grecip(sims1[[1]], measure="edgewise")
-   dif1 <- (sim_degree - target_degree) #+ rnorm(n=1,mean=0,sd=0.1) 
-   dif2 <- (sim_recip - target_recip) #+ rnorm(n=1,mean=0,sd=0.1) 
-   dif1 + dif2 #total error
+x <- as.numeric(mydata$cCovars[[1]]) + attr(mydata$cCovars[[1]], "mean")
+
+length(mydata$cCovars)
+
+
+data <- matrix(NA, nrow=length(mydata$cCovars[[1]]), ncol=length(mydata$cCovars))
+for (i in 1: length(mydata$cCovars)) {
+  data[,i] <- as.numeric(mydata$cCovars[[i]]) + attr(mydata$cCovars[[i]], "mean")
 }
 
+ccovar <- as.data.frame(data)
+colnames(ccovar) <- names(mydata$cCovars)
 
-#starting values
-x = list(s_degree=s_degree,s_recip=s_recip)
-r = x
-r_sub = x #for the subphase
-
-# initialize model parameters
-dif = list(Inf, Inf)
-ite = list(0,0)
-ite2 = list(1,1) #try to keep an constant as long as the sequence sn has not crossed the observed values
-b = 0.5
-update = list(0,0)
-
-
-while (sum(unlist(dif)) > .0001 & sum(unlist(ite)) < length(x)*100){
-  #sample parameter 
-  pm <- sample(1:length(x), 1)
-
-  ite[[pm]] = ite[[pm]] + 1 #number of iterations
-  a = (1/ite2[[pm]])^b
-  update_old[[pm]] = update[[pm]]
-  update[[pm]] = f.error(x)
-  x[[pm]] = x[[pm]] - a*update[[pm]]
-  r[[pm]] = c(r[[pm]],x[[pm]]) # save results
-  r_sub[[pm]] = c(r_sub[[pm]],x[[pm]]) # save results
-  if (abs(sign(update[[pm]]) - sign(update_old[[pm]])) == 2 )  {
-    ite2[[pm]] = ite2[[pm]] + 1 
-    x[[pm]] <- mean(r_sub[[pm]]) #for new subphase take average of sequence as new starting value
-    r_sub[[pm]] <- x[[pm]] 
-  }
-  if ((ite[[pm]] %% 3) == 0){
-    dif[[pm]] = abs(x[[pm]] - r[[pm]][ite[[pm]]-2])
-  }
-  print(x[[pm]])
-}
-plot(1:length(r[[pm]]),r[[pm]])
-```
-
-
-
-
-use different parameters b
-```{r}
-f.error <- function(x){
-  #estimate model
-  sims1 <- ts_sims(nsims=1, parallel=TRUE, net=s501, rate=summary(ans1)$theta[1], statistics=list(ts_degree, ts_recip), parameters=c(x, summary(ans1)$theta[3]), p2step=c(1,0,0), chain=FALSE)
-  sim_degree <- sum(sims1[[1]]) / (dim(s502)[1])^2
-   (sim_degree - target_degree) #+ rnorm(n=1,mean=0,sd=0.1) 
-}
-
-f.rm <- function(y, lambda) y - lambda * f.error(y)
-
-start = -1
-
-b = 0.3
-iterations <- seq_len(1e2) 
-lambda <- iterations^(-b)
-results <- Reduce(f.rm, lambda, start, accumulate=TRUE)
-
-start <- results[length(results)]
-start <- -2.03
-
-b = 0.6
-iterations <- seq_len(1e2) 
-lambda <- iterations^(-b)
-results <- Reduce(f.rm, lambda, start, accumulate=TRUE)
-
-start <- results[length(results)]
-
-b = 0.8
-iterations <- seq_len(1e2) 
-lambda <- iterations^(-b)
-results <- Reduce(f.rm, lambda, start, accumulate=TRUE)
-
-
-```
-
-
-try with both reciprocity and degree
-
-```{r}
-f.error <- function(x){
-  #estimate model
-  sims1 <- ts_sims(nsims=1, parallel=TRUE, net=s501, rate=summary(ans1)$theta[1], statistics=list(ts_degree, ts_recip), parameters=c(x, summary(ans1)$theta[3]), p2step=c(1,0,0), chain=FALSE)
-  sim_degree <- gden(sims1[[1]]) 
-  sim_recip <- grecip(sims1[[1]], measure="edgewise")
-   dif1 <- (sim_degree - target_degree) #+ rnorm(n=1,mean=0,sd=0.1) 
-   dif2 <- (sim_recip - target_recip) #+ rnorm(n=1,mean=0,sd=0.1) 
-   dif1 + dif2
-   
-}
-
-f.rm <- function(y, lambda) y - lambda * f.error(y)
-
-start = -1
-
-b = 0.3
-iterations <- seq_len(1e2) 
-lambda <- iterations^(-b)
-results <- Reduce(f.rm, lambda, start, accumulate=TRUE)
-
-start <- results[length(results)]
-
-b = 0.6
-iterations <- seq_len(1e2) 
-lambda <- iterations^(-b)
-results <- Reduce(f.rm, lambda, start, accumulate=TRUE)
-
-start <- results[length(results)]
-
-b = 0.8
-iterations <- seq_len(1e2) 
-lambda <- iterations^(-b)
-results <- Reduce(f.rm, lambda, start, accumulate=TRUE)
-
-start <- results[length(results)]
-start
-
-```
-
-
-
-
-
-```{r}
-iterations <- seq_len(1e2)    # Specify the number of iterations
-b = 0.5 
-lambda <- iterations^(-b)
-
-set.seed(17)
-iterations <- seq_len(1e4)    # Specify the number of iterations
-lambda <- iterations^(-b)
-#burn.period <- 1e2            # Skip these initial results when scaling the plots
-replicates <- 2              # Specify how many starting values to use
-bs <- c(0.5, 0.6, .7, .8)      # Specify which `b` values to explore
-
-start = x = -2.2 # starting value (should not too far away from solution)
-as <- sort(rt(replicates, 3, x)) # use different starting values
-
-
-f.error <- function(x){
-  #estimate model
-  sims1 <- ts_sims(nsims=1, parallel=TRUE, net=s501, rate=summary(ans1)$theta[1], statistics=list(ts_degree, ts_recip), parameters=c(x, summary(ans1)$theta[3]), p2step=c(1,0,0), chain=FALSE)
-  sim_degree <- sum(sims1[[1]]) / (dim(s502)[1])^2
-   (sim_degree - target_degree) #+ rnorm(n=1,mean=0,sd=0.1) 
-}
-
-f.rm <- function(y, lambda) y - lambda * f.error(y)
-
-lambda
-
-Reduce(f.rm, lambda, start, accumulate=TRUE)
-
-for (b in bs) {
-  #
-  # Find the solutions for each starting value `start`.
-  #
-  lambda <- iterations^(-b)
-  solutions <- sapply(as, function(start) {
-    Reduce(f.rm, lambda, start, accumulate=TRUE)
-  })
-}
-
-solutions
-
-           
 ```
 
 
