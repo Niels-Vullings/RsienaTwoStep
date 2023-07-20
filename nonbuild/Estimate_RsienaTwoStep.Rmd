@@ -414,6 +414,10 @@ ans <- ans2
 
 retrieve the dataframe for rsienaincorrect format
 ```{r}
+
+#mydata is also stored in ans
+ans3$f$Data1$cCovars
+
 x <- as.numeric(mydata$cCovars[[1]]) + attr(mydata$cCovars[[1]], "mean")
 
 length(mydata$cCovars)

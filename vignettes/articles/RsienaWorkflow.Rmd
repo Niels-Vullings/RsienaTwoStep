@@ -209,24 +209,44 @@ Nacf.sna <- function(i, data, sims, period, groupName, varName, cov){
   x <- networkExtraction(i, data, sims, period, groupName, varName)
   if (network.edgecount(x) <= 0){x <- symmetrize(x)}
   x <- as.sociomatrix.sna(x)
-  # because else triad.census(x) will lead to an error
-  snaM1 <- sna::nacf(x, cov, type = "moran", neighborhood.type = "out", demean = TRUE)[2]
+  snaM1 <- matrix(sna::nacf(x, cov, type = "moran", neighborhood.type = "out", demean = TRUE)[2]) #because I need dimension in order to set names
   snaM1
 }
 
 Nacf.sna <- cmpfun(Nacf.sna)
 
-
-network.ts <- function(i, data, sims, period, groupName, varName){
-  unloadNamespace("igraph") # to avoid package clashes
-  require(network)
-  require(sna)
-  x <- networkExtraction(i, data, sims, period, groupName, varName)
-  x
-}
-network.ts <- cmpfun(network.ts)
+```
 
 
+```{r, echo=FALSE, eval=FALSE}
+#AAARGGHHH, It doesnt work. Okay, problem was that a vector of length 1 has no dimension, thus needed to convert to matrix. 
+# sims <- ans3$sims
+# sims[[1]]
+# sna::as.sociomatrix.sna(sims[[1]])
+# # 
+# net <- networkExtraction(i=NULL, obsData=ans3$f, sims=ans3$sims, period=1, groupName="Data1", varName="mynet")
+# # 
+# # sna::as.sociomatrix.sna(net)
+# s502 == sna::as.sociomatrix.sna(net)
+# 
+# x <- sna::as.sociomatrix.sna(net)
+# sna::nacf(x, smoke, type = "moran", neighborhood.type = "out", demean = TRUE)[2]
+
+# t <- (sna::nacf(x, smoke, type = "moran", neighborhood.type = "out", demean = TRUE)[2])
+# rownames(t) <- "test"
+#gives error
+
+# t <- matrix(sna::nacf(x, smoke, type = "moran", neighborhood.type = "out", demean = TRUE)[2])
+# rownames(t) <- "test"
+
+# network.ts <- function(i, data, sims, period, groupName, varName){
+#   unloadNamespace("igraph") # to avoid package clashes
+#   require(network)
+#   require(sna)
+#   x <- networkExtraction(i, data, sims, period, groupName, varName)
+#   x
+# }
+# network.ts <- cmpfun(network.ts)
 
 ```
 
@@ -244,6 +264,7 @@ doParallel::registerDoParallel(cl = my.cluster)
 
 parallel::clusterEvalQ(my.cluster, library("network"))
 parallel::clusterEvalQ(my.cluster, library("RSiena"))
+parallel::clusterEvalQ(my.cluster, library("sna"))
 ```
 
 
@@ -405,8 +426,6 @@ p
 ### 3.4.2. Plotting dyad census selection 
 
 ```{r}
-
-
 df_sel <- df[df$x!="null", ]
 
 dodge <- position_dodge(width = 0.5)
@@ -841,6 +860,7 @@ p
 
 ### 5.4.1. Rsiena
 
+
 ```{r}
 gofi <- sienaGOF(ans3,
                  Nacf.sna, 
@@ -849,16 +869,6 @@ gofi <- sienaGOF(ans3,
                  cluster = my.cluster,
                  varName = "mynet", 
                  cov=mydata$cCovars$smoke)
-
- 
-# sims <- ans3$sims
-# sims[[1]]
-# sna::as.sociomatrix.sna(sims[[1]])
-# 
-# net <- networkExtraction(i=NULL, obsData=ans3$f, sims=ans3$sims, period=1, groupName="Data1", varName="mynet")
-# 
-# sna::as.sociomatrix.sna(net)
-# s502 == sna::as.sociomatrix.sna(net)
 ```
 
 ```{r}

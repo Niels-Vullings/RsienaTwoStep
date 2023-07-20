@@ -9,6 +9,7 @@
 #' @param simtype string, name of the simulation type used (e.g. *ministep*, *twostep*).
 #' @param forplot logical, if set to `FALSE` a dataframe is returned with in the column the network characteristic and each row represents a simulation outcome.
 #' If set to `TRUE` this dataframe is manipulated a bit, so that each row represents one specific network characteristic for each simulation outcome, this is useful for plotting.
+#' @param cov numeric, covariate scores
 #' @importFrom foreach %dopar%
 #' @importFrom iterators icount
 #' @return `data.frame`
@@ -86,6 +87,8 @@ ts_triads <- function(sims, simtype="notypespecified", forplot=TRUE) {
   return(df)
 }
 
+#' @rdname ts_dyads
+#' @export
 ts_nacf <- function(sims, simtype="notypespecified", forplot=TRUE, cov) {
   nsims <- length(sims)
   df <- foreach::foreach(1:nsims, i=iterators::icount(), .combine="rbind") %dopar% {

@@ -3,11 +3,14 @@
 \name{ts_dyads}
 \alias{ts_dyads}
 \alias{ts_triads}
+\alias{ts_nacf}
 \title{Network census}
 \usage{
 ts_dyads(sims, simtype = "notypespecified", forplot = TRUE)
 
 ts_triads(sims, simtype = "notypespecified", forplot = TRUE)
+
+ts_nacf(sims, simtype = "notypespecified", forplot = TRUE, cov)
 }
 \arguments{
 \item{sims}{list, the result of \code{\link[=ts_sims]{ts_sims()}} the adjacency matrix representing the relations between actors. Valid values are 0 and 1.}
@@ -16,6 +19,8 @@ ts_triads(sims, simtype = "notypespecified", forplot = TRUE)
 
 \item{forplot}{logical, if set to \code{FALSE} a dataframe is returned with in the column the network characteristic and each row represents a simulation outcome.
 If set to \code{TRUE} this dataframe is manipulated a bit, so that each row represents one specific network characteristic for each simulation outcome, this is useful for plotting.}
+
+\item{cov}{numeric, covariate scores}
 }
 \value{
 \code{data.frame}

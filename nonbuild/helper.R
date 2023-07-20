@@ -38,7 +38,7 @@ Nacf.sna <- function(i, data, sims, period, groupName, varName, cov){
   x <- networkExtraction(i, data, sims, period, groupName, varName)
   if (network.edgecount(x) <= 0){x <- symmetrize(x)}
   x <- as.sociomatrix.sna(x)
-  snaM1 <- sna::nacf(x, cov, type = "moran", neighborhood.type = "out", demean = TRUE)[2]
+  snaM1 <- matrix(sna::nacf(x, cov, type = "moran", neighborhood.type = "out", demean = TRUE)[2])
   snaM1
 }
 
