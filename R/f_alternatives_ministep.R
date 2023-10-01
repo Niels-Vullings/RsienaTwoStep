@@ -53,7 +53,7 @@
 #'
 #' @seealso [`ts_select()`], [`ts_sims()`]
 #' @examples
-#' ts_alternatives_ministep(net=net1, ego=3)
+#' ts_alternatives_ministep(net=ts_net1, ego=3)
 ts_alternatives_ministep <- function(net, ego) {
 
   #list of all possible future networks

@@ -14,13 +14,11 @@ knitr::opts_chunk$set(
   comment = "#>"
 )
 
-colorize <- function(x, color) {
-    sprintf("<span style='color: %s;'>%s</span>", color, x)
-}
 
 ```
 
 ```{r setup}
+rm(list=ls())
 library(RsienaTwoStep)
 ```
 
@@ -141,34 +139,34 @@ pre.numberSource a.sourceLine {
 
 Let us have a look at the build-in data sets of `RsienaTwoStep`. 
 
-## 1.1. net1
+## 1.1. ts_net1
 
 ### 1.1.1. Adjacency matrix
 
 ```{r }
-net1
+ts_net1
 ```
 
 ### 1.1.2. Plot
 
-```{r, message=FALSE, warning=FALSE, fig.width=7, fig.height=5, fig.cap="Figure 1.1.2. net1"}
-net1g <- igraph::graph_from_adjacency_matrix(net1, mode="directed")
+```{r, message=FALSE, warning=FALSE, fig.width=7, fig.height=5, fig.cap="Figure 1.1.2. ts_net1"}
+net1g <- igraph::graph_from_adjacency_matrix(ts_net1, mode="directed")
 par(mar=c(.1, .1, .1, .1))
 igraph::plot.igraph(net1g)
 ```
 
-## 1.2. net2
+## 1.2. ts_net2
 
 ### 1.2.1. Adjacency matrix
 
 ```{r}
-net2
+ts_net2
 ```
 
 ### 1.2.2. Plot
 
-```{r, message=FALSE, warning=FALSE, fig.width=7, fig.height=5, fig.cap="Figure 1.2.2. net2"}
-net2g <- igraph::graph_from_adjacency_matrix(net2, mode="directed")
+```{r, message=FALSE, warning=FALSE, fig.width=7, fig.height=5, fig.cap="Figure 1.2.2. ts_net2"}
+net2g <- igraph::graph_from_adjacency_matrix(ts_net2, mode="directed")
 par(mar=c(.1, .1, .1, .1))
 igraph::plot.igraph(net2g)
 ```
@@ -188,14 +186,14 @@ igraph::plot.igraph(net2g)
 
 ## 2.2. Possible networks after ministep  
 
-Let us suppose we want to know what the possible networks are after all possible ministeps of one actor part of `net2`. That is, let us assume that it is ego#2's turn to decide on tie-change. What are the possible networks? 
+Let us suppose we want to know what the possible networks are after all possible ministeps of one actor part of `ts_net2`. That is, let us assume that it is ego#2's turn to decide on tie-change. What are the possible networks? 
 
 ```{r}
-options <- ts_alternatives_ministep(net=net2, ego=2)
+options <- ts_alternatives_ministep(net=ts_net2, ego=2)
 options
 ```
 
-`ts_alternatives_ministep()` returns a list of all possible networks after all possible tie-changes available to ego#2 given network `net2`. If you look closely you will see that `options[[2]]` equals the original network (i.e. ego#2 decided not to change any tie). 
+`ts_alternatives_ministep()` returns a list of all possible networks after all possible tie-changes available to ego#2 given network `ts_net2`. If you look closely you will see that `options[[2]]` equals the original network (i.e. ego#2 decided not to change any tie). 
 
 ## 2.3. Network statistics 
 
@@ -292,14 +290,15 @@ If we repeat this process, that is...:
 
 ## 2.6. Stopping rule  
 
-But how many ministeps do we allow? Well, normally this is estimated by `siena07` by the `rate` parameter. If we do not make this rate parameter conditional on actor covariates or on network characteristics, the rate parameter can be interpreted as the average number of ministeps each actor in the network is allowed to make before time is up. Let us suppose the `rate` parameter is 2 `r rate<-2`. Thus in total the number of possible ministeps will be `nrow(net2)*rate`: 10. For a more detailed - **and more correct** -  interpretation of the rate parameter in `siena07` see: [www.jochemtolsma.nl](www.jochemtolsma.nl/courses/complete-networks/socio6).
+But how many ministeps do we allow? Well, normally this is estimated by `siena07` by the `rate` parameter. If we do not make this rate parameter conditional on actor covariates or on network characteristics, the rate parameter can be interpreted as the average number of ministeps each actor in the network is allowed to make before time is up. Let us suppose the `rate` parameter is 2 `r rate<-2`. Thus in total the number of possible ministeps will be `nrow(ts_net2)*rate`: 10. For a more detailed - **and more correct** -  interpretation of the rate parameter in `siena07` see: [www.jochemtolsma.nl](www.jochemtolsma.nl/courses/complete-networks/socio6).
 
 ## 2.7. Example  
 
 To demonstrate the network evolution:  
 
 ```{r}
-ts_sims(nsims=1, net=net2, rate=2, statistics=list(ts_degree, ts_recip), parameters = c(-1,2), p2step=c(1,0,0), chain = TRUE )
+#in startvalues the first value refers to the rate parameter, the subsequent values to the statistics of statistics
+ts_sims(startvalues = c(2,-1,2), net=ts_net2, statistics=list(ts_degree, ts_recip),nsims=1, p2step=c(1,0,0), chain = TRUE )
 ```
 
 ---  
@@ -326,7 +325,7 @@ c. **Weak coordination**: agents are sampled randomly but only specific twosteps
 
 If we want to allow for simultaneity, we simply let first agent1 make all possible ministeps and then conditional on these alternative networks let agent2 make all possible ministeps. Please note that the order in which we let agents make the ministeps is not important. We simple construct all the networks that could result from agent1 and agent2 make a simultaneous ministep.  
 
-> `r colorize("Exception:", "red")`  
+> <span style="color: red;">Exception:</span> 
 > With weak coordination we will assess which possible alternative networks impact the evaluation function of both egos. Only those possible alternative networks are regarded as the result of coordination and included in the choice set. Thus, it is not necessarry for ego1 and ego2 to be connected at time1 but then they should at least be connected at time2 in such a way that they influence each others evaluation function.  
 > The implementation in the current version of `RsieneTwoStep` is, however, a bit different. With weak coordination we simple assess the distance between ego1 and ego2 at time1 and time2. If at eithter time1 *or* time2 the distance is within the set threshold, we regard the twostep as a coordinated twostep.   
 
@@ -418,7 +417,7 @@ Once again the logic is exactly similar. However, we count a twostep as two mini
 ## 3.8. Example
 
 ```{r}
-ts_sims(nsims = 1, net = net2, rate = 2, statistics = list(ts_degree, ts_recip), parameters = c(-1, 2), p2step=c(0,1,0), chain = TRUE)
+ts_sims(startvalues = c(2,-1,2), net=ts_net2, statistics=list(ts_degree, ts_recip),nsims=1, p2step=c(0,1,0), chain = TRUE )
 ```
 
 ---  
@@ -516,7 +515,7 @@ Once again the logic is exactly similar. However, we count a simstep as two mini
 ## 4.7. Example
 
 ```{r}
-ts_sims(nsims = 1, net = net2, rate = 2, statistics = list(ts_degree, ts_recip, ts_outAct), parameters = c(-2, 2,2), p2step=c(0,0,1), chain = TRUE)
+ts_sims(startvalues = c(2,-2,2,2), net=ts_net2, statistics=list(ts_degree, ts_recip, ts_outAct),nsims=1, p2step=c(0,0,1), chain = TRUE )
 ```
 
 
@@ -527,10 +526,10 @@ ts_sims(nsims = 1, net = net2, rate = 2, statistics = list(ts_degree, ts_recip, 
 
 ## 5.1. Simulate networks  
 
-Let us simulate five times the outcome of a ABM twostep process and only save the final network
+Let us simulate 100 times the outcome of a ABM twostep process and only save the final network
 
 ```{r}
-nets <- ts_sims(nsims = 5, net = net2, rate = 2, statistics = list(ts_degree, ts_recip), parameters = c(-1, 2), p2step=c(0,1,1), chain = FALSE)
+nets <- ts_sims(startvalues = c(2,-2,2,2), net=ts_net2, statistics=list(ts_degree, ts_recip, ts_outAct),nsims=100, p2step=c(0,1,0), chain = FALSE, verbose = FALSE)
 ```
 
 ## 5.2. Dyad and triad configurations  

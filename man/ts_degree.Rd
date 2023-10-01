@@ -70,7 +70,7 @@ For examples on how to use these statistics see: \code{vignette("1.Introduction_
 For the mathematical definition of these network statistics see chapter 12 of the RSiena manual \insertCite{ripley2022manual}{RsienaTwoStep}.
 }
 \examples{
-ts_degree(net=net1, ego=3)
+ts_degree(net=ts_net1, ego=3)
 
 }
 \references{

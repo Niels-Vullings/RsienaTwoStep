@@ -30,9 +30,9 @@ chapter 12 of the RSiena manual
 \insertCite{ripley2022manual}{RsienaTwoStep}.
 }
 \examples{
-ts_eval(net=net1, ego=6, statistics=list(ts_degree, ts_recip),
+ts_eval(net=ts_net1, ego=6, statistics=list(ts_degree, ts_recip),
 parameters=c(-2,1))
-ts_eval(net=net1, ego=10, ccovar=df_ccovar1, statistics=list(ts_degree, ts_recip, ts_transTrip,
+ts_eval(net=ts_net1, ego=10, ccovar=df_ccovar1, statistics=list(ts_degree, ts_recip, ts_transTrip,
 ts_transMedTrip, list(ts_egoX, "cov1")), parameters=c(-2,2,7,7,1))
 }
 \references{

@@ -25,8 +25,8 @@ Select one or two actors that will perform a (simultaneous) ministep.
 This function selects one actor (\code{steps=1}) or two actors (\code{steps=2}) at random that are part of the network. If it is not possible to select two actors to start a coordination (not connected dyads at time1), the function will tell you so.
 }
 \examples{
-ts_select(net=net1, steps=1)
-ts_select(net=net1, steps=2)
-ts_select(net=net1, dist1=2, modet1="degree")
+ts_select(net=ts_net1, steps=1)
+ts_select(net=ts_net1, steps=2)
+ts_select(net=ts_net1, dist1=2, modet1="degree")
 
 }

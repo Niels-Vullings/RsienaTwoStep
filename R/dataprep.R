@@ -33,5 +33,6 @@ ts_simij <- function(cov, min=NULL, max=NULL) {
   diag(simij) <- NA
   attr(cov, "simMean") <- mean(simij, na.rm=TRUE)
   attr(cov, "range") <- rv
+  attr(cov, "simij") <- simij
   return(cov)
 }

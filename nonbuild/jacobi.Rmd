@@ -2,6 +2,10 @@
 title: "Estimation with RsienaTwoStep"
 ---
 
+
+#how to get sensible intitial values???
+# get parallel working. best bet is to set parallel in ts_eval
+
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
@@ -182,7 +186,7 @@ parallel::clusterEvalQ(my.cluster, library("network"))
 
 ---  
 
-# 3. Estimate the model(s) with RSiena
+# 3. Estimate a basic model with RSiena
 
 ## 3.1. Model 1: Degree and reciprocity 
 
@@ -195,13 +199,65 @@ We only include the following statistics:
 - reciprocity  
 
 ```{r, eval=FALSE}
+library(RSiena)
 mynet <- sienaDependent(array(c(s501, s502), dim=c(50, 50, 2)))
 mydata <- sienaDataCreate(mynet)
-myalgorithm <- sienaAlgorithmCreate(seed=1293, cond=FALSE) #toggle set conditional to retrieve the rate parameter in theta!
+myalgorithm <- sienaAlgorithmCreate(seed=1293, cond=FALSE, findiff = TRUE) #toggle set conditional to retrieve the rate parameter in theta!
 myeff <- getEffects(mydata)
+#myeff <- includeEffects(myeff, transTrip, inAct)
 ans1 <- siena07(myalgorithm, data=mydata, effects=myeff, batch=TRUE, returnDeps = TRUE)
 ```
 
+
+```{r, eval=FALSE}
+myalgorithm2 <- sienaAlgorithmCreate(seed=1294, cond=FALSE, findiff = TRUE) #toggle set conditional to retrieve the rate parameter in theta!
+ans2 <- siena07(myalgorithm2, data=mydata, effects=myeff, batch=TRUE, returnDeps = TRUE)
+
+myalgorithm <- sienaAlgorithmCreate(seed=1293, cond=FALSE, findiff = FALSE) #toggle set conditional to retrieve the rate parameter in theta!
+myeff <- getEffects(mydata)
+ans1b <- siena07(myalgorithm, data=mydata, effects=myeff, batch=TRUE, returnDeps = TRUE)
+
+myalgorithm2 <- sienaAlgorithmCreate(seed=1294, cond=FALSE, findiff = FALSE) #toggle set conditional to retrieve the rate parameter in theta!
+ans2b <- siena07(myalgorithm2, data=mydata, effects=myeff, batch=TRUE, returnDeps = TRUE)
+
+```
+
+rsiena:
+                                     Estimate   Standard   Convergence 
+                                                  Error      t-ratio   
+  1. rate basic rate parameter mynet  5.9458  ( 1.0185   )   -0.0735   
+  2. eval outdegree (density)        -1.7774  ( 0.1719   )    0.0779   
+  3. eval reciprocity                 2.7071  ( 0.2562   )    0.1164   
+  4. eval transitive triplets         0.8310  ( 0.0940   )    0.1365   
+  5. eval indegree - activity        -0.4667  ( 0.0515   )    0.1093   
+
+ts_ministep
+
+               estim        SE
+rate       4.8434944 0.7487897
+degree    -1.4114484 0.4319428
+recip      3.0715435 0.2416906
+transTrip  0.8995729 0.1752413
+inAct     -0.5370058 0.1374104
+
+ts_estim(mydata=mydata, myeff=myeff, nite = 100, p2step = c(0,1,0))
+4.560655 -1.4004632  2.94715622  0.87608364 -0.83560877
+
+ts_estim(ans=ans1, nite = 100, p2step = c(0,1,0), dist1=2, dist2=2)
+
+# Let us have a look at the Jacobi-matrix
+
+For fase 1  stored in `ans1$dinvv`. 
+Actually, I think they are stored in dfra1, because for fase 3 we use this matrix to replicate the SE. 
+
+```{r, eval=FALSE}
+solve(ans1$dinvv)
+ans1$dfra1
+solve(ans2$dinvv)
+solve(ans1b$dinvv)
+solve(ans2b$dinvv)
+```
+An important conclusion is that the Jacobi-matrix differs not only due to randomness (different seed) between ans1a/b and ans2a/b but also between method how to calculate ans1/2a vs ans1/2b. 
 
 ```{r, eval=FALSE, echo=FALSE}
 fsave(ans1, file="ans1.Rdata")
@@ -216,31 +272,9 @@ rm(x)
 let's have a look
 ```{r}
 ans1
+ans1b
 ```
 
-## 3.2 Model 2: More elaborate model
-
-```{r, eval=FALSE}
-myalgorithm <- sienaAlgorithmCreate(seed=1293, cond=FALSE) #toggle set conditional to retrieve the rate parameter in theta!
-mynet <- sienaDependent(array(c(s501, s502), dim=c(50, 50, 2)))
-alcohol <- s50a
-smoke <- s50s
-smoke <- coCovar(smoke[, 1])
-alcohol <- coCovar(alcohol[, 1])
-mydata <- sienaDataCreate(mynet, smoke, alcohol)
-
-myeff <- getEffects(mydata)
-myeff <- includeEffects(myeff, transTrip, cycle3)
-myeff <- includeEffects(myeff, egoX, altX, egoXaltX, interaction1 = "alcohol")
-myeff <- includeEffects(myeff, simX, interaction1 = "smoke")
-ans2 <- siena07(myalgorithm, data=mydata, effects=myeff, batch=TRUE, returnDeps = TRUE)
-```
-
-
-let's have a look
-```{r}
-ans2
-```
 
 # 4. Estimation with RsienaTwoStep
 
@@ -284,9 +318,180 @@ ts_targets(ans=ans2)
 ```
 ## 4.2. Fase 1 of the algorithm
 
+### First by use of simulation via Rsiena
+
+It seems I have to transpose my matrix of partial derivatives. Ask Christian. Yes, apparently.
+It seems that `ans$dinvv` is for fase 1 and `ans$dinv` is for fase 3!!
+- to do include an important effect transtrip, this will tell us if we indeed need to transpose our matrix. 
+
+```{r}
+sim_model <- sienaAlgorithmCreate( projname = "sim_model", cond = FALSE,
+useStdInits = FALSE, nsub = 0 , simOnly = TRUE, seed = 23457)
+
+#myeff$initialValue[myeff$include]  <- ans1$theta
+
+sim_ans <- siena07(sim_model, data = mydata, effects = myeff )
+stats <- t(t(sim_ans$sf) + sim_ans$targets)
+
+# different values can be specified by assigning the desired value to the vector
+myeff1 <- myeff
+myeff1$initialValue[myeff$include][1] <- myeff$initialValue[myeff$include][1] + myeff$initialValue[myeff$include][1]/10
+sim_ans <- siena07(sim_model, data = mydata, effects = myeff1 )
+stats1 <- t(t(sim_ans$sf) + sim_ans$targets)
+
+# different values can be specified by assigning the desired value to the vector
+myeff2 <- myeff
+myeff2$initialValue[myeff$include][2] <- myeff$initialValue[myeff$include][2] + 0.1
+sim_ans <- siena07(sim_model, data = mydata, effects = myeff2 )
+stats2 <- t(t(sim_ans$sf) + sim_ans$targets)
+
+# different values can be specified by assigning the desired value to the vector
+myeff3 <- myeff
+myeff3$initialValue[myeff$include][3] <- myeff$initialValue[myeff$include][3] + 0.1 
+sim_ans <- siena07(sim_model, data = mydata, effects = myeff3 )
+stats3 <- t(t(sim_ans$sf) + sim_ans$targets)
+
+res_mat <- matrix(NA, nrow=3, ncol=3)
+res_mat[1,] <- colMeans((stats1 - stats)/ (myeff$initialValue[myeff$include][1]/10)) 
+res_mat[2,] <- colMeans((stats2 - stats)/0.1) #degree
+res_mat[3,] <- colMeans((stats3 - stats)/0.1) #recip
+```
+
+compare the partial derivatives
+```{r}
+t(res_mat)
+ans1$dfra1 #I am not sure why this deviates from dinvv
+solve(ans1$dinvv)
+# solve(ans2$dinvv)
+# solve(ans1b$dinvv)
+# solve(ans2b$dinvv)
+```
+
+
+### simulation via RsienaTwoStep
+
 Well, in fase 1, the initial values are determined and the D matrix to scale everything during the algorithm. 
 
 We could simply use the initial values as saved in our `ans` object, assuming that twostep-processess will not deviate too much from ministep processes. We then could also use the D matrix which is saved here. 
+
+
+
+Let us define the statistics we are interested in. for now only rate and degree/density, reciprocity.
+```{r}
+statistics <- list(ts_degree, ts_recip) #rate is automatically included
+names(statistics) <- c("degree", "recip")
+startvalue_rate <- summary(myeff)$initialValue[1]
+startvalue_param <- summary(myeff)$initialValue[-1] #suppose these are the start values of our parameters
+netstart <- mydata$depvars$mynet[,,1]
+```
+
+
+We can simulate a future network conditional on the observed network net1 and the statistics with parameters on their start values. 
+
+
+Let us determine z_bar
+```{r}
+Nsim <- 100 # 1000 is default in RSiena
+crn <- sample(12345:4567890, Nsim) #common random numbers?
+pn <- length(statistics) + 1
+deviation <- ans1$epsilon #just take these from RSiena 
+
+res <- matrix(NA, nrow=Nsim, ncol=pn)
+res2 <- matrix(NA, nrow=Nsim, ncol=pn)
+count <- 1
+
+#zbar
+for (i in 1:Nsim) {
+  set.seed(crn[i]) #is this just our crn
+  sim_net <- ts_sim(net=netstart, rate=startvalue_rate, statistics=statistics, parameters = startvalue_param, p2step=c(1,0,0))
+  res[count,] <- ts_targets(net1=netstart, net2=sim_net, statistics=statistics)
+  count <- count + 1
+}
+```
+
+compare z-bar as simulated via RSiena and RsienaTwoStep
+```{r}
+colMeans(res) #RsienaTwoStep
+colMeans(stats) #RSiena
+```
+
+```{r}
+#rate
+for (i in 1:Nsim) {
+  set.seed(crn[i]) #is this just our crn
+  sim_net <- ts_sim(net=netstart, rate=startvalue_rate + deviation[1], statistics=statistics, parameters = startvalue_param, p2step=c(1,0,0))
+  res2[i,] <- ts_targets(net1=netstart, net2=sim_net, statistics=statistics)
+  count <- count + 1
+}
+res <- cbind(res, res2)
+
+#statistics
+for (j in 1:length(statistics)) {
+  startvalue_param2 <- startvalue_param
+  startvalue_param2[j] <- startvalue_param2[j] + deviation[1+j]
+  for (i in 1:Nsim) {
+    set.seed(crn[i]) #is this just our crn
+    sim_net <- ts_sim(net=netstart, rate=startvalue_rate, statistics=statistics, parameters = startvalue_param2, p2step=c(1,0,0))
+    res2[i,] <- ts_targets(net1=netstart, net2=sim_net, statistics=statistics)
+    count <- count + 1
+  }
+  res <- cbind(res, res2)
+}
+#res
+```
+
+
+```{r}
+res_mat <- matrix(NA, nrow=pn, ncol=pn)
+# res_mat[1,] <- colMeans((res[,4:6] - res[,1:3] )/deviation) #rate
+# res_mat[2,] <- colMeans((res[,7:9] - res[,1:3])/deviation) #degree
+# res_mat[3,] <- colMeans((res[,10:12] - res[,1:3])/deviation) #recip
+
+
+res_mat[1,1] <- mean((res[,4] - res[,1])/deviation[1])
+res_mat[1,2] <- mean((res[,5] - res[,2])/deviation[1])
+res_mat[1,3] <- mean((res[,6] - res[,3])/deviation[1])
+
+res_mat[2,1] <- mean((res[,7] - res[,1])/deviation[2])
+res_mat[2,2] <- mean((res[,8] - res[,2])/deviation[2])
+res_mat[2,3] <- mean((res[,9] - res[,3])/deviation[2])
+
+res_mat[3,1] <- mean((res[,10] - res[,1])/deviation[3])
+res_mat[3,2] <- mean((res[,11] - res[,2])/deviation[3])
+res_mat[3,3] <- mean((res[,12] - res[,3])/deviation[3])
+```
+
+
+```{r}
+colMeans(res[,1:3]) #RsienaTwoStep
+colMeans(res[,4:6]) #RsienaTwoStep
+colMeans(res[,7:9]) #RsienaTwoStep
+colMeans(res[,10:12]) #RsienaTwoStep
+
+colMeans(stats) #RSiena
+colMeans(stats1) #RSiena
+colMeans(stats2) #RSiena
+colMeans(stats3) #RSiena
+```
+It seems the simulated Z values are okay via RsienaTwoStep
+
+```{r}
+D <- t(res_mat)
+D
+ans1$dfra1
+solve(ans1$dinvv)
+```
+
+The Jacobi-matrix is quite a bit off. Probably because of low number of simulations. Need to check! 
+
+```{r}
+hist((res[,4] - res[,1])/deviation[1])
+mean((res[,4] - res[,1])/deviation[1])
+
+colMeans((res[,4:6] - res[,1:3] )/deviation)[1]
+```
+
+
 
 ## 4.3. Fase 2 of the algorithm
 
@@ -358,6 +563,167 @@ colnames(res) <- c("MS", "TS-strict", "TS-weak", "SS")
 ```
 
 ## 4.4. Fase 3 of the algorithm
+
+## Replicate SE as reported by RSiena via simulations with RSiena
+
+```{r}
+sim_model <- sienaAlgorithmCreate( projname = "sim_model", cond = FALSE,
+useStdInits = FALSE, nsub = 0 , simOnly = TRUE, seed = 23457)
+
+myeff$initialValue[myeff$include]  <- ans1$theta
+
+sim_ans <- siena07(sim_model, data = mydata, effects = myeff )
+stats <- t(t(sim_ans$sf) + sim_ans$targets)
+
+# different values can be specified by assigning the desired value to the vector
+myeff1 <- myeff
+myeff1$initialValue[myeff$include][1] <- myeff$initialValue[myeff$include][1] + myeff$initialValue[myeff$include][1]/10
+sim_ans <- siena07(sim_model, data = mydata, effects = myeff1 )
+stats1 <- t(t(sim_ans$sf) + sim_ans$targets)
+
+# different values can be specified by assigning the desired value to the vector
+myeff2 <- myeff
+myeff2$initialValue[myeff$include][2] <- myeff$initialValue[myeff$include][2] + myeff$initialValue[myeff$include][2]/10
+sim_ans <- siena07(sim_model, data = mydata, effects = myeff2 )
+stats2 <- t(t(sim_ans$sf) + sim_ans$targets)
+
+# different values can be specified by assigning the desired value to the vector
+myeff3 <- myeff
+myeff3$initialValue[myeff$include][3] <- myeff$initialValue[myeff$include][3] + myeff$initialValue[myeff$include][3]/10
+sim_ans <- siena07(sim_model, data = mydata, effects = myeff3 )
+stats3 <- t(t(sim_ans$sf) + sim_ans$targets)
+
+res_mat <- matrix(NA, nrow=3, ncol=3)
+res_mat[1,] <- colMeans((stats1 - stats)/ (myeff$initialValue[myeff$include][1]/10)) 
+res_mat[2,] <- colMeans((stats2 - stats)/ (myeff$initialValue[myeff$include][2]/10))  #degree
+res_mat[3,] <- colMeans((stats3 - stats)/ (myeff$initialValue[myeff$include][3]/10))  #recip
+```
+
+
+
+```{r}
+t(res_mat)
+ans1$dfrac
+ans1$dfra
+solve(ans1$dinv)
+# solve(ans1$dinvv)
+# solve(ans1b$dinv)
+# solve(ans1b$dinvv)
+```
+
+```{r}
+cov(ans1$sf)
+cov(stats)
+```
+
+
+```{r}
+ans1$covtheta
+sqrt(diag(ans1$covtheta))
+ans1
+# solve(ans1$dfrac) %*% cov(ans1$sf) %*% t(solve(ans1$dfrac)) #same as above but show we know where the parts are in the ans1 object
+```
+
+
+```{r}
+D <- t(res_mat)
+solve(D) %*% cov(stats) %*% t(solve(D))
+```
+
+## via RsienaTwoStep
+
+Let us define the statistics we are interested in. for now only rate and degree/density, reciprocity.
+
+```{r}
+statistics <- list(ts_degree, ts_recip) #rate is automatically included
+names(statistics) <- c("degree", "recip")
+startvalue_rate <- ans1$theta[1]
+startvalue_param <- ans1$theta[-1] #suppose these are the start values of our parameters
+netstart <- mydata$depvars$mynet[,,1]
+```
+
+
+We can simulate a future network conditional on the observed network net1 and the statistics with parameters on their start values. 
+
+
+Let us determine z_bar
+```{r}
+Nsim <- 100 # 1000 is default in RSiena
+crn <- sample(12345:4567890, Nsim) #common random numbers?
+pn <- length(statistics) + 1
+deviation <- ans1$epsilon #just take these from RSiena 
+
+res <- matrix(NA, nrow=Nsim, ncol=pn)
+res2 <- matrix(NA, nrow=Nsim, ncol=pn)
+count <- 1
+
+#zbar
+for (i in 1:Nsim) {
+  set.seed(crn[i]) #is this just our crn
+  sim_net <- ts_sim(net=netstart, rate=startvalue_rate, statistics=statistics, parameters = startvalue_param, p2step=c(1,0,0))
+  res[count,] <- ts_targets(net1=netstart, net2=sim_net, statistics=statistics)
+  count <- count + 1
+}
+
+#rate
+for (i in 1:Nsim) {
+  set.seed(crn[i]) #is this just our crn
+  sim_net <- ts_sim(net=netstart, rate=startvalue_rate + deviation[1], statistics=statistics, parameters = startvalue_param, p2step=c(1,0,0))
+  res2[i,] <- ts_targets(net1=netstart, net2=sim_net, statistics=statistics)
+  count <- count + 1
+}
+res <- cbind(res, res2)
+
+#statistics
+for (j in 1:length(statistics)) {
+  startvalue_param2 <- startvalue_param
+  startvalue_param2[j] <- startvalue_param2[j] + deviation[1+j]
+  for (i in 1:Nsim) {
+    set.seed(crn[i]) #is this just our crn
+    sim_net <- ts_sim(net=netstart, rate=startvalue_rate, statistics=statistics, parameters = startvalue_param2, p2step=c(1,0,0))
+    res2[i,] <- ts_targets(net1=netstart, net2=sim_net, statistics=statistics)
+    count <- count + 1
+  }
+  res <- cbind(res, res2)
+}
+#res
+```
+
+
+```{r}
+res_mat <- matrix(NA, nrow=pn, ncol=pn)
+# res_mat[1,] <- colMeans((res[,4:6] - res[,1:3] )/deviation) #rate
+# res_mat[2,] <- colMeans((res[,7:9] - res[,1:3])/deviation) #degree
+# res_mat[3,] <- colMeans((res[,10:12] - res[,1:3])/deviation) #recip
+
+
+res_mat[1,1] <- mean((res[,4] - res[,1])/deviation[1])
+res_mat[1,2] <- mean((res[,5] - res[,2])/deviation[1])
+res_mat[1,3] <- mean((res[,6] - res[,3])/deviation[1])
+
+res_mat[2,1] <- mean((res[,7] - res[,1])/deviation[2])
+res_mat[2,2] <- mean((res[,8] - res[,2])/deviation[2])
+res_mat[2,3] <- mean((res[,9] - res[,3])/deviation[2])
+
+res_mat[3,1] <- mean((res[,10] - res[,1])/deviation[3])
+res_mat[3,2] <- mean((res[,11] - res[,2])/deviation[3])
+res_mat[3,3] <- mean((res[,12] - res[,3])/deviation[3])
+```
+
+```{r}
+ans1$covtheta
+sqrt(diag(ans1$covtheta))
+D <- t(res_mat)
+solve(D) %*% cov(res[,1:3]) %*% t(solve(D))
+
+sqrt(diag(solve(D) %*% cov(res[,1:3]) %*% t(solve(D))))
+```
+
+--- 
+
+
+
+
 
 This is the most complicated part. We reestimate the model with the estimated parameters (and small deviation thereof) and determine the observed statistics Z. 
 
@@ -1060,9 +1426,6 @@ ts_targets(net1=net1, net2=sim_net, statistics=statistics)
 ```
 Thus use N = 100 and determine z_bar
 ```{r}
-sim_net <- ts_sim(net=net1, rate=startvalue[1], statistics=statistics, parameters = startvalue[2], p2step=c(1,0,0))
-ts_targets(net1=net1, net2=sim_net, statistics=statistics)
-
 res <- matrix(NA, nrow=100, ncol=2)
 for (i in 1:100) {
   sim_net <- ts_sim(net=net1, rate=startvalue[1], statistics=statistics, parameters = startvalue[2], p2step=c(1,0,0))
@@ -1071,6 +1434,7 @@ for (i in 1:100) {
 colMeans(res)
 ```
 But now I can tweak the start values a bit. 
+But the text on pag 391 of Snijders 2002 I do not understand, so probably I tweak the parameters wrong. 
 
 first for degree
 ```{r}
@@ -1094,6 +1458,41 @@ colMeans(res3)
 ```
 Is this not already enough to determine the partiel derivatives? 
 ```{r}
-drate <- res1[,1] - res3[,1]
+drate <- mean((res3[,1] - res[,1])/0.5)
+ddegree <- mean((res2[,2] - res[,2])/0.5)
+```
+# now use a real ans object
+
+```{r}
+ts_targets(ans=ans1)
+```
+```{r}
+#let us define the statistics we are interested in. for now only rate and degree/density, reciprocity. 
+
+statistics <- list(ts_degree, ts_recip) #rate is automatically included
+names(statistics) <- c("degree", "recip")
+startvalue_rate <- summary(myeff)$initialValue[1]
+startvalue_param <- summary(myeff)$initialValue[-1] #suppose these are the start values of our parameters
+
+netstart <- mydata$depvars$mynet[,,1]
 ```
 
+```{r}
+#we can simulate a future network conditional on the observed network net1 and the statistics with parameters on their start values. 
+
+sim_net <- ts_sim(net=netstart, rate=startvalue_rate, statistics=statistics, parameters = startvalue_param, p2step=c(1,0,0))
+sim_net
+```
+
+```{r}
+ts_targets(net1=netstart, net2=sim_net, statistics=statistics)
+```
+Thus use N = 100 and determine z_bar
+```{r}
+res <- matrix(NA, nrow=10, ncol=3)
+for (i in 1:10) {
+  sim_net <- ts_sim(net=netstart, rate=startvalue_rate, statistics=statistics, parameters = startvalue_param, p2step=c(1,0,0))
+  res[i,] <- ts_targets(net1=netstart, net2=sim_net, statistics=statistics)
+}
+
+```

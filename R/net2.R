@@ -1,8 +1,8 @@
-#' net2
+#' ts_net2
 #'
 #' A fictive directed network
 #'
 #'
-#' @format ## `net2`
+#' @format ## `ts_net2`
 #' An non-symmetric (adjacency) matrix of 5 rows and 5 columns: 0 indicates no tie; 1 indicates directed tie (from ego (row) to alter (column)).
-"net2"
+"ts_net2"

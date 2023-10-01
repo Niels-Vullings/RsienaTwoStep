@@ -1,0 +1,2398 @@
+
+
+-----------------------------------
+New Analysis started.
+Date and time: 20/07/2023 12:21:59
+New results follow.
+-----------------------------------
+
+RSiena version 1.3.22 (06 mei 23)
+
+
+@1
+Estimation by stochastic approximation algorithm.
+=================================================
+
+Current random number seed is 1293.
+Effects object used: myeff 
+Model Type:
+ Standard actor-oriented model 
+Estimation method: unconditional moment estimation
+.
+
+Time duration for simulations is 1.0.
+Standard errors are estimated with the likelihood ratio method.
+Dolby method (regression on scores) is used.
+Initial value of gain parameter is  0.2000000.
+Reduction factor for gain parameter is  0.5000000.
+Number of subphases in Phase 2 is 4.
+
+Initial parameter values are 
+  1. rate:  basic rate parameter mynet                      4.6960
+  2. eval:  outdegree (density)                            -1.4885
+  3. eval:  reciprocity                                     0.0000
+
+
+Observed values of target statistics are
+  1. Amount of network change                                           115.0000
+  2. Number of ties                                                     116.0000
+  3. Number of reciprocated ties                                         70.0000
+
+ 3 parameters, 3 statistics
+
+Estimation of derivatives by the LR method (type 1).
+
+
+@2
+End of stochastic approximation algorithm, phase 3.
+---------------------------------------------------
+
+Total of 2439 iterations.
+Parameter estimates based on 1439 iterations,
+convergence diagnostics, covariance and derivative matrices based on 1000 iterations.
+
+Information for convergence diagnosis.
+Averages, standard deviations, and t-ratios for deviations from targets:
+  1.  -1.3680   9.0957  -0.1504 
+  2.  -0.0720  10.1870  -0.0071 
+  3.   0.0060   9.2074   0.0007 
+
+Good convergence is indicated by the t-ratios being close to zero.
+
+Overall maximum convergence ratio =  0.1563 .
+
+
+
+@2
+Estimation Results.
+-------------------
+
+Regular end of estimation algorithm.
+Total of 2439 iteration steps.
+
+
+@3
+Estimates and standard errors
+                             
+ 1. rate:  basic rate parameter mynet                              5.4779  (   0.7823)
+ 2. eval:  outdegree (density)                                    -2.2272  (   0.1282)
+ 3. eval:  reciprocity                                             2.4316  (   0.2463)
+
+
+@3
+Covariance matrices
+                   
+Covariance matrix of estimates (correlations below diagonal):
+     0.612     -0.001      0.005
+    -0.007      0.016     -0.022
+     0.024     -0.712      0.061
+
+Derivative matrix of expected statistics X by parameters and
+covariance/correlation matrix of X can be found using
+summary(ans) within R, or by using the 'verbose' option in Siena07.
+ 
+Total computation time 7.12 seconds.
+
+
+-----------------------------------
+New Analysis started.
+Date and time: 20/07/2023 20:45:01
+New results follow.
+-----------------------------------
+
+RSiena version 1.3.22 (06 mei 23)
+
+
+@1
+Estimation by stochastic approximation algorithm.
+=================================================
+
+Current random number seed is 1293.
+Effects object used: myeff 
+Model Type:
+ Standard actor-oriented model 
+Estimation method: unconditional moment estimation
+.
+
+Time duration for simulations is 1.0.
+Standard errors are estimated with the likelihood ratio method.
+Dolby method (regression on scores) is used.
+Initial value of gain parameter is  0.2000000.
+Reduction factor for gain parameter is  0.5000000.
+Number of subphases in Phase 2 is 4.
+
+Initial parameter values are 
+  1. rate:  basic rate parameter mynet                      4.6960
+  2. eval:  outdegree (density)                            -1.4885
+  3. eval:  reciprocity                                     0.0000
+  4. eval:  transitive triplets                             0.0000
+  5. eval:  3-cycles                                        0.0000
+  6. eval:  smoke similarity                                0.0000
+  7. eval:  alcohol alter                                   0.0000
+  8. eval:  alcohol ego                                     0.0000
+  9. eval:  alcohol ego x alcohol alter                     0.0000
+
+
+Observed values of target statistics are
+  1. Amount of network change                                           115.0000
+  2. Number of ties                                                     116.0000
+  3. Number of reciprocated ties                                         70.0000
+  4. Number of transitive triplets                                       88.0000
+  5. 3-cycles                                                            28.0000
+  6. Similarity on smoke                                                 13.8416
+  7. Sum indegrees x alcohol                                             -4.0800
+  8. Sum outdegrees x alcohol                                             2.9200
+  9. Sum alcohol ego x alcohol alter                                     62.1904
+
+ 9 parameters, 9 statistics
+
+Estimation of derivatives by the LR method (type 1).
+
+
+@2
+End of stochastic approximation algorithm, phase 3.
+---------------------------------------------------
+
+Total of 2511 iterations.
+Parameter estimates based on 1511 iterations,
+convergence diagnostics, covariance and derivative matrices based on 1000 iterations.
+
+Information for convergence diagnosis.
+Averages, standard deviations, and t-ratios for deviations from targets:
+  1.  -0.1010  10.2438  -0.0099 
+  2.   1.0750  16.0940   0.0668 
+  3.   1.0840  14.3270   0.0757 
+  4.   6.2520  51.9715   0.1203 
+  5.   1.9660  16.8545   0.1166 
+  6.  -0.0283   5.2367  -0.0054 
+  7.   0.4730  15.3029   0.0309 
+  8.   0.5870  14.7269   0.0399 
+  9.   0.4777  17.9991   0.0265 
+
+Good convergence is indicated by the t-ratios being close to zero.
+
+Overall maximum convergence ratio =  0.1571 .
+
+
+
+@2
+Estimation Results.
+-------------------
+
+Regular end of estimation algorithm.
+Total of 2511 iteration steps.
+
+
+@3
+Estimates and standard errors
+                             
+ 1. rate:  basic rate parameter mynet                              6.2011  (   1.0407)
+ 2. eval:  outdegree (density)                                    -2.5285  (   0.1509)
+ 3. eval:  reciprocity                                             2.0541  (   0.2691)
+ 4. eval:  transitive triplets                                     0.5575  (   0.1737)
+ 5. eval:  3-cycles                                                0.0448  (   0.3510)
+ 6. eval:  smoke similarity                                        0.3993  (   0.2883)
+ 7. eval:  alcohol alter                                          -0.0767  (   0.0956)
+ 8. eval:  alcohol ego                                             0.0383  (   0.1044)
+ 9. eval:  alcohol ego x alcohol alter                             0.0997  (   0.0723)
+
+
+@3
+Covariance matrices
+                   
+Covariance matrix of estimates (correlations below diagonal):
+     1.083     -0.009      0.060      0.010     -0.052     -0.039     -0.004      0.008      0.001
+    -0.058      0.023     -0.019     -0.008     -0.001     -0.010      0.001     -0.001     -0.001
+     0.215     -0.473      0.072      0.005     -0.026      0.004     -0.002      0.001      0.000
+     0.056     -0.308      0.106      0.030     -0.047     -0.003      0.002     -0.003     -0.002
+    -0.142     -0.019     -0.273     -0.769      0.123      0.008     -0.005      0.006      0.002
+    -0.129     -0.222      0.051     -0.064      0.077      0.083      0.009      0.008     -0.002
+    -0.040      0.075     -0.058      0.095     -0.149      0.343      0.009     -0.003     -0.001
+     0.070     -0.084      0.041     -0.162      0.162      0.260     -0.296      0.011      0.000
+     0.020     -0.080     -0.015     -0.138      0.085     -0.097     -0.160      0.040      0.005
+
+Derivative matrix of expected statistics X by parameters and
+covariance/correlation matrix of X can be found using
+summary(ans) within R, or by using the 'verbose' option in Siena07.
+ 
+Total computation time 40.85 seconds.
+
+
+-----------------------------------
+New Analysis started.
+Date and time: 21/07/2023 20:25:52
+New results follow.
+-----------------------------------
+
+RSiena version 1.3.22 (06 mei 23)
+
+
+@1
+Estimation by stochastic approximation algorithm.
+=================================================
+
+Current random number seed is 1293.
+Effects object used: myeff 
+Model Type:
+ Standard actor-oriented model 
+Estimation method: unconditional moment estimation
+.
+
+Time duration for simulations is 1.0.
+Standard errors are estimated with the likelihood ratio method.
+Dolby method (regression on scores) is used.
+Initial value of gain parameter is  0.2000000.
+Reduction factor for gain parameter is  0.5000000.
+Number of subphases in Phase 2 is 4.
+
+Initial parameter values are 
+  1. rate:  basic rate parameter mynet                      4.6960
+  2. eval:  outdegree (density)                            -1.4885
+  3. eval:  reciprocity                                     0.0000
+  4. eval:  transitive triplets                             0.0000
+  5. eval:  3-cycles                                        0.0000
+  6. eval:  smoke similarity                                0.0000
+  7. eval:  alcohol alter                                   0.0000
+  8. eval:  alcohol ego                                     0.0000
+  9. eval:  alcohol ego x alcohol alter                     0.0000
+
+
+Observed values of target statistics are
+  1. Amount of network change                                           115.0000
+  2. Number of ties                                                     116.0000
+  3. Number of reciprocated ties                                         70.0000
+  4. Number of transitive triplets                                       88.0000
+  5. 3-cycles                                                            28.0000
+  6. Similarity on smoke                                                 13.8416
+  7. Sum indegrees x alcohol                                             -4.0800
+  8. Sum outdegrees x alcohol                                             2.9200
+  9. Sum alcohol ego x alcohol alter                                     62.1904
+
+ 9 parameters, 9 statistics
+
+Estimation of derivatives by the LR method (type 1).
+
+
+@2
+End of stochastic approximation algorithm, phase 3.
+---------------------------------------------------
+
+Total of 2511 iterations.
+Parameter estimates based on 1511 iterations,
+convergence diagnostics, covariance and derivative matrices based on 1000 iterations.
+
+Information for convergence diagnosis.
+Averages, standard deviations, and t-ratios for deviations from targets:
+  1.  -0.1010  10.2438  -0.0099 
+  2.   1.0750  16.0940   0.0668 
+  3.   1.0840  14.3270   0.0757 
+  4.   6.2520  51.9715   0.1203 
+  5.   1.9660  16.8545   0.1166 
+  6.  -0.0283   5.2367  -0.0054 
+  7.   0.4730  15.3029   0.0309 
+  8.   0.5870  14.7269   0.0399 
+  9.   0.4777  17.9991   0.0265 
+
+Good convergence is indicated by the t-ratios being close to zero.
+
+Overall maximum convergence ratio =  0.1571 .
+
+
+
+@2
+Estimation Results.
+-------------------
+
+Regular end of estimation algorithm.
+Total of 2511 iteration steps.
+
+
+@3
+Estimates and standard errors
+                             
+ 1. rate:  basic rate parameter mynet                              6.2011  (   1.0407)
+ 2. eval:  outdegree (density)                                    -2.5285  (   0.1509)
+ 3. eval:  reciprocity                                             2.0541  (   0.2691)
+ 4. eval:  transitive triplets                                     0.5575  (   0.1737)
+ 5. eval:  3-cycles                                                0.0448  (   0.3510)
+ 6. eval:  smoke similarity                                        0.3993  (   0.2883)
+ 7. eval:  alcohol alter                                          -0.0767  (   0.0956)
+ 8. eval:  alcohol ego                                             0.0383  (   0.1044)
+ 9. eval:  alcohol ego x alcohol alter                             0.0997  (   0.0723)
+
+
+@3
+Covariance matrices
+                   
+Covariance matrix of estimates (correlations below diagonal):
+     1.083     -0.009      0.060      0.010     -0.052     -0.039     -0.004      0.008      0.001
+    -0.058      0.023     -0.019     -0.008     -0.001     -0.010      0.001     -0.001     -0.001
+     0.215     -0.473      0.072      0.005     -0.026      0.004     -0.002      0.001      0.000
+     0.056     -0.308      0.106      0.030     -0.047     -0.003      0.002     -0.003     -0.002
+    -0.142     -0.019     -0.273     -0.769      0.123      0.008     -0.005      0.006      0.002
+    -0.129     -0.222      0.051     -0.064      0.077      0.083      0.009      0.008     -0.002
+    -0.040      0.075     -0.058      0.095     -0.149      0.343      0.009     -0.003     -0.001
+     0.070     -0.084      0.041     -0.162      0.162      0.260     -0.296      0.011      0.000
+     0.020     -0.080     -0.015     -0.138      0.085     -0.097     -0.160      0.040      0.005
+
+Derivative matrix of expected statistics X by parameters and
+covariance/correlation matrix of X can be found using
+summary(ans) within R, or by using the 'verbose' option in Siena07.
+ 
+Total computation time 36.34 seconds.
+
+
+-----------------------------------
+New Analysis started.
+Date and time: 24/07/2023 22:57:17
+New results follow.
+-----------------------------------
+
+RSiena version 1.3.22 (06 mei 23)
+
+
+@1
+Estimation by stochastic approximation algorithm.
+=================================================
+
+Current random number seed is 1293.
+Effects object used: myeff 
+Model Type:
+ Standard actor-oriented model 
+Estimation method: unconditional moment estimation
+.
+
+Time duration for simulations is 1.0.
+Standard errors are estimated with the likelihood ratio method.
+Dolby method (regression on scores) is used.
+Initial value of gain parameter is  0.2000000.
+Reduction factor for gain parameter is  0.5000000.
+Number of subphases in Phase 2 is 4.
+
+Initial parameter values are 
+  1. rate:  basic rate parameter mynet                      4.6960
+  2. eval:  outdegree (density)                            -1.4885
+  3. eval:  reciprocity                                     0.0000
+
+
+Observed values of target statistics are
+  1. Amount of network change                                           115.0000
+  2. Number of ties                                                     116.0000
+  3. Number of reciprocated ties                                         70.0000
+
+ 3 parameters, 3 statistics
+
+Estimation of derivatives by the LR method (type 1).
+
+
+@2
+End of stochastic approximation algorithm, phase 3.
+---------------------------------------------------
+
+Total of 2439 iterations.
+Parameter estimates based on 1439 iterations,
+convergence diagnostics, covariance and derivative matrices based on 1000 iterations.
+
+Information for convergence diagnosis.
+Averages, standard deviations, and t-ratios for deviations from targets:
+  1.  -1.3680   9.0957  -0.1504 
+  2.  -0.0720  10.1870  -0.0071 
+  3.   0.0060   9.2074   0.0007 
+
+Good convergence is indicated by the t-ratios being close to zero.
+
+Overall maximum convergence ratio =  0.1563 .
+
+
+
+@2
+Estimation Results.
+-------------------
+
+Regular end of estimation algorithm.
+Total of 2439 iteration steps.
+
+
+@3
+Estimates and standard errors
+                             
+ 1. rate:  basic rate parameter mynet                              5.4779  (   0.7823)
+ 2. eval:  outdegree (density)                                    -2.2272  (   0.1282)
+ 3. eval:  reciprocity                                             2.4316  (   0.2463)
+
+
+@3
+Covariance matrices
+                   
+Covariance matrix of estimates (correlations below diagonal):
+     0.612     -0.001      0.005
+    -0.007      0.016     -0.022
+     0.024     -0.712      0.061
+
+Derivative matrix of expected statistics X by parameters and
+covariance/correlation matrix of X can be found using
+summary(ans) within R, or by using the 'verbose' option in Siena07.
+ 
+Total computation time 5.46 seconds.
+
+
+-----------------------------------
+New Analysis started.
+Date and time: 27/07/2023 11:04:40
+New results follow.
+-----------------------------------
+
+RSiena version 1.3.22 (06 mei 23)
+
+
+@1
+Estimation by stochastic approximation algorithm.
+=================================================
+
+Current random number seed is 1293.
+Effects object used: myeff 
+Model Type:
+ Standard actor-oriented model 
+Estimation method: unconditional moment estimation
+.
+
+Time duration for simulations is 1.0.
+Standard errors are estimated with the likelihood ratio method.
+Dolby method (regression on scores) is used.
+Initial value of gain parameter is  0.2000000.
+Reduction factor for gain parameter is  0.5000000.
+Number of subphases in Phase 2 is 4.
+
+Initial parameter values are 
+  1. rate:  basic rate parameter mynet                      4.6960
+  2. eval:  outdegree (density)                            -1.4885
+  3. eval:  reciprocity                                     0.0000
+
+
+Observed values of target statistics are
+  1. Amount of network change                                           115.0000
+  2. Number of ties                                                     116.0000
+  3. Number of reciprocated ties                                         70.0000
+
+ 3 parameters, 3 statistics
+
+Estimation of derivatives by the LR method (type 1).
+
+
+@2
+End of stochastic approximation algorithm, phase 3.
+---------------------------------------------------
+
+Total of 2439 iterations.
+Parameter estimates based on 1439 iterations,
+convergence diagnostics, covariance and derivative matrices based on 1000 iterations.
+
+Information for convergence diagnosis.
+Averages, standard deviations, and t-ratios for deviations from targets:
+  1.  -1.3680   9.0957  -0.1504 
+  2.  -0.0720  10.1870  -0.0071 
+  3.   0.0060   9.2074   0.0007 
+
+Good convergence is indicated by the t-ratios being close to zero.
+
+Overall maximum convergence ratio =  0.1563 .
+
+
+
+@2
+Estimation Results.
+-------------------
+
+Regular end of estimation algorithm.
+Total of 2439 iteration steps.
+
+
+@3
+Estimates and standard errors
+                             
+ 1. rate:  basic rate parameter mynet                              5.4779  (   0.7823)
+ 2. eval:  outdegree (density)                                    -2.2272  (   0.1282)
+ 3. eval:  reciprocity                                             2.4316  (   0.2463)
+
+
+@3
+Covariance matrices
+                   
+Covariance matrix of estimates (correlations below diagonal):
+     0.612     -0.001      0.005
+    -0.007      0.016     -0.022
+     0.024     -0.712      0.061
+
+Derivative matrix of expected statistics X by parameters and
+covariance/correlation matrix of X can be found using
+summary(ans) within R, or by using the 'verbose' option in Siena07.
+ 
+Total computation time 6.2 seconds.
+
+
+-----------------------------------
+New Analysis started.
+Date and time: 27/07/2023 11:06:03
+New results follow.
+-----------------------------------
+
+RSiena version 1.3.22 (06 mei 23)
+
+
+@1
+Estimation by stochastic approximation algorithm.
+=================================================
+
+Current random number seed is 1293.
+Effects object used: myeff 
+Model Type:
+ Standard actor-oriented model 
+Estimation method: unconditional moment estimation
+.
+
+Time duration for simulations is 1.0.
+Standard errors are estimated with the likelihood ratio method.
+Dolby method (regression on scores) is used.
+Initial value of gain parameter is  0.2000000.
+Reduction factor for gain parameter is  0.5000000.
+Number of subphases in Phase 2 is 4.
+
+Initial parameter values are 
+  1. rate:  basic rate parameter mynet                      4.6960
+  2. eval:  outdegree (density)                            -1.4885
+  3. eval:  reciprocity                                     0.0000
+  4. eval:  transitive triplets                             0.0000
+  5. eval:  3-cycles                                        0.0000
+  6. eval:  smoke similarity                                0.0000
+  7. eval:  alcohol alter                                   0.0000
+  8. eval:  alcohol ego                                     0.0000
+  9. eval:  alcohol ego x alcohol alter                     0.0000
+
+
+Observed values of target statistics are
+  1. Amount of network change                                           115.0000
+  2. Number of ties                                                     116.0000
+  3. Number of reciprocated ties                                         70.0000
+  4. Number of transitive triplets                                       88.0000
+  5. 3-cycles                                                            28.0000
+  6. Similarity on smoke                                                 13.8416
+  7. Sum indegrees x alcohol                                             -4.0800
+  8. Sum outdegrees x alcohol                                             2.9200
+  9. Sum alcohol ego x alcohol alter                                     62.1904
+
+ 9 parameters, 9 statistics
+
+Estimation of derivatives by the LR method (type 1).
+
+
+@2
+End of stochastic approximation algorithm, phase 3.
+---------------------------------------------------
+
+Total of 2511 iterations.
+Parameter estimates based on 1511 iterations,
+convergence diagnostics, covariance and derivative matrices based on 1000 iterations.
+
+Information for convergence diagnosis.
+Averages, standard deviations, and t-ratios for deviations from targets:
+  1.  -0.1010  10.2438  -0.0099 
+  2.   1.0750  16.0940   0.0668 
+  3.   1.0840  14.3270   0.0757 
+  4.   6.2520  51.9715   0.1203 
+  5.   1.9660  16.8545   0.1166 
+  6.  -0.0283   5.2367  -0.0054 
+  7.   0.4730  15.3029   0.0309 
+  8.   0.5870  14.7269   0.0399 
+  9.   0.4777  17.9991   0.0265 
+
+Good convergence is indicated by the t-ratios being close to zero.
+
+Overall maximum convergence ratio =  0.1571 .
+
+
+
+@2
+Estimation Results.
+-------------------
+
+Regular end of estimation algorithm.
+Total of 2511 iteration steps.
+
+
+@3
+Estimates and standard errors
+                             
+ 1. rate:  basic rate parameter mynet                              6.2011  (   1.0407)
+ 2. eval:  outdegree (density)                                    -2.5285  (   0.1509)
+ 3. eval:  reciprocity                                             2.0541  (   0.2691)
+ 4. eval:  transitive triplets                                     0.5575  (   0.1737)
+ 5. eval:  3-cycles                                                0.0448  (   0.3510)
+ 6. eval:  smoke similarity                                        0.3993  (   0.2883)
+ 7. eval:  alcohol alter                                          -0.0767  (   0.0956)
+ 8. eval:  alcohol ego                                             0.0383  (   0.1044)
+ 9. eval:  alcohol ego x alcohol alter                             0.0997  (   0.0723)
+
+
+@3
+Covariance matrices
+                   
+Covariance matrix of estimates (correlations below diagonal):
+     1.083     -0.009      0.060      0.010     -0.052     -0.039     -0.004      0.008      0.001
+    -0.058      0.023     -0.019     -0.008     -0.001     -0.010      0.001     -0.001     -0.001
+     0.215     -0.473      0.072      0.005     -0.026      0.004     -0.002      0.001      0.000
+     0.056     -0.308      0.106      0.030     -0.047     -0.003      0.002     -0.003     -0.002
+    -0.142     -0.019     -0.273     -0.769      0.123      0.008     -0.005      0.006      0.002
+    -0.129     -0.222      0.051     -0.064      0.077      0.083      0.009      0.008     -0.002
+    -0.040      0.075     -0.058      0.095     -0.149      0.343      0.009     -0.003     -0.001
+     0.070     -0.084      0.041     -0.162      0.162      0.260     -0.296      0.011      0.000
+     0.020     -0.080     -0.015     -0.138      0.085     -0.097     -0.160      0.040      0.005
+
+Derivative matrix of expected statistics X by parameters and
+covariance/correlation matrix of X can be found using
+summary(ans) within R, or by using the 'verbose' option in Siena07.
+ 
+Total computation time 42.12 seconds.
+
+
+-----------------------------------
+New Analysis started.
+Date and time: 06/09/2023 09:03:48
+New results follow.
+-----------------------------------
+
+RSiena version 1.3.22 (06 mei 23)
+
+
+@1
+Estimation by stochastic approximation algorithm.
+=================================================
+
+Current random number seed is 1293.
+Effects object used: myeff 
+Model Type:
+ Standard actor-oriented model 
+Estimation method: unconditional moment estimation
+.
+
+Time duration for simulations is 1.0.
+Standard errors are estimated with the likelihood ratio method.
+Dolby method (regression on scores) is used.
+Initial value of gain parameter is  0.2000000.
+Reduction factor for gain parameter is  0.5000000.
+Number of subphases in Phase 2 is 4.
+
+Initial parameter values are 
+  1. rate:  basic rate parameter mynet                      4.6960
+  2. eval:  outdegree (density)                            -1.4885
+  3. eval:  reciprocity                                     0.0000
+
+
+Observed values of target statistics are
+  1. Amount of network change                                           115.0000
+  2. Number of ties                                                     116.0000
+  3. Number of reciprocated ties                                         70.0000
+
+ 3 parameters, 3 statistics
+
+Estimation of derivatives by the LR method (type 1).
+
+
+@2
+End of stochastic approximation algorithm, phase 3.
+---------------------------------------------------
+
+Total of 2439 iterations.
+Parameter estimates based on 1439 iterations,
+convergence diagnostics, covariance and derivative matrices based on 1000 iterations.
+
+Information for convergence diagnosis.
+Averages, standard deviations, and t-ratios for deviations from targets:
+  1.  -1.3680   9.0957  -0.1504 
+  2.  -0.0720  10.1870  -0.0071 
+  3.   0.0060   9.2074   0.0007 
+
+Good convergence is indicated by the t-ratios being close to zero.
+
+Overall maximum convergence ratio =  0.1563 .
+
+
+
+@2
+Estimation Results.
+-------------------
+
+Regular end of estimation algorithm.
+Total of 2439 iteration steps.
+
+
+@3
+Estimates and standard errors
+                             
+ 1. rate:  basic rate parameter mynet                              5.4779  (   0.7823)
+ 2. eval:  outdegree (density)                                    -2.2272  (   0.1282)
+ 3. eval:  reciprocity                                             2.4316  (   0.2463)
+
+
+@3
+Covariance matrices
+                   
+Covariance matrix of estimates (correlations below diagonal):
+     0.612     -0.001      0.005
+    -0.007      0.016     -0.022
+     0.024     -0.712      0.061
+
+Derivative matrix of expected statistics X by parameters and
+covariance/correlation matrix of X can be found using
+summary(ans) within R, or by using the 'verbose' option in Siena07.
+ 
+Total computation time 6.56 seconds.
+
+
+-----------------------------------
+New Analysis started.
+Date and time: 11/09/2023 14:54:29
+New results follow.
+-----------------------------------
+
+RSiena version 1.3.22 (06 mei 23)
+
+
+@1
+Estimation by stochastic approximation algorithm.
+=================================================
+
+Current random number seed is 1293.
+Effects object used: myeff 
+Model Type:
+ Standard actor-oriented model 
+Estimation method: unconditional moment estimation
+.
+
+Time duration for simulations is 1.0.
+Standard errors are estimated with the likelihood ratio method.
+Dolby method (regression on scores) is used.
+Initial value of gain parameter is  0.2000000.
+Reduction factor for gain parameter is  0.5000000.
+Number of subphases in Phase 2 is 4.
+
+Initial parameter values are 
+  1. rate:  basic rate parameter mynet                      4.6960
+  2. eval:  outdegree (density)                            -1.4885
+  3. eval:  reciprocity                                     0.0000
+
+
+Observed values of target statistics are
+  1. Amount of network change                                           115.0000
+  2. Number of ties                                                     116.0000
+  3. Number of reciprocated ties                                         70.0000
+
+ 3 parameters, 3 statistics
+
+Estimation of derivatives by the LR method (type 1).
+
+
+@2
+End of stochastic approximation algorithm, phase 3.
+---------------------------------------------------
+
+Total of 2439 iterations.
+Parameter estimates based on 1439 iterations,
+convergence diagnostics, covariance and derivative matrices based on 1000 iterations.
+
+Information for convergence diagnosis.
+Averages, standard deviations, and t-ratios for deviations from targets:
+  1.  -1.3680   9.0957  -0.1504 
+  2.  -0.0720  10.1870  -0.0071 
+  3.   0.0060   9.2074   0.0007 
+
+Good convergence is indicated by the t-ratios being close to zero.
+
+Overall maximum convergence ratio =  0.1563 .
+
+
+
+@2
+Estimation Results.
+-------------------
+
+Regular end of estimation algorithm.
+Total of 2439 iteration steps.
+
+
+@3
+Estimates and standard errors
+                             
+ 1. rate:  basic rate parameter mynet                              5.4779  (   0.7823)
+ 2. eval:  outdegree (density)                                    -2.2272  (   0.1282)
+ 3. eval:  reciprocity                                             2.4316  (   0.2463)
+
+
+@3
+Covariance matrices
+                   
+Covariance matrix of estimates (correlations below diagonal):
+     0.612     -0.001      0.005
+    -0.007      0.016     -0.022
+     0.024     -0.712      0.061
+
+Derivative matrix of expected statistics X by parameters and
+covariance/correlation matrix of X can be found using
+summary(ans) within R, or by using the 'verbose' option in Siena07.
+ 
+Total computation time 5.73 seconds.
+
+
+-----------------------------------
+New Analysis started.
+Date and time: 14/09/2023 12:39:38
+New results follow.
+-----------------------------------
+
+RSiena version 1.3.22 (06 mei 23)
+
+
+@1
+Estimation by stochastic approximation algorithm.
+=================================================
+
+Current random number seed is 1293.
+Effects object used: myeff 
+Model Type:
+ Standard actor-oriented model 
+Estimation method: unconditional moment estimation
+.
+
+Time duration for simulations is 1.0.
+Standard errors are estimated with the likelihood ratio method.
+Dolby method (regression on scores) is used.
+Initial value of gain parameter is  0.2000000.
+Reduction factor for gain parameter is  0.5000000.
+Number of subphases in Phase 2 is 4.
+
+Initial parameter values are 
+  1. rate:  basic rate parameter mynet                      4.6960
+  2. eval:  outdegree (density)                            -1.4885
+  3. eval:  reciprocity                                     0.0000
+
+
+Observed values of target statistics are
+  1. Amount of network change                                           115.0000
+  2. Number of ties                                                     116.0000
+  3. Number of reciprocated ties                                         70.0000
+
+ 3 parameters, 3 statistics
+
+Estimation of derivatives by the LR method (type 1).
+
+
+@2
+End of stochastic approximation algorithm, phase 3.
+---------------------------------------------------
+
+Total of 2439 iterations.
+Parameter estimates based on 1439 iterations,
+convergence diagnostics, covariance and derivative matrices based on 1000 iterations.
+
+Information for convergence diagnosis.
+Averages, standard deviations, and t-ratios for deviations from targets:
+  1.  -1.3680   9.0957  -0.1504 
+  2.  -0.0720  10.1870  -0.0071 
+  3.   0.0060   9.2074   0.0007 
+
+Good convergence is indicated by the t-ratios being close to zero.
+
+Overall maximum convergence ratio =  0.1563 .
+
+
+
+@2
+Estimation Results.
+-------------------
+
+Regular end of estimation algorithm.
+Total of 2439 iteration steps.
+
+
+@3
+Estimates and standard errors
+                             
+ 1. rate:  basic rate parameter mynet                              5.4779  (   0.7823)
+ 2. eval:  outdegree (density)                                    -2.2272  (   0.1282)
+ 3. eval:  reciprocity                                             2.4316  (   0.2463)
+
+
+@3
+Covariance matrices
+                   
+Covariance matrix of estimates (correlations below diagonal):
+     0.612     -0.001      0.005
+    -0.007      0.016     -0.022
+     0.024     -0.712      0.061
+
+Derivative matrix of expected statistics X by parameters and
+covariance/correlation matrix of X can be found using
+summary(ans) within R, or by using the 'verbose' option in Siena07.
+ 
+Total computation time 5.39 seconds.
+
+
+-----------------------------------
+New Analysis started.
+Date and time: 14/09/2023 12:39:43
+New results follow.
+-----------------------------------
+
+RSiena version 1.3.22 (06 mei 23)
+
+
+@1
+Estimation by stochastic approximation algorithm.
+=================================================
+
+Current random number seed is 1294.
+Effects object used: myeff 
+Model Type:
+ Standard actor-oriented model 
+Estimation method: unconditional moment estimation
+.
+
+Time duration for simulations is 1.0.
+Standard errors are estimated with the likelihood ratio method.
+Dolby method (regression on scores) is used.
+Initial value of gain parameter is  0.2000000.
+Reduction factor for gain parameter is  0.5000000.
+Number of subphases in Phase 2 is 4.
+
+Initial parameter values are 
+  1. rate:  basic rate parameter mynet                      4.6960
+  2. eval:  outdegree (density)                            -1.4885
+  3. eval:  reciprocity                                     0.0000
+
+
+Observed values of target statistics are
+  1. Amount of network change                                           115.0000
+  2. Number of ties                                                     116.0000
+  3. Number of reciprocated ties                                         70.0000
+
+ 3 parameters, 3 statistics
+
+Estimation of derivatives by the LR method (type 1).
+
+
+@2
+End of stochastic approximation algorithm, phase 3.
+---------------------------------------------------
+
+Total of 2312 iterations.
+Parameter estimates based on 1312 iterations,
+convergence diagnostics, covariance and derivative matrices based on 1000 iterations.
+
+Information for convergence diagnosis.
+Averages, standard deviations, and t-ratios for deviations from targets:
+  1.   0.2820   9.3456   0.0302 
+  2.   0.1920  10.3138   0.0186 
+  3.   0.0020   9.0690   0.0002 
+
+Good convergence is indicated by the t-ratios being close to zero.
+
+Overall maximum convergence ratio =  0.0357 .
+
+
+
+@2
+Estimation Results.
+-------------------
+
+Regular end of estimation algorithm.
+Total of 2312 iteration steps.
+
+
+@3
+Estimates and standard errors
+                             
+ 1. rate:  basic rate parameter mynet                              5.5205  (   0.7658)
+ 2. eval:  outdegree (density)                                    -2.2198  (   0.1167)
+ 3. eval:  reciprocity                                             2.4258  (   0.2359)
+
+
+@3
+Covariance matrices
+                   
+Covariance matrix of estimates (correlations below diagonal):
+     0.586      0.003      0.004
+     0.033      0.014     -0.018
+     0.020     -0.644      0.056
+
+Derivative matrix of expected statistics X by parameters and
+covariance/correlation matrix of X can be found using
+summary(ans) within R, or by using the 'verbose' option in Siena07.
+ 
+Total computation time 4.88 seconds.
+
+
+-----------------------------------
+New Analysis started.
+Date and time: 21/09/2023 09:23:48
+New results follow.
+-----------------------------------
+
+RSiena version 1.3.22 (06 mei 23)
+
+
+@1
+Estimation by stochastic approximation algorithm.
+=================================================
+
+Current random number seed is 1293.
+Effects object used: myeff 
+Model Type:
+ Standard actor-oriented model 
+Estimation method: unconditional moment estimation
+.
+
+Time duration for simulations is 1.0.
+Standard errors are estimated with the likelihood ratio method.
+Dolby method (regression on scores) is used.
+Initial value of gain parameter is  0.2000000.
+Reduction factor for gain parameter is  0.5000000.
+Number of subphases in Phase 2 is 4.
+
+Initial parameter values are 
+  1. rate:  basic rate parameter mynet                      4.6960
+  2. eval:  outdegree (density)                            -1.4885
+  3. eval:  reciprocity                                     0.0000
+
+
+Observed values of target statistics are
+  1. Amount of network change                                           115.0000
+  2. Number of ties                                                     116.0000
+  3. Number of reciprocated ties                                         70.0000
+
+ 3 parameters, 3 statistics
+
+Estimation of derivatives by the LR method (type 1).
+
+
+@2
+End of stochastic approximation algorithm, phase 3.
+---------------------------------------------------
+
+Total of 2439 iterations.
+Parameter estimates based on 1439 iterations,
+convergence diagnostics, covariance and derivative matrices based on 1000 iterations.
+
+Information for convergence diagnosis.
+Averages, standard deviations, and t-ratios for deviations from targets:
+  1.  -1.3680   9.0957  -0.1504 
+  2.  -0.0720  10.1870  -0.0071 
+  3.   0.0060   9.2074   0.0007 
+
+Good convergence is indicated by the t-ratios being close to zero.
+
+Overall maximum convergence ratio =  0.1563 .
+
+
+
+@2
+Estimation Results.
+-------------------
+
+Regular end of estimation algorithm.
+Total of 2439 iteration steps.
+
+
+@3
+Estimates and standard errors
+                             
+ 1. rate:  basic rate parameter mynet                              5.4779  (   0.7823)
+ 2. eval:  outdegree (density)                                    -2.2272  (   0.1282)
+ 3. eval:  reciprocity                                             2.4316  (   0.2463)
+
+
+@3
+Covariance matrices
+                   
+Covariance matrix of estimates (correlations below diagonal):
+     0.612     -0.001      0.005
+    -0.007      0.016     -0.022
+     0.024     -0.712      0.061
+
+Derivative matrix of expected statistics X by parameters and
+covariance/correlation matrix of X can be found using
+summary(ans) within R, or by using the 'verbose' option in Siena07.
+ 
+Total computation time 5.3 seconds.
+
+
+-----------------------------------
+New Analysis started.
+Date and time: 21/09/2023 09:23:53
+New results follow.
+-----------------------------------
+
+RSiena version 1.3.22 (06 mei 23)
+
+
+@1
+Estimation by stochastic approximation algorithm.
+=================================================
+
+Current random number seed is 1294.
+Effects object used: myeff 
+Model Type:
+ Standard actor-oriented model 
+Estimation method: unconditional moment estimation
+.
+
+Time duration for simulations is 1.0.
+Standard errors are estimated with the likelihood ratio method.
+Dolby method (regression on scores) is used.
+Initial value of gain parameter is  0.2000000.
+Reduction factor for gain parameter is  0.5000000.
+Number of subphases in Phase 2 is 4.
+
+Initial parameter values are 
+  1. rate:  basic rate parameter mynet                      4.6960
+  2. eval:  outdegree (density)                            -1.4885
+  3. eval:  reciprocity                                     0.0000
+
+
+Observed values of target statistics are
+  1. Amount of network change                                           115.0000
+  2. Number of ties                                                     116.0000
+  3. Number of reciprocated ties                                         70.0000
+
+ 3 parameters, 3 statistics
+
+Estimation of derivatives by the LR method (type 1).
+
+
+@2
+End of stochastic approximation algorithm, phase 3.
+---------------------------------------------------
+
+Total of 2312 iterations.
+Parameter estimates based on 1312 iterations,
+convergence diagnostics, covariance and derivative matrices based on 1000 iterations.
+
+Information for convergence diagnosis.
+Averages, standard deviations, and t-ratios for deviations from targets:
+  1.   0.2820   9.3456   0.0302 
+  2.   0.1920  10.3138   0.0186 
+  3.   0.0020   9.0690   0.0002 
+
+Good convergence is indicated by the t-ratios being close to zero.
+
+Overall maximum convergence ratio =  0.0357 .
+
+
+
+@2
+Estimation Results.
+-------------------
+
+Regular end of estimation algorithm.
+Total of 2312 iteration steps.
+
+
+@3
+Estimates and standard errors
+                             
+ 1. rate:  basic rate parameter mynet                              5.5205  (   0.7658)
+ 2. eval:  outdegree (density)                                    -2.2198  (   0.1167)
+ 3. eval:  reciprocity                                             2.4258  (   0.2359)
+
+
+@3
+Covariance matrices
+                   
+Covariance matrix of estimates (correlations below diagonal):
+     0.586      0.003      0.004
+     0.033      0.014     -0.018
+     0.020     -0.644      0.056
+
+Derivative matrix of expected statistics X by parameters and
+covariance/correlation matrix of X can be found using
+summary(ans) within R, or by using the 'verbose' option in Siena07.
+ 
+Total computation time 5.22 seconds.
+
+
+-----------------------------------
+New Analysis started.
+Date and time: 21/09/2023 12:09:17
+New results follow.
+-----------------------------------
+
+RSiena version 1.3.22 (06 mei 23)
+
+
+@1
+Estimation by stochastic approximation algorithm.
+=================================================
+
+Current random number seed is 1293.
+Effects object used: myeff 
+Model Type:
+ Standard actor-oriented model 
+Estimation method: unconditional moment estimation
+.
+
+Time duration for simulations is 1.0.
+Standard errors are estimated with the finite difference method.
+Dolby method (regression on scores) is used.
+Initial value of gain parameter is  0.2000000.
+Reduction factor for gain parameter is  0.5000000.
+Number of subphases in Phase 2 is 4.
+
+Initial parameter values are 
+  1. rate:  basic rate parameter mynet                      4.6960
+  2. eval:  outdegree (density)                            -1.4885
+  3. eval:  reciprocity                                     0.0000
+
+
+Observed values of target statistics are
+  1. Amount of network change                                           115.0000
+  2. Number of ties                                                     116.0000
+  3. Number of reciprocated ties                                         70.0000
+
+ 3 parameters, 3 statistics
+
+Estimation of derivatives by the finite difference method.
+
+
+@2
+End of stochastic approximation algorithm, phase 3.
+---------------------------------------------------
+
+Total of 2245 iterations.
+Parameter estimates based on 1245 iterations,
+convergence diagnostics, covariance and derivative matrices based on 1000 iterations.
+
+Information for convergence diagnosis.
+Averages, standard deviations, and t-ratios for deviations from targets:
+  1.  -0.7520   9.2783  -0.0810 
+  2.  -0.4780  10.1005  -0.0473 
+  3.   0.0880   9.5555   0.0092 
+
+Good convergence is indicated by the t-ratios being close to zero.
+
+Overall maximum convergence ratio =  0.1093 .
+
+
+
+@2
+Estimation Results.
+-------------------
+
+Regular end of estimation algorithm.
+Total of 2245 iteration steps.
+
+
+@3
+Estimates and standard errors
+                             
+ 1. rate:  basic rate parameter mynet                              5.5096  (   0.8475)
+ 2. eval:  outdegree (density)                                    -2.2331  (   0.1284)
+ 3. eval:  reciprocity                                             2.4378  (   0.2420)
+
+
+@3
+Covariance matrices
+                   
+Covariance matrix of estimates (correlations below diagonal):
+     0.718     -0.005      0.017
+    -0.049      0.016     -0.023
+     0.085     -0.736      0.059
+
+Derivative matrix of expected statistics X by parameters and
+covariance/correlation matrix of X can be found using
+summary(ans) within R, or by using the 'verbose' option in Siena07.
+ 
+Total computation time 8.57 seconds.
+
+
+-----------------------------------
+New Analysis started.
+Date and time: 21/09/2023 12:09:48
+New results follow.
+-----------------------------------
+
+RSiena version 1.3.22 (06 mei 23)
+
+
+@1
+Estimation by stochastic approximation algorithm.
+=================================================
+
+Current random number seed is 1294.
+Effects object used: myeff 
+Model Type:
+ Standard actor-oriented model 
+Estimation method: unconditional moment estimation
+.
+
+Time duration for simulations is 1.0.
+Standard errors are estimated with the finite difference method.
+Dolby method (regression on scores) is used.
+Initial value of gain parameter is  0.2000000.
+Reduction factor for gain parameter is  0.5000000.
+Number of subphases in Phase 2 is 4.
+
+Initial parameter values are 
+  1. rate:  basic rate parameter mynet                      4.6960
+  2. eval:  outdegree (density)                            -1.4885
+  3. eval:  reciprocity                                     0.0000
+
+
+Observed values of target statistics are
+  1. Amount of network change                                           115.0000
+  2. Number of ties                                                     116.0000
+  3. Number of reciprocated ties                                         70.0000
+
+ 3 parameters, 3 statistics
+
+Estimation of derivatives by the finite difference method.
+
+
+@2
+End of stochastic approximation algorithm, phase 3.
+---------------------------------------------------
+
+Total of 2228 iterations.
+Parameter estimates based on 1228 iterations,
+convergence diagnostics, covariance and derivative matrices based on 1000 iterations.
+
+Information for convergence diagnosis.
+Averages, standard deviations, and t-ratios for deviations from targets:
+  1.   0.6220   9.8122   0.0634 
+  2.  -0.0640  10.2882  -0.0062 
+  3.  -0.0740   9.3837  -0.0079 
+
+Good convergence is indicated by the t-ratios being close to zero.
+
+Overall maximum convergence ratio =  0.0696 .
+
+
+
+@2
+Estimation Results.
+-------------------
+
+Regular end of estimation algorithm.
+Total of 2228 iteration steps.
+
+
+@3
+Estimates and standard errors
+                             
+ 1. rate:  basic rate parameter mynet                              5.5673  (   0.8396)
+ 2. eval:  outdegree (density)                                    -2.2284  (   0.1348)
+ 3. eval:  reciprocity                                             2.4335  (   0.2464)
+
+
+@3
+Covariance matrices
+                   
+Covariance matrix of estimates (correlations below diagonal):
+     0.705      0.003     -0.001
+     0.025      0.018     -0.025
+    -0.006     -0.746      0.061
+
+Derivative matrix of expected statistics X by parameters and
+covariance/correlation matrix of X can be found using
+summary(ans) within R, or by using the 'verbose' option in Siena07.
+ 
+Total computation time 8.72 seconds.
+
+
+-----------------------------------
+New Analysis started.
+Date and time: 21/09/2023 12:14:40
+New results follow.
+-----------------------------------
+
+RSiena version 1.3.22 (06 mei 23)
+
+
+@1
+Estimation by stochastic approximation algorithm.
+=================================================
+
+Current random number seed is 1293.
+Effects object used: myeff 
+Model Type:
+ Standard actor-oriented model 
+Estimation method: unconditional moment estimation
+.
+
+Time duration for simulations is 1.0.
+Standard errors are estimated with the likelihood ratio method.
+Dolby method (regression on scores) is used.
+Initial value of gain parameter is  0.2000000.
+Reduction factor for gain parameter is  0.5000000.
+Number of subphases in Phase 2 is 4.
+
+Initial parameter values are 
+  1. rate:  basic rate parameter mynet                      4.6960
+  2. eval:  outdegree (density)                            -1.4885
+  3. eval:  reciprocity                                     0.0000
+
+
+Observed values of target statistics are
+  1. Amount of network change                                           115.0000
+  2. Number of ties                                                     116.0000
+  3. Number of reciprocated ties                                         70.0000
+
+ 3 parameters, 3 statistics
+
+Estimation of derivatives by the LR method (type 1).
+
+
+@2
+End of stochastic approximation algorithm, phase 3.
+---------------------------------------------------
+
+Total of 2439 iterations.
+Parameter estimates based on 1439 iterations,
+convergence diagnostics, covariance and derivative matrices based on 1000 iterations.
+
+Information for convergence diagnosis.
+Averages, standard deviations, and t-ratios for deviations from targets:
+  1.  -1.3680   9.0957  -0.1504 
+  2.  -0.0720  10.1870  -0.0071 
+  3.   0.0060   9.2074   0.0007 
+
+Good convergence is indicated by the t-ratios being close to zero.
+
+Overall maximum convergence ratio =  0.1563 .
+
+
+
+@2
+Estimation Results.
+-------------------
+
+Regular end of estimation algorithm.
+Total of 2439 iteration steps.
+
+
+@3
+Estimates and standard errors
+                             
+ 1. rate:  basic rate parameter mynet                              5.4779  (   0.7823)
+ 2. eval:  outdegree (density)                                    -2.2272  (   0.1282)
+ 3. eval:  reciprocity                                             2.4316  (   0.2463)
+
+
+@3
+Covariance matrices
+                   
+Covariance matrix of estimates (correlations below diagonal):
+     0.612     -0.001      0.005
+    -0.007      0.016     -0.022
+     0.024     -0.712      0.061
+
+Derivative matrix of expected statistics X by parameters and
+covariance/correlation matrix of X can be found using
+summary(ans) within R, or by using the 'verbose' option in Siena07.
+ 
+Total computation time 5.46 seconds.
+
+
+-----------------------------------
+New Analysis started.
+Date and time: 21/09/2023 12:14:45
+New results follow.
+-----------------------------------
+
+RSiena version 1.3.22 (06 mei 23)
+
+
+@1
+Estimation by stochastic approximation algorithm.
+=================================================
+
+Current random number seed is 1294.
+Effects object used: myeff 
+Model Type:
+ Standard actor-oriented model 
+Estimation method: unconditional moment estimation
+.
+
+Time duration for simulations is 1.0.
+Standard errors are estimated with the likelihood ratio method.
+Dolby method (regression on scores) is used.
+Initial value of gain parameter is  0.2000000.
+Reduction factor for gain parameter is  0.5000000.
+Number of subphases in Phase 2 is 4.
+
+Initial parameter values are 
+  1. rate:  basic rate parameter mynet                      4.6960
+  2. eval:  outdegree (density)                            -1.4885
+  3. eval:  reciprocity                                     0.0000
+
+
+Observed values of target statistics are
+  1. Amount of network change                                           115.0000
+  2. Number of ties                                                     116.0000
+  3. Number of reciprocated ties                                         70.0000
+
+ 3 parameters, 3 statistics
+
+Estimation of derivatives by the LR method (type 1).
+
+
+@2
+End of stochastic approximation algorithm, phase 3.
+---------------------------------------------------
+
+Total of 2312 iterations.
+Parameter estimates based on 1312 iterations,
+convergence diagnostics, covariance and derivative matrices based on 1000 iterations.
+
+Information for convergence diagnosis.
+Averages, standard deviations, and t-ratios for deviations from targets:
+  1.   0.2820   9.3456   0.0302 
+  2.   0.1920  10.3138   0.0186 
+  3.   0.0020   9.0690   0.0002 
+
+Good convergence is indicated by the t-ratios being close to zero.
+
+Overall maximum convergence ratio =  0.0357 .
+
+
+
+@2
+Estimation Results.
+-------------------
+
+Regular end of estimation algorithm.
+Total of 2312 iteration steps.
+
+
+@3
+Estimates and standard errors
+                             
+ 1. rate:  basic rate parameter mynet                              5.5205  (   0.7658)
+ 2. eval:  outdegree (density)                                    -2.2198  (   0.1167)
+ 3. eval:  reciprocity                                             2.4258  (   0.2359)
+
+
+@3
+Covariance matrices
+                   
+Covariance matrix of estimates (correlations below diagonal):
+     0.586      0.003      0.004
+     0.033      0.014     -0.018
+     0.020     -0.644      0.056
+
+Derivative matrix of expected statistics X by parameters and
+covariance/correlation matrix of X can be found using
+summary(ans) within R, or by using the 'verbose' option in Siena07.
+ 
+Total computation time 5 seconds.
+
+
+-----------------------------------
+New Analysis started.
+Date and time: 23/09/2023 15:02:20
+New results follow.
+-----------------------------------
+
+RSiena version 1.3.22 (06 mei 23)
+
+
+@1
+Estimation by stochastic approximation algorithm.
+=================================================
+
+Current random number seed is 1293.
+Effects object used: myeff 
+Model Type:
+ Standard actor-oriented model 
+Estimation method: unconditional moment estimation
+.
+
+Time duration for simulations is 1.0.
+Standard errors are estimated with the finite difference method.
+Dolby method (regression on scores) is used.
+Initial value of gain parameter is  0.2000000.
+Reduction factor for gain parameter is  0.5000000.
+Number of subphases in Phase 2 is 4.
+
+Initial parameter values are 
+  1. rate:  basic rate parameter mynet                      4.6960
+  2. eval:  outdegree (density)                            -1.4885
+  3. eval:  reciprocity                                     0.0000
+
+
+Observed values of target statistics are
+  1. Amount of network change                                           115.0000
+  2. Number of ties                                                     116.0000
+  3. Number of reciprocated ties                                         70.0000
+
+ 3 parameters, 3 statistics
+
+Estimation of derivatives by the finite difference method.
+
+
+@2
+End of stochastic approximation algorithm, phase 3.
+---------------------------------------------------
+
+Total of 2245 iterations.
+Parameter estimates based on 1245 iterations,
+convergence diagnostics, covariance and derivative matrices based on 1000 iterations.
+
+Information for convergence diagnosis.
+Averages, standard deviations, and t-ratios for deviations from targets:
+  1.  -0.7520   9.2783  -0.0810 
+  2.  -0.4780  10.1005  -0.0473 
+  3.   0.0880   9.5555   0.0092 
+
+Good convergence is indicated by the t-ratios being close to zero.
+
+Overall maximum convergence ratio =  0.1093 .
+
+
+
+@2
+Estimation Results.
+-------------------
+
+Regular end of estimation algorithm.
+Total of 2245 iteration steps.
+
+
+@3
+Estimates and standard errors
+                             
+ 1. rate:  basic rate parameter mynet                              5.5096  (   0.8475)
+ 2. eval:  outdegree (density)                                    -2.2331  (   0.1284)
+ 3. eval:  reciprocity                                             2.4378  (   0.2420)
+
+
+@3
+Covariance matrices
+                   
+Covariance matrix of estimates (correlations below diagonal):
+     0.718     -0.005      0.017
+    -0.049      0.016     -0.023
+     0.085     -0.736      0.059
+
+Derivative matrix of expected statistics X by parameters and
+covariance/correlation matrix of X can be found using
+summary(ans) within R, or by using the 'verbose' option in Siena07.
+ 
+Total computation time 9.1 seconds.
+
+
+-----------------------------------
+New Analysis started.
+Date and time: 24/09/2023 08:06:04
+New results follow.
+-----------------------------------
+
+RSiena version 1.3.22 (06 mei 23)
+
+
+@1
+Estimation by stochastic approximation algorithm.
+=================================================
+
+Current random number seed is 1293.
+Effects object used: myeff 
+Model Type:
+ Standard actor-oriented model 
+Estimation method: unconditional moment estimation
+.
+
+Time duration for simulations is 1.0.
+Standard errors are estimated with the finite difference method.
+Dolby method (regression on scores) is used.
+Initial value of gain parameter is  0.2000000.
+Reduction factor for gain parameter is  0.5000000.
+Number of subphases in Phase 2 is 4.
+
+Initial parameter values are 
+  1. rate:  basic rate parameter mynet                      4.6960
+  2. eval:  outdegree (density)                            -1.4885
+  3. eval:  reciprocity                                     0.0000
+
+
+Observed values of target statistics are
+  1. Amount of network change                                           115.0000
+  2. Number of ties                                                     116.0000
+  3. Number of reciprocated ties                                         70.0000
+
+ 3 parameters, 3 statistics
+
+Estimation of derivatives by the finite difference method.
+
+
+@2
+End of stochastic approximation algorithm, phase 3.
+---------------------------------------------------
+
+Total of 2245 iterations.
+Parameter estimates based on 1245 iterations,
+convergence diagnostics, covariance and derivative matrices based on 1000 iterations.
+
+Information for convergence diagnosis.
+Averages, standard deviations, and t-ratios for deviations from targets:
+  1.  -0.7520   9.2783  -0.0810 
+  2.  -0.4780  10.1005  -0.0473 
+  3.   0.0880   9.5555   0.0092 
+
+Good convergence is indicated by the t-ratios being close to zero.
+
+Overall maximum convergence ratio =  0.1093 .
+
+
+
+@2
+Estimation Results.
+-------------------
+
+Regular end of estimation algorithm.
+Total of 2245 iteration steps.
+
+
+@3
+Estimates and standard errors
+                             
+ 1. rate:  basic rate parameter mynet                              5.5096  (   0.8475)
+ 2. eval:  outdegree (density)                                    -2.2331  (   0.1284)
+ 3. eval:  reciprocity                                             2.4378  (   0.2420)
+
+
+@3
+Covariance matrices
+                   
+Covariance matrix of estimates (correlations below diagonal):
+     0.718     -0.005      0.017
+    -0.049      0.016     -0.023
+     0.085     -0.736      0.059
+
+Derivative matrix of expected statistics X by parameters and
+covariance/correlation matrix of X can be found using
+summary(ans) within R, or by using the 'verbose' option in Siena07.
+ 
+Total computation time 9 seconds.
+
+
+-----------------------------------
+New Analysis started.
+Date and time: 24/09/2023 12:59:47
+New results follow.
+-----------------------------------
+
+RSiena version 1.3.22 (06 mei 23)
+
+
+@1
+Estimation by stochastic approximation algorithm.
+=================================================
+
+Current random number seed is 1293.
+Effects object used: myeff 
+Model Type:
+ Standard actor-oriented model 
+Estimation method: unconditional moment estimation
+.
+
+Time duration for simulations is 1.0.
+Standard errors are estimated with the finite difference method.
+Dolby method (regression on scores) is used.
+Initial value of gain parameter is  0.2000000.
+Reduction factor for gain parameter is  0.5000000.
+Number of subphases in Phase 2 is 4.
+
+Initial parameter values are 
+  1. rate:  basic rate parameter mynet                      4.6960
+  2. eval:  outdegree (density)                            -1.4885
+  3. eval:  reciprocity                                     0.0000
+
+
+Observed values of target statistics are
+  1. Amount of network change                                           115.0000
+  2. Number of ties                                                     116.0000
+  3. Number of reciprocated ties                                         70.0000
+
+ 3 parameters, 3 statistics
+
+Estimation of derivatives by the finite difference method.
+
+
+@2
+End of stochastic approximation algorithm, phase 3.
+---------------------------------------------------
+
+Total of 2245 iterations.
+Parameter estimates based on 1245 iterations,
+convergence diagnostics, covariance and derivative matrices based on 1000 iterations.
+
+Information for convergence diagnosis.
+Averages, standard deviations, and t-ratios for deviations from targets:
+  1.  -0.7520   9.2783  -0.0810 
+  2.  -0.4780  10.1005  -0.0473 
+  3.   0.0880   9.5555   0.0092 
+
+Good convergence is indicated by the t-ratios being close to zero.
+
+Overall maximum convergence ratio =  0.1093 .
+
+
+
+@2
+Estimation Results.
+-------------------
+
+Regular end of estimation algorithm.
+Total of 2245 iteration steps.
+
+
+@3
+Estimates and standard errors
+                             
+ 1. rate:  basic rate parameter mynet                              5.5096  (   0.8475)
+ 2. eval:  outdegree (density)                                    -2.2331  (   0.1284)
+ 3. eval:  reciprocity                                             2.4378  (   0.2420)
+
+
+@3
+Covariance matrices
+                   
+Covariance matrix of estimates (correlations below diagonal):
+     0.718     -0.005      0.017
+    -0.049      0.016     -0.023
+     0.085     -0.736      0.059
+
+Derivative matrix of expected statistics X by parameters and
+covariance/correlation matrix of X can be found using
+summary(ans) within R, or by using the 'verbose' option in Siena07.
+ 
+Total computation time 9.21 seconds.
+
+
+-----------------------------------
+New Analysis started.
+Date and time: 24/09/2023 12:59:56
+New results follow.
+-----------------------------------
+
+RSiena version 1.3.22 (06 mei 23)
+
+
+@1
+Estimation by stochastic approximation algorithm.
+=================================================
+
+Current random number seed is 1294.
+Effects object used: myeff 
+Model Type:
+ Standard actor-oriented model 
+Estimation method: unconditional moment estimation
+.
+
+Time duration for simulations is 1.0.
+Standard errors are estimated with the finite difference method.
+Dolby method (regression on scores) is used.
+Initial value of gain parameter is  0.2000000.
+Reduction factor for gain parameter is  0.5000000.
+Number of subphases in Phase 2 is 4.
+
+Initial parameter values are 
+  1. rate:  basic rate parameter mynet                      4.6960
+  2. eval:  outdegree (density)                            -1.4885
+  3. eval:  reciprocity                                     0.0000
+
+
+Observed values of target statistics are
+  1. Amount of network change                                           115.0000
+  2. Number of ties                                                     116.0000
+  3. Number of reciprocated ties                                         70.0000
+
+ 3 parameters, 3 statistics
+
+Estimation of derivatives by the finite difference method.
+
+
+@2
+End of stochastic approximation algorithm, phase 3.
+---------------------------------------------------
+
+Total of 2228 iterations.
+Parameter estimates based on 1228 iterations,
+convergence diagnostics, covariance and derivative matrices based on 1000 iterations.
+
+Information for convergence diagnosis.
+Averages, standard deviations, and t-ratios for deviations from targets:
+  1.   0.6220   9.8122   0.0634 
+  2.  -0.0640  10.2882  -0.0062 
+  3.  -0.0740   9.3837  -0.0079 
+
+Good convergence is indicated by the t-ratios being close to zero.
+
+Overall maximum convergence ratio =  0.0696 .
+
+
+
+@2
+Estimation Results.
+-------------------
+
+Regular end of estimation algorithm.
+Total of 2228 iteration steps.
+
+
+@3
+Estimates and standard errors
+                             
+ 1. rate:  basic rate parameter mynet                              5.5673  (   0.8396)
+ 2. eval:  outdegree (density)                                    -2.2284  (   0.1348)
+ 3. eval:  reciprocity                                             2.4335  (   0.2464)
+
+
+@3
+Covariance matrices
+                   
+Covariance matrix of estimates (correlations below diagonal):
+     0.705      0.003     -0.001
+     0.025      0.018     -0.025
+    -0.006     -0.746      0.061
+
+Derivative matrix of expected statistics X by parameters and
+covariance/correlation matrix of X can be found using
+summary(ans) within R, or by using the 'verbose' option in Siena07.
+ 
+Total computation time 8.92 seconds.
+
+
+-----------------------------------
+New Analysis started.
+Date and time: 24/09/2023 13:00:05
+New results follow.
+-----------------------------------
+
+RSiena version 1.3.22 (06 mei 23)
+
+
+@1
+Estimation by stochastic approximation algorithm.
+=================================================
+
+Current random number seed is 1293.
+Effects object used: myeff 
+Model Type:
+ Standard actor-oriented model 
+Estimation method: unconditional moment estimation
+.
+
+Time duration for simulations is 1.0.
+Standard errors are estimated with the likelihood ratio method.
+Dolby method (regression on scores) is used.
+Initial value of gain parameter is  0.2000000.
+Reduction factor for gain parameter is  0.5000000.
+Number of subphases in Phase 2 is 4.
+
+Initial parameter values are 
+  1. rate:  basic rate parameter mynet                      4.6960
+  2. eval:  outdegree (density)                            -1.4885
+  3. eval:  reciprocity                                     0.0000
+
+
+Observed values of target statistics are
+  1. Amount of network change                                           115.0000
+  2. Number of ties                                                     116.0000
+  3. Number of reciprocated ties                                         70.0000
+
+ 3 parameters, 3 statistics
+
+Estimation of derivatives by the LR method (type 1).
+
+
+@2
+End of stochastic approximation algorithm, phase 3.
+---------------------------------------------------
+
+Total of 2439 iterations.
+Parameter estimates based on 1439 iterations,
+convergence diagnostics, covariance and derivative matrices based on 1000 iterations.
+
+Information for convergence diagnosis.
+Averages, standard deviations, and t-ratios for deviations from targets:
+  1.  -1.3680   9.0957  -0.1504 
+  2.  -0.0720  10.1870  -0.0071 
+  3.   0.0060   9.2074   0.0007 
+
+Good convergence is indicated by the t-ratios being close to zero.
+
+Overall maximum convergence ratio =  0.1563 .
+
+
+
+@2
+Estimation Results.
+-------------------
+
+Regular end of estimation algorithm.
+Total of 2439 iteration steps.
+
+
+@3
+Estimates and standard errors
+                             
+ 1. rate:  basic rate parameter mynet                              5.4779  (   0.7823)
+ 2. eval:  outdegree (density)                                    -2.2272  (   0.1282)
+ 3. eval:  reciprocity                                             2.4316  (   0.2463)
+
+
+@3
+Covariance matrices
+                   
+Covariance matrix of estimates (correlations below diagonal):
+     0.612     -0.001      0.005
+    -0.007      0.016     -0.022
+     0.024     -0.712      0.061
+
+Derivative matrix of expected statistics X by parameters and
+covariance/correlation matrix of X can be found using
+summary(ans) within R, or by using the 'verbose' option in Siena07.
+ 
+Total computation time 5.17 seconds.
+
+
+-----------------------------------
+New Analysis started.
+Date and time: 24/09/2023 13:00:10
+New results follow.
+-----------------------------------
+
+RSiena version 1.3.22 (06 mei 23)
+
+
+@1
+Estimation by stochastic approximation algorithm.
+=================================================
+
+Current random number seed is 1294.
+Effects object used: myeff 
+Model Type:
+ Standard actor-oriented model 
+Estimation method: unconditional moment estimation
+.
+
+Time duration for simulations is 1.0.
+Standard errors are estimated with the likelihood ratio method.
+Dolby method (regression on scores) is used.
+Initial value of gain parameter is  0.2000000.
+Reduction factor for gain parameter is  0.5000000.
+Number of subphases in Phase 2 is 4.
+
+Initial parameter values are 
+  1. rate:  basic rate parameter mynet                      4.6960
+  2. eval:  outdegree (density)                            -1.4885
+  3. eval:  reciprocity                                     0.0000
+
+
+Observed values of target statistics are
+  1. Amount of network change                                           115.0000
+  2. Number of ties                                                     116.0000
+  3. Number of reciprocated ties                                         70.0000
+
+ 3 parameters, 3 statistics
+
+Estimation of derivatives by the LR method (type 1).
+
+
+@2
+End of stochastic approximation algorithm, phase 3.
+---------------------------------------------------
+
+Total of 2312 iterations.
+Parameter estimates based on 1312 iterations,
+convergence diagnostics, covariance and derivative matrices based on 1000 iterations.
+
+Information for convergence diagnosis.
+Averages, standard deviations, and t-ratios for deviations from targets:
+  1.   0.2820   9.3456   0.0302 
+  2.   0.1920  10.3138   0.0186 
+  3.   0.0020   9.0690   0.0002 
+
+Good convergence is indicated by the t-ratios being close to zero.
+
+Overall maximum convergence ratio =  0.0357 .
+
+
+
+@2
+Estimation Results.
+-------------------
+
+Regular end of estimation algorithm.
+Total of 2312 iteration steps.
+
+
+@3
+Estimates and standard errors
+                             
+ 1. rate:  basic rate parameter mynet                              5.5205  (   0.7658)
+ 2. eval:  outdegree (density)                                    -2.2198  (   0.1167)
+ 3. eval:  reciprocity                                             2.4258  (   0.2359)
+
+
+@3
+Covariance matrices
+                   
+Covariance matrix of estimates (correlations below diagonal):
+     0.586      0.003      0.004
+     0.033      0.014     -0.018
+     0.020     -0.644      0.056
+
+Derivative matrix of expected statistics X by parameters and
+covariance/correlation matrix of X can be found using
+summary(ans) within R, or by using the 'verbose' option in Siena07.
+ 
+Total computation time 5.01 seconds.
+
+
+-----------------------------------
+New Analysis started.
+Date and time: 24/09/2023 18:23:09
+New results follow.
+-----------------------------------
+
+RSiena version 1.3.22 (06 mei 23)
+
+
+@1
+Estimation by stochastic approximation algorithm.
+=================================================
+
+Current random number seed is 1293.
+Effects object used: myeff 
+Model Type:
+ Standard actor-oriented model 
+Estimation method: unconditional moment estimation
+.
+
+Time duration for simulations is 1.0.
+Standard errors are estimated with the finite difference method.
+Dolby method (regression on scores) is used.
+Initial value of gain parameter is  0.2000000.
+Reduction factor for gain parameter is  0.5000000.
+Number of subphases in Phase 2 is 4.
+
+Initial parameter values are 
+  1. rate:  basic rate parameter mynet                      4.6960
+  2. eval:  outdegree (density)                            -1.4885
+  3. eval:  reciprocity                                     0.0000
+  4. eval:  transitive triplets                             0.0000
+  5. eval:  indegree - activity                             0.0000
+
+
+Observed values of target statistics are
+  1. Amount of network change                                           115.0000
+  2. Number of ties                                                     116.0000
+  3. Number of reciprocated ties                                         70.0000
+  4. Number of transitive triplets                                       88.0000
+  5. Sum of crossproducts indegree x outdegree                          306.0000
+
+ 5 parameters, 5 statistics
+
+Estimation of derivatives by the finite difference method.
+
+
+@2
+End of stochastic approximation algorithm, phase 3.
+---------------------------------------------------
+
+Total of 2143 iterations.
+Parameter estimates based on 1143 iterations,
+convergence diagnostics, covariance and derivative matrices based on 1000 iterations.
+
+Information for convergence diagnosis.
+Averages, standard deviations, and t-ratios for deviations from targets:
+  1.  -0.7440  10.1216  -0.0735 
+  2.   1.0060  12.9086   0.0779 
+  3.   1.5640  13.4396   0.1164 
+  4.   6.0990  44.6777   0.1365 
+  5.   8.4690  77.4894   0.1093 
+
+Good convergence is indicated by the t-ratios being close to zero.
+
+Overall maximum convergence ratio =  0.1851 .
+
+
+
+@2
+Estimation Results.
+-------------------
+
+Regular end of estimation algorithm.
+Total of 2143 iteration steps.
+
+
+@3
+Estimates and standard errors
+                             
+ 1. rate:  basic rate parameter mynet                              5.9458  (   1.0185)
+ 2. eval:  outdegree (density)                                    -1.7774  (   0.1719)
+ 3. eval:  reciprocity                                             2.7071  (   0.2562)
+ 4. eval:  transitive triplets                                     0.8310  (   0.0940)
+ 5. eval:  indegree - activity                                    -0.4667  (   0.0515)
+
+
+@3
+Covariance matrices
+                   
+Covariance matrix of estimates (correlations below diagonal):
+     1.037      0.004      0.014     -0.034      0.011
+     0.023      0.030     -0.020     -0.001     -0.004
+     0.053     -0.444      0.066     -0.001     -0.001
+    -0.354     -0.045     -0.024      0.009     -0.003
+     0.218     -0.446     -0.071     -0.603      0.003
+
+Derivative matrix of expected statistics X by parameters and
+covariance/correlation matrix of X can be found using
+summary(ans) within R, or by using the 'verbose' option in Siena07.
+ 
+Total computation time 18.22 seconds.
+
+
+-----------------------------------
+New Analysis started.
+Date and time: 27/09/2023 09:21:59
+New results follow.
+-----------------------------------
+
+RSiena version 1.3.22 (06 mei 23)
+
+
+@1
+Estimation by stochastic approximation algorithm.
+=================================================
+
+Current random number seed is 1293.
+Effects object used: myeff 
+Model Type:
+ Standard actor-oriented model 
+Estimation method: unconditional moment estimation
+.
+
+Time duration for simulations is 1.0.
+Standard errors are estimated with the finite difference method.
+Dolby method (regression on scores) is used.
+Initial value of gain parameter is  0.2000000.
+Reduction factor for gain parameter is  0.5000000.
+Number of subphases in Phase 2 is 4.
+
+Initial parameter values are 
+  1. rate:  basic rate parameter mynet                      4.6960
+  2. eval:  outdegree (density)                            -1.4885
+  3. eval:  reciprocity                                     0.0000
+
+
+Observed values of target statistics are
+  1. Amount of network change                                           115.0000
+  2. Number of ties                                                     116.0000
+  3. Number of reciprocated ties                                         70.0000
+
+ 3 parameters, 3 statistics
+
+
+
+-----------------------------------
+New Analysis started.
+Date and time: 30/09/2023 12:03:15
+New results follow.
+-----------------------------------
+
+RSiena version 1.3.22 (06 mei 23)
+
+
+@1
+Estimation by stochastic approximation algorithm.
+=================================================
+
+Current random number seed is 1293.
+Effects object used: myeff 
+Model Type:
+ Standard actor-oriented model 
+Estimation method: unconditional moment estimation
+.
+
+Time duration for simulations is 1.0.
+Standard errors are estimated with the finite difference method.
+Dolby method (regression on scores) is used.
+Initial value of gain parameter is  0.2000000.
+Reduction factor for gain parameter is  0.5000000.
+Number of subphases in Phase 2 is 4.
+
+Initial parameter values are 
+  1. rate:  basic rate parameter mynet                      4.6960
+  2. eval:  outdegree (density)                            -1.4885
+  3. eval:  reciprocity                                     0.0000
+
+
+Observed values of target statistics are
+  1. Amount of network change                                           115.0000
+  2. Number of ties                                                     116.0000
+  3. Number of reciprocated ties                                         70.0000
+
+ 3 parameters, 3 statistics
+
+Estimation of derivatives by the finite difference method.
+
+
+@2
+End of stochastic approximation algorithm, phase 3.
+---------------------------------------------------
+
+Total of 2245 iterations.
+Parameter estimates based on 1245 iterations,
+convergence diagnostics, covariance and derivative matrices based on 1000 iterations.
+
+Information for convergence diagnosis.
+Averages, standard deviations, and t-ratios for deviations from targets:
+  1.  -0.7520   9.2783  -0.0810 
+  2.  -0.4780  10.1005  -0.0473 
+  3.   0.0880   9.5555   0.0092 
+
+Good convergence is indicated by the t-ratios being close to zero.
+
+Overall maximum convergence ratio =  0.1093 .
+
+
+
+@2
+Estimation Results.
+-------------------
+
+Regular end of estimation algorithm.
+Total of 2245 iteration steps.
+
+
+@3
+Estimates and standard errors
+                             
+ 1. rate:  basic rate parameter mynet                              5.5096  (   0.8475)
+ 2. eval:  outdegree (density)                                    -2.2331  (   0.1284)
+ 3. eval:  reciprocity                                             2.4378  (   0.2420)
+
+
+@3
+Covariance matrices
+                   
+Covariance matrix of estimates (correlations below diagonal):
+     0.718     -0.005      0.017
+    -0.049      0.016     -0.023
+     0.085     -0.736      0.059
+
+Derivative matrix of expected statistics X by parameters and
+covariance/correlation matrix of X can be found using
+summary(ans) within R, or by using the 'verbose' option in Siena07.
+ 
+Total computation time 11.25 seconds.

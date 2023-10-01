@@ -25,7 +25,7 @@ Calculates the distance, or path length, between two actors part of the same net
 This function is a wrapper around the function \code{\link[sna:geodist]{sna::geodist}}.
 }
 \examples{
-ts_geodist(net=net1, ego1=6, ego2=8, degree="outdegree")
-ts_geodist(net=net1, ego1=8, ego2=6, degree="outdegree")
-ts_geodist(net=net1, ego1=8, ego2=6, degree="degree")
+ts_geodist(net=ts_net1, ego1=6, ego2=8, degree="outdegree")
+ts_geodist(net=ts_net1, ego1=8, ego2=6, degree="outdegree")
+ts_geodist(net=ts_net1, ego1=8, ego2=6, degree="degree")
 }

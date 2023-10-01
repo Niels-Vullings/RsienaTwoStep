@@ -15,7 +15,7 @@
 #' @return numeric value
 #' @seealso [`ts_eval()`]
 #' @examples
-#' ts_degree(net=net1, ego=3)
+#' ts_degree(net=ts_net1, ego=3)
 #'
 #' @importFrom Rdpack reprompt
 #' @export
@@ -23,6 +23,9 @@ ts_degree <- function(net, ego) {
   statistic <- sum(net[ego,])
   return(statistic)
 }
+attr(ts_degree, "name") <- "degree"
+
+
 
 #' @rdname ts_degree
 #' @export
@@ -30,6 +33,7 @@ ts_recip <- function(net, ego) {
   statistic <- sum(net[ego,]==1 & t(net)[ego,]==1)
   return(statistic)
 }
+attr(ts_recip, "name") <- "recip"
 
 #' @rdname ts_degree
 #' @export
@@ -37,6 +41,7 @@ ts_outAct <- function(net, ego) {
   statistic <- sum(net[ego,])^2
   return(statistic)
 }
+attr(ts_outAct, "name") <- "outAct"
 
 #' @rdname ts_degree
 #' @export
@@ -44,6 +49,7 @@ ts_inAct <- function(net, ego) {
   statistic <- sum(t(net)[ego,])*sum(net[ego,])
   return(statistic)
 }
+attr(ts_inAct, "name") <- "inAct"
 
 #' @rdname ts_degree
 #' @export
@@ -52,6 +58,7 @@ ts_outPop <- function(net, ego) {
   statistic <- sum(net[ego,] * outdegrees)
   return(statistic)
 }
+attr(ts_outPop, "name") <- "outPop"
 
 #' @rdname ts_degree
 #' @export
@@ -60,6 +67,7 @@ ts_inPop <- function(net, ego) {
   statistic <- sum(net[ego,] * indegrees)
   return(statistic)
 }
+attr(ts_inPop, "name") <- "inPop"
 
 #' @rdname ts_degree
 #' @export
@@ -76,6 +84,7 @@ ts_transTrip <- function(net, ego) {
   }
   return(statistic)
 }
+attr(ts_transTrip, "name") <- "transTrip"
 
 #' @rdname ts_degree
 #' @export
@@ -93,6 +102,7 @@ ts_transMedTrip <- function(net, ego) {
   }
   return(statistic)
 }
+attr(ts_transMedTrip, "name") <- "transMedTrip"
 
 #' @rdname ts_degree
 #' @export
@@ -113,6 +123,7 @@ ts_transRecTrip <- function(net, ego) {
   }
   return(statistic)
 }
+attr(ts_transRecTrip, "name") <- "transRecTrip"
 
 #' @rdname ts_degree
 #' @export
@@ -134,6 +145,7 @@ ts_cycle3 <- function(net, ego) {
   }
   return(statistic)
 }
+attr(ts_cycle3, "name") <- "cycle3"
 
 #' @rdname ts_degree
 #' @export
@@ -141,6 +153,7 @@ ts_egoX <- function(net, ego, cov) {
   statistic <- cov[ego]*sum(net[ego,])
   return(statistic)
 }
+attr(ts_egoX, "name") <- "egoX"
 
 #' @rdname ts_degree
 #' @export
@@ -150,6 +163,7 @@ ts_altX <- function(net, ego, cov) {
   statistic <- sum(cov[alters])
   return(statistic)
 }
+attr(ts_altX, "name") <- "altX"
 
 #' @rdname ts_degree
 #' @export
@@ -159,15 +173,15 @@ ts_diffX <- function(net, ego, cov) {
   statistic <- sum(cov[alters] - cov[ego])
   return(statistic)
 }
-
+attr(ts_diffX, "name") <- "diffX"
 
 ts_simX <- function(net, ego, cov) {
   statistic <- 0
   alters <- which(net[ego,]==1)
-  statistic <- sum((1 - (abs(cov[alters] - cov[ego])/attributes(cov)$range)) - attributes(cov)$simMean)
+  statistic <- sum(((attributes(cov)$range - abs(cov[alters] - cov[ego])) / attributes(cov)$range) - attributes(cov)$simMean)
   return(statistic)
 }
-
+attr(ts_simX, "name") <- "simX"
 
 #' @rdname ts_degree
 #' @export
@@ -177,6 +191,7 @@ ts_absdiffX <- function(net, ego, cov) {
   statistic <- sum(abs(cov[alters] - cov[ego]))
   return(statistic)
 }
+attr(ts_absdiffX, "name") <- "absdiffX"
 
 #' @rdname ts_degree
 #' @export
@@ -186,6 +201,7 @@ ts_sameX <- function(net, ego, cov) {
   statistic <- sum(cov[alters] == cov[ego])
   return(statistic)
 }
+attr(ts_sameX, "name") <- "sameX"
 
 #' @rdname ts_degree
 #' @export
@@ -195,3 +211,6 @@ ts_egoXaltX <- function(net, ego, cov) {
   statistic <-  cov[ego]*sum(cov[alters])
   return(statistic)
 }
+attr(ts_egoXaltX, "name") <- "egoXaltX"
+
+ts_names <- function(x) {attributes(x)$name}

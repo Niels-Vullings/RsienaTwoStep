@@ -14,9 +14,9 @@
 #'
 #' @export
 #' @examples
-#' ts_select(net=net1, steps=1)
-#' ts_select(net=net1, steps=2)
-#' ts_select(net=net1, dist1=2, modet1="degree")
+#' ts_select(net=ts_net1, steps=1)
+#' ts_select(net=ts_net1, steps=2)
+#' ts_select(net=ts_net1, dist1=2, modet1="degree")
 #'
 ts_select <- function(net, steps=1, dist1=NULL, modet1="degree"){
   actors <- NA

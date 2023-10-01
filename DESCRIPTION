@@ -23,16 +23,17 @@ URL: https://github.com/JochemTolsma/RsienaTwoStep,
 BugReports: https://github.com/JochemTolsma/RsienaTwoStep/issues
 Depends: 
     foreach (>= 1.5),
-    R (>= 2.10)
+    R (>= 4.00)
 Imports:
-    igraph,
     iterators,
-    ggplot2,
     Rdpack,
-    sna
+    sna,
+    RSiena,
 Suggests: 
     knitr,
-    rmarkdown
+    rmarkdown,
+    igraph,
+    ggplot2
 VignetteBuilder: 
     knitr
 RdMacros: 

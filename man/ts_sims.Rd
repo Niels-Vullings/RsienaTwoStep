@@ -5,85 +5,163 @@
 \title{Simulation of Network evolution}
 \usage{
 ts_sims(
-  nsims = 1000,
-  parallel = FALSE,
-  net,
+  ans = NULL,
+  mydata = NULL,
+  myeff = NULL,
+  startvalues = NULL,
+  net1 = NULL,
   ccovar = NULL,
-  rate,
-  statistics,
-  parameters,
-  p2step = c(0, 1, 0),
-  chain = FALSE,
+  preparedata = TRUE,
+  statistics = NULL,
+  nsims = 1000,
+  p2step = c(1, 0, 0),
   dist1 = NULL,
   dist2 = NULL,
   modet1 = "degree",
-  modet2 = "degree"
+  modet2 = "degree",
+  chain = FALSE,
+  verbose = TRUE,
+  parallel = FALSE
 )
 }
 \arguments{
+\item{ans}{Results of class sienaFit, produced by a call to
+\code{\link[RSiena:siena07]{RSiena::siena07()}}}
+
+\item{mydata}{Siena data object created by a call to
+\code{\link[RSiena:sienaDataCreate]{RSiena::sienaDataCreate()}}}
+
+\item{myeff}{Siena effects object created by a call to
+\code{\link[RSiena:getEffects]{RSiena::getEffects()}}}
+
+\item{startvalues}{if not provided manually, taken from results of
+\code{ans$theta}, or if \code{ans} is not provided from
+\code{summary(myeff)$initialValue}.}
+
+\item{net1}{adjacency matrix, the adjacency matrix representing the relations
+between actors at Time=1. Valid values are 0 and 1. If not provided
+manually, retrieved from \code{ans} or \code{mydata}.}
+
+\item{ccovar}{data frame with named time-constant covariates. If not provided
+manually, retrieved from \code{ans} or \code{mydata}.}
+
+\item{preparedata}{logical, if set to TRUE variables are demeaned and range
+is added. This is set to FALSE when running \code{\link[=ts_estim]{ts_estim()}} because here
+\code{ccovar} has already been prepared.}
+
+\item{statistics}{list of statistics of \code{RsienaTwoStep}, see: \code{\link[=ts_degree]{ts_degree()}}
+and DETAILS. If not provided manually, retrieved from \code{ans} or \code{myeff}.}
+
 \item{nsims}{numeric, number of simulations.}
 
-\item{parallel}{TRUE/FALSE}
+\item{p2step}{numeric vector of length 3, setting the ratio of ministep,
+twostep and twoministeps. This parameter is passed to \code{\link[=ts_sims]{ts_sims()}}.}
 
-\item{net}{matrix, the adjacency matrix representing the relations between
-actors. Valid values are 0 and 1.}
+\item{dist1}{numeric, minimal path length between ego1 and ego2 at time1 in
+order to be allowed to start a cooperation. If \code{NULL} all dyads are allowed
+to start a cooperation. This parameter is passed to \code{\link[=ts_sims]{ts_sims()}}.}
 
-\item{ccovar}{data frame with named time-constant covariates}
+\item{dist2}{numeric, minimal path length between ego1 and ego2 at time2 in
+order for twostep to be counted as cooperation. This parameter is passed to
+\code{\link[=ts_sims]{ts_sims()}}.}
 
-\item{rate}{numeric, the average number of possible tie-changes per actor in
-the simulation.}
+\item{modet1}{string, indicating the type of ties being evaluated at time1.
+"\emph{degree}" considers all ties as undirected. "\emph{outdegree}" only allows
+directed paths starting from ego1 and ending at ego2. "\emph{indegree}" only
+allows directed paths starting from ego2 and ending at ego2. This parameter
+is passed to \code{\link[=ts_sims]{ts_sims()}}.}
 
-\item{statistics, }{list of names of statistic functions (see e.g.
-\code{\link[=ts_degree]{ts_degree()}} for a list of available functions)}
-
-\item{parameters, }{numeric vector the same length as \code{parameters}}
-
-\item{p2step}{numeric vector of length 3, setting the ratio of \emph{ministep},
-\emph{twostep} and \emph{twoministeps}.}
+\item{modet2}{string, indicating the type of ties being evaluated at time2.
+"\emph{degree}" considers all ties as undirected. "\emph{outdegree}" only allows
+directed paths starting from ego1 and ending at ego2. "\emph{indegree}" only
+allows directed paths starting from ego2 and ending at ego2. This parameter
+is passed to \code{\link[=ts_sims]{ts_sims()}}.}
 
 \item{chain}{TRUE/FALSE, set to \code{TRUE} if you want to save all the subsequent
 networks (after the ministep or twostep) during the simulation. If \code{FALSE}
 only the end network is saved.}
 
-\item{dist1}{numeric, minimal path length between ego1 and ego2 at time1 in
-order to be allowed to start a coorporation. If \code{NULL} all dyads are
-allowed to start a cooperation.}
+\item{verbose}{TRUE/FALSE. If set to true it shows the iteration steps and
+some results.}
 
-\item{dist2}{numeric, minimal path length between ego1 and ego2 at time2 in
-order for twostep to be counted as coorporation.}
-
-\item{modet1}{string, indicating the type of ties being evaluated at time1.
-"\code{degree}" considers all ties as undirected. "\code{outdegree}" only allows
-directed paths starting from ego1 and ending at ego2. "\code{indegree}" only
-allows directed paths starting from ego2 and ending at ego2.}
-
-\item{modet2}{string, indicating the type of ties being evaluated at time2.
-"\code{degree}" considers all ties as undirected. "\code{outdegree}" only allows
-directed paths starting from ego1 and ending at ego2. "\code{indegree}" only
-allows directed paths starting from ego2 and ending at ego2.}
+\item{parallel}{TRUE/FALSE.}
 }
 \value{
 If \code{chain=FALSE} a \code{list} (of length \code{nsims}) of adjacency matrices
-representing the final network after the simulated evolution. If \code{chain=TRUE}
-a \code{list} of lists of adjacency matrices. Each inner list represents the
-complete network evolution of one simulation. The outer list refers to the
-simulation run (with length \code{nsims}).
+representing the final network after the simulated evolution. If
+\code{chain=TRUE} a \code{list} of lists of adjacency matrices. Each inner list
+represents the complete network evolution of one simulation. The outer list
+refers to the simulation run (with length \code{nsims}).
 }
 \description{
-\code{ts_sims} is the workhorse function of the package \code{RsienaTwoStep}.
-It simulates the network evolution \code{nsims} times given an existing network \code{net},
-the defined evaluation function (\code{\link[=ts_eval]{ts_eval()}}) by \code{statistics} and \code{parameters} and
-the average number of possible tie changes per actor as defined by \code{rate}.
+\code{ts_sims} simulates the network evolution \code{nsims} times given
+the existing network \code{net1}, the defined evaluation function \code{\link[=ts_eval]{ts_eval()}},
+the included network statistics (taken from \code{ans}, \code{myeff}, or \code{statistics})
+and the corresponding parameter estimates (or starting values) taken from
+\code{ans}, \code{myeff}, or \code{statistics}.
 }
 \details{
-For examples on how to use \code{ts_sims} see: \code{vignette("1.Introduction_RsienaTwoStep", package="RsienaTwoStep")} or the \href{https://jochemtolsma.github.io/RsienaTwoStep/}{package website}.
-Before you set \code{parallel} to TRUE make sure to set-up a cluster with the package \code{doParallel} (see \code{Examples}).
+For examples on how to use \code{ts_sims} see:
+\code{vignette("1.Introduction_RsienaTwoStep", package="RsienaTwoStep")} or the
+\href{https://jochemtolsma.github.io/RsienaTwoStep/}{package website}. Before you
+set \code{parallel} to TRUE make sure to set-up a cluster with the package
+\code{doParallel} (see \code{Examples}).
+\itemize{
+\item \code{p2step==c(1,0,0)}: ministep
+\item \code{p2step==c(0,1,0)} & dist1==NULL & dist2==NULL: twostep-simultaneity
+\item \code{p2step==c(0,1,0)} & dist1!=NULL & dist2==NULL: twostep-strict coordination
+\item \code{p2step==c(0,1,0)} & dist1!=NULL & dist2!=NULL: twostep-weak coordination
+\item \code{p2step==c(0,0,1)}: two-ministeps
+}
 }
 \examples{
-ts_sims(net=net2, nsims=2, rate=2, parallel=FALSE, statistics=list(ts_degree, ts_recip),
-parameters=c(-2,1), p2step=c(0,1,0))
+ts_sims(
+  net = ts_net2,
+  nsims = 2,
+  parallel = FALSE,
+  statistics = list(ts_degree, ts_recip),
+  startvalues = c(3, -2, 1),
+  p2step = c(0, 1, 0)
+)
+#start with RSiena objects
+\dontrun{
+library(RSiena)
+mynet <- sienaDependent(array(c(s501, s502), dim=c(50, 50, 2)))
+mydata <- sienaDataCreate(mynet)
+#toggle set conditional to retrieve the rate parameter in theta!
+myalgorithm <- sienaAlgorithmCreate(cond=FALSE)
+myeff <- getEffects(mydata)
+ts_sims(
+  mydata = mydata,
+  myeff = myeff
+  nsims = 2,
+  parallel = FALSE,
+  p2step = c(0, 1, 0))
+ # or if you already used RSiena to estimate a model:
+ ans1 <- siena07(myalgorithm, data=mydata, effects=myeff)
+ ts_sims(
+  ans = ans1
+  nsims = 2,
+  parallel = FALSE,
+  p2step = c(0, 1, 0)
+# Use a cluster
+library(parallel)
+n.cores <- parallel::detectCores() - 1  #save one core for other work
+# create the cluster
+my.cluster <- parallel::makeCluster(n.cores) #default PSOCK cluster
+# register it to be used by \%dopar\%
+doParallel::registerDoParallel(cl = my.cluster)
+ts_sims(mydata = mydata,
+myeff = myeff,
+nsims = 20,
+parallel = TRUE,
+p2step = c(0, 1, 0))
+stopCluster(my.cluster)
+#Since the only official way to "unregister" a foreach backend is to register
+the sequential backend: registerDoSEQ()
+  }
 }
 \seealso{
-\code{\link[=ts_alternatives_ministep]{ts_alternatives_ministep()}}, \code{\link[=ts_alternatives_twostep]{ts_alternatives_twostep()}},
-\code{\link[=ts_alternatives_simstep]{ts_alternatives_simstep()}}, \code{\link[=ts_eval]{ts_eval()}}
+\code{\link[=ts_estim]{ts_estim()}}, \code{\link[=ts_alternatives_ministep]{ts_alternatives_ministep()}},
+\code{\link[=ts_alternatives_twostep]{ts_alternatives_twostep()}}, \code{\link[=ts_alternatives_simstep]{ts_alternatives_simstep()}}, \code{\link[=ts_eval]{ts_eval()}}
 }

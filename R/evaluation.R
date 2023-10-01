@@ -16,17 +16,27 @@
 #'   [`ts_sims()`]
 #' @export
 #' @examples
-#' ts_eval(net=net1, ego=6, statistics=list(ts_degree, ts_recip),
+#' ts_eval(net=ts_net1, ego=6, statistics=list(ts_degree, ts_recip),
 #' parameters=c(-2,1))
-#' ts_eval(net=net1, ego=10, ccovar=df_ccovar1, statistics=list(ts_degree, ts_recip, ts_transTrip,
+#' ts_eval(net=ts_net1, ego=10, ccovar=df_ccovar1, statistics=list(ts_degree, ts_recip, ts_transTrip,
 #' ts_transMedTrip, list(ts_egoX, "cov1")), parameters=c(-2,2,7,7,1))
 
 ts_eval <- function(net, ego, statistics, ccovar=NULL, parameters) {
   # calculuate value of evaluation function
-  s <- 0
-  for (j in 1:length(statistics)) {
-    if (length(statistics[[j]])==1) s <- s + parameters[j] * statistics[[j]](net, ego)
-    if (length(statistics[[j]])==2) s <- s + parameters[j] * statistics[[j]][[1]](net, ego, ccovar[,statistics[[j]][[2]]])
-  }
+
+    s <- 0
+    for (j in 1:length(statistics)) {
+      if (length(statistics[[j]])==1) s <- s + parameters[j] * statistics[[j]](net, ego)
+      if (length(statistics[[j]])==2) s <- s + parameters[j] * statistics[[j]][[1]](net, ego, ccovar[,statistics[[j]][[2]]])
+    }
+
+
+    # s <- foreach(j = 1:length(statistics), .combine = 'c') %dopar% {
+    #   if (length(statistics[[j]])==1) { s <- parameters[j] * statistics[[j]](net, ego) }
+    #   if (length(statistics[[j]])==2) { s <- parameters[j] * statistics[[j]][[1]](net, ego, ccovar[,statistics[[j]][[2]]]) }
+    #   s
+    #   }
+    # s <- sum(s)
+    #
   return(s)
 }

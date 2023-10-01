@@ -79,7 +79,7 @@ increased satisfaction of the actor (the network after the first ministep is not
 more favorably than the original network) but the subsequent ministep may make up for this.
 }
 \examples{
-ts_alternatives_ministep(net=net1, ego=3)
+ts_alternatives_ministep(net=ts_net1, ego=3)
 }
 \references{
 \insertRef{ripley2022manual}{RsienaTwoStep}

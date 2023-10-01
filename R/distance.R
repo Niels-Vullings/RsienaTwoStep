@@ -12,9 +12,9 @@
 #' @param degree string, the type of path to be considered: "`outdegree`"; "`indegree`"; "`degree`".
 #' @export
 #' @examples
-#' ts_geodist(net=net1, ego1=6, ego2=8, degree="outdegree")
-#' ts_geodist(net=net1, ego1=8, ego2=6, degree="outdegree")
-#' ts_geodist(net=net1, ego1=8, ego2=6, degree="degree")
+#' ts_geodist(net=ts_net1, ego1=6, ego2=8, degree="outdegree")
+#' ts_geodist(net=ts_net1, ego1=8, ego2=6, degree="outdegree")
+#' ts_geodist(net=ts_net1, ego1=8, ego2=6, degree="degree")
 #' @export
 ts_geodist <- function(net, ego1, ego2, degree="degree"){
   if (degree=="outdegree") {
