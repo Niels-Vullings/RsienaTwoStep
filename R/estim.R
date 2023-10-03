@@ -163,18 +163,8 @@ ts_estim <- function(ans = NULL,
                      parallel = FALSE,
                      phase1 = FALSE,
                      phase3 = FALSE) {
-  ### initializing function
-  # I do not seem to understand scoping. But since I use functions in functions
-  # and like to pass on objects of a parent function to a child function I do this.
-  ans <<- ans
-  mydata <<- mydata
-  myeff <<- myeff
-  startvalues <<- startvalues
-  net1_estim <- net1
-  net2_estim <- net2
-  ccovar <<- ccovar
-  statistics <<- statistics
 
+  ### initializing function
   # retrieve all data from `ans` if provided
   # otherwise check mydata and myeff.
   # still no data, then should have been provided via other arguments directly
@@ -183,13 +173,14 @@ ts_estim <- function(ans = NULL,
   if (!is.null(ans)) {
     dinv <-
       solve(ans$dfra1) # or use ans$dinvv ?? not sure what difference is.
+    # TO DO: if we have ans, we probably want dfra from phase 3 as input!!
     print("phase 1 from ans")
   } else if (phase1) {
     jacob <- ts_phase1(
       mydata = mydata,
       myeff = myeff,
-      net1 = net1_estim,
-      net2 = net2_estim,
+      net1 = net1,
+      net2 = net2,
       ccovar = ccovar,
       statistics = statistics,
       itef1 = itef1,
@@ -202,7 +193,7 @@ ts_estim <- function(ans = NULL,
     dinv <- solve(jacob)
   } else {
     dinv <- NULL
-    print("skipped phase 1, no dinv in Robbins-Monro algorithm used")
+    if (verbose) print("skipped phase 1, no dinv in Robbins-Monro algorithm used /n")
   }
 
 
@@ -211,26 +202,25 @@ ts_estim <- function(ans = NULL,
     ans = ans,
     mydata = mydata,
     myeff = myeff,
-    net1 = net1_estim,
-    net2 = net2_estim,
+    net1 = net1,
+    net2 = net2,
     ccovar = ccovar,
     statistics = statistics
   )
 
   # starting networks
-  net <<- net1_estim
-  if (is.null(net1_estim)) {
+  if (is.null(net1)) {
     if (!is.null(ans)) {
-      net <- net1_estim <- (ans$f$Data1$depvars$mynet)[, , 1]
+      net1 <- (ans$f$Data1$depvars$mynet)[, , 1]
     } else if (!is.null(mydata)) {
-      net <- net1_estim <- (mydata$depvars$mynet[, , 1])
+      net1 <- (mydata$depvars$mynet[, , 1])
     }
   }
-  if (is.null(net2_estim)) {
+  if (is.null(net2)) {
     if (!is.null(ans)) {
-      net2_estim <- (ans$f$Data1$depvars$mynet)[, , 2]
+      net2 <- (ans$f$Data1$depvars$mynet)[, , 2]
     } else if (!is.null(mydata)) {
-      net2_estim <- (mydata$depvars$mynet[, , 2])
+      net2 <- (mydata$depvars$mynet[, , 2])
     }
   }
 
@@ -321,19 +311,24 @@ ts_estim <- function(ans = NULL,
       startvalues <- c(startvalue_rate, startvalue_param)
     }
   }
+  names(startvalues) <- namesstatistics
+  if (verbose) {
+    print("startvalues: /n")
+    print(startvalues)
+  }
 
 
   ### end of initialization
 
 
-  print("start of phase 2")
-  x <<- startvalues
+  if (verbose) print("start of phase 2")
+  x <- startvalues
   dif <- Inf
   ite <- 0
   ite2 <-
     1 # try to keep an constant as long as the sequence sn has not crossed the observed values
   r <<- x
-  r_sub <- x # for the subphase
+  r_sub <- x # for the sub-phase
   update <- 0
 
   while (dif > conv & ite < nite) {
@@ -343,8 +338,8 @@ ts_estim <- function(ans = NULL,
 
     # estimate model
     sims1 <- ts_sims(
-      startvalues = startvalues,
-      net1 = net,
+      startvalues = x,
+      net1 = net1,
       ccovar = ccovar,
       statistics = statistics,
       nsims = 1,
@@ -361,7 +356,7 @@ ts_estim <- function(ans = NULL,
 
     # calculate the observed statistics
     Z <- ts_targets(
-      net1 = net,
+      net1 = net1,
       net2 = sims1[[1]],
       ccovar = ccovar,
       statistics = statistics
@@ -371,17 +366,17 @@ ts_estim <- function(ans = NULL,
 
     if (!is.null(dinv)) {
       x <-
-        x - diag(dinv) * a * update # if ans is not provided divide bij nnodes?
+        x - pmax(pmin(diag(dinv) * a * update, 1), -1) #avoiding big jumps by pmin/pmax
     } else {
-      x <- x - (1 / nrow(net)) * a * update
+      x <- x - pmax(pmin((1 / nrow(net)) * a * update, 1),-1) # if ans is not provided divide by nnodes?
     }
     # interfere with the updating. Is this allowed?? I guess avoiding big jumps is better.
-    if (x[1] < 0.5)
-      x[1] <- 1 # avoid negative rates
-    if (x[2] < -5)
-      x[2] <- -5 # avoid too negative degrees
-    x[3:length(x)][x[3:length(x)] < -10] <- -2
-    x[3:length(x)][x[3:length(x)] > 10] <- 2
+     if (x[1] < 0.5)
+       x[1] <- 1 # avoid negative rates
+     if (x[2] < -5)
+       x[2] <- -5 # avoid too negative degrees
+     x[3:length(x)][x[3:length(x)] < -10] <- -2
+     x[3:length(x)][x[3:length(x)] > 10] <- 2
     r <- rbind(r, x) # save results
     r_sub <- rbind(r_sub, x) # save results
     if (sum(abs(sign(update) - sign(update_old)) == 2) > 1) {
@@ -400,15 +395,17 @@ ts_estim <- function(ans = NULL,
       print(paste0("ite2: ", ite2))
     }
   }
+
   colnames(r) <- namesstatistics
+
   if (!phase3) {
     return(r)
   } else {
     estim <- r[nrow(r),]
     phase3 <-
       ts_phase3(
-        net1 = net1_estim,
-        net2 = net2_estim,
+        net1 = net1,
+        net2 = net2,
         statistics = statistics,
         startvalues = estim,
         itef3 = itef3
@@ -583,12 +580,10 @@ ts_phase1 <- function(ans = NULL,
     print("start phase 1")
 
   # if we do have mydata and myeff but not ans we fill retrieve necessary objects
-  net1f1 <- net1
-  net2f1 <- net2
-  if (is.null(net1f1))
-    net1f1 <- (mydata$depvars$mynet[, , 1])
-  if (is.null(net2f1))
-    net2f1 <- (mydata$depvars$mynet[, , 2])
+  if (is.null(net1))
+    net1 <- (mydata$depvars$mynet[, , 1])
+  if (is.null(net2))
+    net2 <- (mydata$depvars$mynet[, , 2])
   if (is.null(statistics)) {
     # namesstatistics <- myeff$shortName[myeff$include]
     statistics <- myeff$shortName[myeff$include]
@@ -643,7 +638,7 @@ ts_phase1 <- function(ans = NULL,
     # startvalue_param <- rep(0, length(statistics))
     # startvalue_param[1] <- qlogis(sum(net2) / (nrow(net2) * (nrow(net2) - 1)))
     mynet <-
-      RSiena::sienaDependent(array(c(net1f1, net2f1), dim = c(dim(net1f1), 2)))
+      RSiena::sienaDependent(array(c(net1, net2), dim = c(dim(net1), 2)))
     mydata <- RSiena::sienaDataCreate(mynet)
     myeff <- RSiena::getEffects(mydata)
     startvalue_rate <- summary(myeff)$initialValue[1]
@@ -651,8 +646,6 @@ ts_phase1 <- function(ans = NULL,
     startvalue_param[1] <- summary(myeff)$initialValue[2]
     startvalues <- c(startvalue_rate, startvalue_param)
   }
-  netstart <- net1f1
-
 
   crn <- sample(12345:4567890, itef1) # common random numbers?
   pn <- length(statistics) + 1
@@ -672,7 +665,7 @@ ts_phase1 <- function(ans = NULL,
     set.seed(crn[i]) # is this just our crn
     sim_net <-
       ts_sim(
-        net = netstart,
+        net = net1,
         rate = startvalue_rate,
         statistics = statistics,
         parameters = startvalue_param,
@@ -683,14 +676,14 @@ ts_phase1 <- function(ans = NULL,
         modet2 = modet2
       )
     rest <-
-      ts_targets(net1 = netstart,
+      ts_targets(net1 = net1,
                  net2 = sim_net,
                  statistics = statistics)
 
     # rate
     sim_net <-
       ts_sim(
-        net = netstart,
+        net = net1,
         rate = startvalue_rate + deviation[1],
         statistics = statistics,
         parameters = startvalue_param,
@@ -701,7 +694,7 @@ ts_phase1 <- function(ans = NULL,
         modet2 = modet2
       )
     rest2 <-
-      ts_targets(net1 = netstart,
+      ts_targets(net1 = net1,
                  net2 = sim_net,
                  statistics = statistics)
     rest <- c(rest, rest2)
@@ -714,7 +707,7 @@ ts_phase1 <- function(ans = NULL,
         startvalue_param2[j] + deviation[1 + j]
       sim_net <-
         ts_sim(
-          net = netstart,
+          net = net1,
           rate = startvalue_rate,
           statistics = statistics,
           parameters = startvalue_param2,
@@ -725,7 +718,7 @@ ts_phase1 <- function(ans = NULL,
           modet2 = modet2
         )
       rest2 <-
-        ts_targets(net1 = netstart,
+        ts_targets(net1 = net1,
                    net2 = sim_net,
                    statistics = statistics)
       rest <- c(rest, rest2)
@@ -772,8 +765,6 @@ ts_phase3 <- function(ans = NULL,
   startvalue_rate <- startvalues[1]
   startvalue_param <- startvalues[-1]
 
-  netstart <- net1
-
   namesstatistics <- c("rate", sapply(statistics, ts_names))
   names(statistics) <- namesstatistics[-1]
 
@@ -795,7 +786,7 @@ ts_phase3 <- function(ans = NULL,
     set.seed(crn[i]) # is this just our crn
     sim_net <-
       ts_sim(
-        net = netstart,
+        net = net1,
         rate = startvalue_rate,
         statistics = statistics,
         parameters = startvalue_param,
@@ -806,14 +797,14 @@ ts_phase3 <- function(ans = NULL,
         modet2 = modet2
       )
     rest <-
-      ts_targets(net1 = netstart,
+      ts_targets(net1 = net1,
                  net2 = sim_net,
                  statistics = statistics)
 
     # rate
     sim_net <-
       ts_sim(
-        net = netstart,
+        net = net1,
         rate = startvalue_rate + deviation[1],
         statistics = statistics,
         parameters = startvalue_param,
@@ -824,7 +815,7 @@ ts_phase3 <- function(ans = NULL,
         modet2 = modet2
       )
     rest2 <-
-      ts_targets(net1 = netstart,
+      ts_targets(net1 = net1,
                  net2 = sim_net,
                  statistics = statistics)
     rest <- c(rest, rest2)
@@ -837,7 +828,7 @@ ts_phase3 <- function(ans = NULL,
         startvalue_param2[j] + deviation[1 + j]
       sim_net <-
         ts_sim(
-          net = netstart,
+          net = net1,
           rate = startvalue_rate,
           statistics = statistics,
           parameters = startvalue_param2,
@@ -848,7 +839,7 @@ ts_phase3 <- function(ans = NULL,
           modet2 = modet2
         )
       rest2 <-
-        ts_targets(net1 = netstart,
+        ts_targets(net1 = net1,
                    net2 = sim_net,
                    statistics = statistics)
       rest <- c(rest, rest2)
@@ -865,7 +856,9 @@ ts_phase3 <- function(ans = NULL,
     }
   }
   jacob <-
-    t(res_mat) # perhaps return a list with more info, like the deviations and initial values and stuff
+    t(res_mat)
+  # perhaps return a list with more info, like the deviations and initial values
+  # and stuff
   covtheta <- solve(jacob) %*% stats::cov(res[, 1:pn]) %*% t(solve(jacob))
   return(covtheta)
 }
