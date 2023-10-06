@@ -192,9 +192,10 @@ ts_estim <- function(ans = NULL,
       parallel = parallel
     )
     dinv <- solve(jacob)
+    if (verbose) print("phase 1 done, start phase2 \n")
   } else {
     dinv <- NULL
-    if (verbose) print("skipped phase 1, no dinv in Robbins-Monro algorithm used /n")
+    if (verbose) print("skipped phase 1, no dinv in Robbins-Monro algorithm used \n")
   }
 
 
@@ -368,7 +369,7 @@ ts_estim <- function(ans = NULL,
       x <-
         x - pmax(pmin(diag(dinv) * a * update, 1), -1) #avoiding big jumps by pmin/pmax
     } else {
-      x <- x - pmax(pmin((1 / nrow(net)) * a * update, 1),-1) # if ans is not provided divide by nnodes?
+      x <- x - pmax(pmin((1 / nrow(net1)) * a * update, 1),-1) # if ans is not provided divide by nnodes?
     }
     # interfere with the updating. Is this allowed?? I guess avoiding big jumps is better.
      if (x[1] < 0.5)
@@ -651,7 +652,7 @@ ts_phase1 <- function(ans = NULL,
   crn <- sample(12345:4567890, itef1) # common random numbers?
   pn <- length(statistics) + 1
   deviation <- rep(0.1, length(statistics) + 1)
-  deviation[1] <- startvalue_rate / 10
+  deviation[1] <- startvalues[1] / 10
 
 
 
@@ -852,7 +853,7 @@ ts_phase3 <- function(ans = NULL,
   crn <- sample(12345:55467890, itef3) # common random numbers?
   pn <- length(statistics) + 1
   deviation <- rep(0.1, length(statistics) + 1)
-  deviation[1] <- startvalue_rate / 10
+  deviation[1] <- startvalues[1] / 10
 
 
   res_mat <- matrix(NA, nrow = pn, ncol = pn) # the jacobi matrix
@@ -861,7 +862,7 @@ ts_phase3 <- function(ans = NULL,
 
   if (!parallel) {
     res <-
-      matrix(NA, nrow = itef1, ncol = pn + (pn * pn))
+      matrix(NA, nrow = itef3, ncol = pn + (pn * pn))
 
   for (i in 1:itef3) {
     if (verbose)
@@ -910,7 +911,7 @@ ts_phase3 <- function(ans = NULL,
       set.seed(crn[i])
       startvalues_param <- startvalues
       startvalues_param[1+ j] <-
-        startvalues_param[i + j] + deviation[1 + j]
+        startvalues_param[1 + j] + deviation[1 + j]
       sim_net <-
         ts_sim(
           net1 = net1,
@@ -981,7 +982,7 @@ ts_phase3 <- function(ans = NULL,
           set.seed(crn[i])
           startvalues_param <- startvalues
           startvalues_param[1+ j] <-
-            startvalues_param[i + j] + deviation[1 + j]
+            startvalues_param[1 + j] + deviation[1 + j]
           sim_net <-
             ts_sim(
               net1 = net1,
