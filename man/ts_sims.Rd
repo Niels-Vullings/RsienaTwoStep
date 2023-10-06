@@ -2,6 +2,7 @@
 % Please edit documentation in R/f_sims.R
 \name{ts_sims}
 \alias{ts_sims}
+\alias{ts_sim}
 \title{Simulation of Network evolution}
 \usage{
 ts_sims(
@@ -22,6 +23,24 @@ ts_sims(
   chain = FALSE,
   verbose = TRUE,
   parallel = FALSE
+)
+
+ts_sim(
+  ans = NULL,
+  mydata = NULL,
+  myeff = NULL,
+  startvalues = NULL,
+  net1 = NULL,
+  ccovar = NULL,
+  preparedata = FALSE,
+  statistics = NULL,
+  p2step = c(1, 0, 0),
+  dist1 = NULL,
+  dist2 = NULL,
+  modet1 = "degree",
+  modet2 = "degree",
+  chain = FALSE,
+  verbose = TRUE
 )
 }
 \arguments{

@@ -172,8 +172,8 @@ ts_estim <- function(ans = NULL,
   # INVERSE OF jacobi matrix for phase1
   if (!is.null(ans)) {
     dinv <-
-      solve(ans$dfra1) # or use ans$dinvv ?? not sure what difference is.
-    # TO DO: if we have ans, we probably want dfra from phase 3 as input!!
+      solve(ans$dfra) # or use ans$dinv ?? not sure what difference is.
+    # If we have ans, we want dfra from phase 3 as input not dfra1 from phase 1!!
     print("phase 1 from ans")
   } else if (phase1) {
     jacob <- ts_phase1(
@@ -188,7 +188,8 @@ ts_estim <- function(ans = NULL,
       dist1 = dist1,
       dist2 = dist2,
       modet1 = modet1,
-      modet2 = modet2
+      modet2 = modet2,
+      parallel = parallel
     )
     dinv <- solve(jacob)
   } else {
@@ -348,7 +349,6 @@ ts_estim <- function(ans = NULL,
       dist2 = dist2,
       modet1 = modet1,
       modet2 = modet2,
-      parallel = parallel,
       chain = FALSE,
       verbose = FALSE,
       preparedata = FALSE
@@ -408,7 +408,8 @@ ts_estim <- function(ans = NULL,
         net2 = net2,
         statistics = statistics,
         startvalues = estim,
-        itef3 = itef3
+        itef3 = itef3,
+        parallel = parallel
       )
     SE <- sqrt(diag(phase3))
     df <- data.frame(estim = estim, SE = SE)
@@ -568,7 +569,8 @@ ts_phase1 <- function(ans = NULL,
                       dist2 = NULL,
                       modet1 = NULL,
                       modet2 = NULL,
-                      verbose = TRUE) {
+                      verbose = TRUE,
+                      parallel = FALSE) {
   # if siena07 is used to estimate a model we simply use the jacobi-matrix stored in that object
   if (!is.null(ans)) {
     dinv_f1 <- ans$dfra1
@@ -630,9 +632,8 @@ ts_phase1 <- function(ans = NULL,
 
   # here we start with the actual phase 1.
   if (!is.null(myeff)) {
-    startvalue_rate <- summary(myeff)$initialValue[1]
-    startvalue_param <- summary(myeff)$initialValue[-1]
-  } else {
+    startvalues <- summary(myeff)$initialValue
+    } else {
     # targets <- ts_targets(net1 = net1, net2 = net2, statistics = statistics)
     # startvalue_rate <- targets[1] / dim(net1)[1]
     # startvalue_param <- rep(0, length(statistics))
@@ -652,11 +653,13 @@ ts_phase1 <- function(ans = NULL,
   deviation <- rep(0.1, length(statistics) + 1)
   deviation[1] <- startvalue_rate / 10
 
+
+
+
+if (!parallel) {
   res <-
-    matrix(NA, nrow = itef1, ncol = pn + (pn * pn)) # to save the simulated z-scores
-  res_mat <- matrix(NA, nrow = pn, ncol = pn) # the jacobi matrix
-
-
+    matrix(NA, nrow = itef1, ncol = pn + (pn * pn))
+  # to save the simulated z-scores
   for (i in 1:itef1) {
     if (verbose)
       print(i)
@@ -665,10 +668,9 @@ ts_phase1 <- function(ans = NULL,
     set.seed(crn[i]) # is this just our crn
     sim_net <-
       ts_sim(
-        net = net1,
-        rate = startvalue_rate,
+        net1 = net1,
+        startvalues = startvalues,
         statistics = statistics,
-        parameters = startvalue_param,
         p2step = p2step,
         dist1 = dist1,
         dist2 = dist2,
@@ -681,12 +683,14 @@ ts_phase1 <- function(ans = NULL,
                  statistics = statistics)
 
     # rate
+    startvalues_rate <- startvalues
+    startvalues_rate[1] <- startvalues_rate[1] + deviation[1]
+    set.seed(crn[i]) # is this just our crn
     sim_net <-
       ts_sim(
-        net = net1,
-        rate = startvalue_rate + deviation[1],
+        net1 = net1,
+        startvalues = startvalues_rate,
         statistics = statistics,
-        parameters = startvalue_param,
         p2step = p2step,
         dist1 = dist1,
         dist2 = dist2,
@@ -702,15 +706,14 @@ ts_phase1 <- function(ans = NULL,
     # statistics
     for (j in 1:length(statistics)) {
       set.seed(crn[i])
-      startvalue_param2 <- startvalue_param
-      startvalue_param2[j] <-
-        startvalue_param2[j] + deviation[1 + j]
+      startvalues_param <- startvalues
+      startvalues_param[1+ j] <-
+        startvalues_param[1 + j] + deviation[1 + j]
       sim_net <-
         ts_sim(
-          net = net1,
-          rate = startvalue_rate,
+          net1 = net1,
+          startvalues = startvalues_param,
           statistics = statistics,
-          parameters = startvalue_param2,
           p2step = p2step,
           dist1 = dist1,
           dist2 = dist2,
@@ -726,7 +729,82 @@ ts_phase1 <- function(ans = NULL,
     res[i,] <- rest
   }
   # now we have all z-scores we can calculate the jacobi
+}
 
+  if (parallel) {
+    res <- foreach(i = 1: itef1, .combine="rbind") %dopar% {
+
+      # Zbar
+      set.seed(crn[i])
+      sim_net <-
+        ts_sim(
+          net1 = net1,
+          startvalues = startvalues,
+          statistics = statistics,
+          p2step = p2step,
+          dist1 = dist1,
+          dist2 = dist2,
+          modet1 = modet1,
+          modet2 = modet2
+        )
+      rest <-
+        ts_targets(net1 = net1,
+                   net2 = sim_net,
+                   statistics = statistics)
+
+      # rate
+      set.seed(crn[i])
+      startvalues_rate <- startvalues
+      startvalues_rate[1] <- startvalues_rate[1] + deviation[1]
+      sim_net <-
+        ts_sim(
+          net1 = net1,
+          startvalues = startvalues_rate,
+          statistics = statistics,
+          p2step = p2step,
+          dist1 = dist1,
+          dist2 = dist2,
+          modet1 = modet1,
+          modet2 = modet2
+        )
+      rest2 <-
+        ts_targets(net1 = net1,
+                   net2 = sim_net,
+                   statistics = statistics)
+      rest <- c(rest, rest2)
+
+      # statistics
+      rest3 <-
+        foreach(j = 1:length(statistics), .combine="cbind") %do% {
+          set.seed(crn[i])
+          startvalues_param <- startvalues
+          startvalues_param[1+ j] <-
+            startvalues_param[1 + j] + deviation[1 + j]
+          sim_net <-
+            ts_sim(
+              net1 = net1,
+              startvalues = startvalues_param,
+              statistics = statistics,
+              p2step = p2step,
+              dist1 = dist1,
+              dist2 = dist2,
+              modet1 = modet1,
+              modet2 = modet2
+            )
+          rest3 <-
+            ts_targets(net1 = net1,
+                       net2 = sim_net,
+                       statistics = statistics)
+        }
+      rest <- c(rest, rest3)
+      rest
+    }
+  }
+
+
+
+
+  res_mat <- matrix(NA, nrow = pn, ncol = pn) # the jacobi matrix
   count <- pn + 1
   for (i in 1:pn) {
     for (j in 1:pn) {
@@ -737,6 +815,10 @@ ts_phase1 <- function(ans = NULL,
 
   return(t(res_mat)) # perhaps return a list with more info, like the deviations and initial values and stuff
 }
+
+
+
+
 #' ts_phase1(ans=ans1)
 #' ts_phase1(mydata=mydata, myeff = myeff, itef1=30)
 #' ts_phase1(net1=s501, net2=s502, statistics=list(ts_degree, ts_recip), itef1=10)
@@ -757,26 +839,29 @@ ts_phase3 <- function(ans = NULL,
                       dist2 = NULL,
                       modet1 = NULL,
                       modet2 = NULL,
-                      verbose = TRUE) {
+                      verbose = TRUE,
+                      parallel = FALSE) {
   if (verbose)
     print("start phase 3")
 
   # here we start with the actual phase 3. ###take start values from result of phase2
-  startvalue_rate <- startvalues[1]
-  startvalue_param <- startvalues[-1]
 
   namesstatistics <- c("rate", sapply(statistics, ts_names))
   names(statistics) <- namesstatistics[-1]
 
-  crn <- sample(12345:4567890, itef3) # common random numbers?
+  crn <- sample(12345:55467890, itef3) # common random numbers?
   pn <- length(statistics) + 1
   deviation <- rep(0.1, length(statistics) + 1)
   deviation[1] <- startvalue_rate / 10
 
-  res <-
-    matrix(NA, nrow = itef3, ncol = pn + (pn * pn)) # to save the simulated z-scores
+
   res_mat <- matrix(NA, nrow = pn, ncol = pn) # the jacobi matrix
 
+
+
+  if (!parallel) {
+    res <-
+      matrix(NA, nrow = itef1, ncol = pn + (pn * pn))
 
   for (i in 1:itef3) {
     if (verbose)
@@ -786,10 +871,9 @@ ts_phase3 <- function(ans = NULL,
     set.seed(crn[i]) # is this just our crn
     sim_net <-
       ts_sim(
-        net = net1,
-        rate = startvalue_rate,
+        net1 = net1,
+        startvalues = startvalues,
         statistics = statistics,
-        parameters = startvalue_param,
         p2step = p2step,
         dist1 = dist1,
         dist2 = dist2,
@@ -802,12 +886,13 @@ ts_phase3 <- function(ans = NULL,
                  statistics = statistics)
 
     # rate
+    startvalues_rate <- startvalues
+    startvalues_rate[1] <- startvalues_rate[1] + deviation[1]
     sim_net <-
       ts_sim(
-        net = net1,
-        rate = startvalue_rate + deviation[1],
+        net1 = net1,
+        startvalues = startvalues_rate,
         statistics = statistics,
-        parameters = startvalue_param,
         p2step = p2step,
         dist1 = dist1,
         dist2 = dist2,
@@ -823,15 +908,14 @@ ts_phase3 <- function(ans = NULL,
     # statistics
     for (j in 1:length(statistics)) {
       set.seed(crn[i])
-      startvalue_param2 <- startvalue_param
-      startvalue_param2[j] <-
-        startvalue_param2[j] + deviation[1 + j]
+      startvalues_param <- startvalues
+      startvalues_param[1+ j] <-
+        startvalues_param[i + j] + deviation[1 + j]
       sim_net <-
         ts_sim(
-          net = net1,
-          rate = startvalue_rate,
+          net1 = net1,
+          startvalues = startvalues_param,
           statistics = statistics,
-          parameters = startvalue_param2,
           p2step = p2step,
           dist1 = dist1,
           dist2 = dist2,
@@ -847,7 +931,81 @@ ts_phase3 <- function(ans = NULL,
     res[i,] <- rest
   }
   # now we have all z-scores we can calculate the jacobi
+  }
 
+  if (parallel) {
+    res <- foreach(i = 1: itef3, .combine="rbind") %dopar% {
+
+      # Zbar
+      set.seed(crn[i])
+      sim_net <-
+        ts_sim(
+          net1 = net1,
+          startvalues = startvalues,
+          statistics = statistics,
+          p2step = p2step,
+          dist1 = dist1,
+          dist2 = dist2,
+          modet1 = modet1,
+          modet2 = modet2
+        )
+      rest <-
+        ts_targets(net1 = net1,
+                   net2 = sim_net,
+                   statistics = statistics)
+
+      # rate
+      set.seed(crn[i])
+      startvalues_rate <- startvalues
+      startvalues_rate[1] <- startvalues_rate[1] + deviation[1]
+      sim_net <-
+        ts_sim(
+          net1 = net1,
+          startvalues = startvalues_rate,
+          statistics = statistics,
+          p2step = p2step,
+          dist1 = dist1,
+          dist2 = dist2,
+          modet1 = modet1,
+          modet2 = modet2
+        )
+      rest2 <-
+        ts_targets(net1 = net1,
+                   net2 = sim_net,
+                   statistics = statistics)
+      rest <- c(rest, rest2)
+
+      # statistics
+      rest3 <-
+        foreach(j = 1:length(statistics), .combine="cbind") %do% {
+          set.seed(crn[i])
+          startvalues_param <- startvalues
+          startvalues_param[1+ j] <-
+            startvalues_param[i + j] + deviation[1 + j]
+          sim_net <-
+            ts_sim(
+              net1 = net1,
+              startvalues = startvalues_param,
+              statistics = statistics,
+              p2step = p2step,
+              dist1 = dist1,
+              dist2 = dist2,
+              modet1 = modet1,
+              modet2 = modet2
+            )
+          rest3 <-
+            ts_targets(net1 = net1,
+                       net2 = sim_net,
+                       statistics = statistics)
+        }
+      rest <- c(rest, rest3)
+      rest
+    }
+  }
+
+
+
+  res_mat <- matrix(NA, nrow = pn, ncol = pn) # the jacobi matrix
   count <- pn + 1
   for (i in 1:pn) {
     for (j in 1:pn) {

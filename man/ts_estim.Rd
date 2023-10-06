@@ -56,7 +56,8 @@ ts_phase1(
   dist2 = NULL,
   modet1 = NULL,
   modet2 = NULL,
-  verbose = TRUE
+  verbose = TRUE,
+  parallel = FALSE
 )
 
 ts_phase3(
@@ -74,7 +75,8 @@ ts_phase3(
   dist2 = NULL,
   modet1 = NULL,
   modet2 = NULL,
-  verbose = TRUE
+  verbose = TRUE,
+  parallel = FALSE
 )
 }
 \arguments{

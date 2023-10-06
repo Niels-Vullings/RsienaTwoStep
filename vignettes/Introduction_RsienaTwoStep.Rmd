@@ -298,7 +298,7 @@ To demonstrate the network evolution:
 
 ```{r}
 #in startvalues the first value refers to the rate parameter, the subsequent values to the statistics of statistics
-ts_sims(startvalues = c(2,-1,2), net=ts_net2, statistics=list(ts_degree, ts_recip),nsims=1, p2step=c(1,0,0), chain = TRUE )
+ts_sims(startvalues = c(2,-1,2), net1=ts_net2, statistics=list(ts_degree, ts_recip),nsims=1, p2step=c(1,0,0), chain = TRUE )
 ```
 
 ---  
@@ -417,7 +417,7 @@ Once again the logic is exactly similar. However, we count a twostep as two mini
 ## 3.8. Example
 
 ```{r}
-ts_sims(startvalues = c(2,-1,2), net=ts_net2, statistics=list(ts_degree, ts_recip),nsims=1, p2step=c(0,1,0), chain = TRUE )
+ts_sims(startvalues = c(2,-1,2), net1=ts_net2, statistics=list(ts_degree, ts_recip),nsims=1, p2step=c(0,1,0), chain = TRUE )
 ```
 
 ---  
@@ -515,7 +515,7 @@ Once again the logic is exactly similar. However, we count a simstep as two mini
 ## 4.7. Example
 
 ```{r}
-ts_sims(startvalues = c(2,-2,2,2), net=ts_net2, statistics=list(ts_degree, ts_recip, ts_outAct),nsims=1, p2step=c(0,0,1), chain = TRUE )
+ts_sims(startvalues = c(2,-2,2,2), net1=ts_net2, statistics=list(ts_degree, ts_recip, ts_outAct),nsims=1, p2step=c(0,0,1), chain = TRUE )
 ```
 
 
