@@ -1,6 +1,7 @@
 #' Data preparation
 #'
 #' @description
+#' `ts_dataprep` performs centering and similarity score and set attribute prepared to TRUE
 #' `ts_centering` centers the variables before use.
 #' `ts_simij` calculates the similarity scores before use.
 #'
@@ -9,6 +10,7 @@
 #' @param cov numeric, behavioral scores of actors
 #' @param min numeric, minimum value of behavioral scores of actors. If `NULL` the empirically observed minimum is used.
 #' @param max numeric, maximum value of behavioral scores of actors. If `NULL` the empirically observed maximum is used.
+#' @param ccovar data frame with named time-constant covariates.
 #'
 #' @examples
 #' ts_centering(cov=df_ccovar1[,"cov1"])
@@ -35,4 +37,17 @@ ts_simij <- function(cov, min=NULL, max=NULL) {
   attr(cov, "range") <- rv
   attr(cov, "simij") <- simij
   return(cov)
+}
+
+#' @rdname ts_centering
+#' @export
+ts_prepdata <- function(ccovar) {
+  if (!is.null(ccovar) & is.null(attributes(ccovar)$prepared)) {
+    for (i in 1:ncol(ccovar)) {
+      ccovar[, i] <- ts_centering(ccovar[, i])
+      ccovar[, i] <- ts_simij(ccovar[, i])
+    }
+    attr(ccovar, "prepared") <- TRUE
+  }
+  return(ccovar)
 }

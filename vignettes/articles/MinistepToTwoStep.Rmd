@@ -166,13 +166,12 @@ fpackage.check(packages)
 
 # 2. Setting up cluster
 
-```{r}
-#stopCluster(my.cluster) 
-n.cores <- parallel::detectCores() - 1  #save one core for other work
-# create the cluster
-my.cluster <- parallel::makeCluster(n.cores, type = "PSOCK")
-# register it to be used by %dopar%
-doParallel::registerDoParallel(cl = my.cluster)
+```{r, results='hide', message=FALSE}
+no_cores <- detectCores() - 1
+mycl <- makeCluster(rep("localhost", no_cores))
+clusterEvalQ(mycl, library(RsienaTwoStep)) 
+registerDoParallel(mycl)
+#stopCluster(mycl)
 ```
 
 ---  
@@ -188,13 +187,19 @@ Thus if you start with a network without many (reciprocal) ties it would be very
 ### 3.1.1. Simulate networks 
 
 ```{r, eval=FALSE}
-sims1 <- ts_sims(nsims=1000, parallel=TRUE, net=net1, rate=10, statistics=list(ts_degree, ts_recip), parameters=c(-1,2), p2step=0, chain=FALSE) #ministep
+NSIM <- 500
+STATS <- list(ts_degree, ts_recip)
+STARTS <- c(10, -1,2)
 
-sims2 <- ts_sims(nsims=1000, parallel=TRUE, net=net1, rate=10, statistics=list(ts_degree, ts_recip), parameters=c(-1,2), p2step=1, chain=FALSE) #twostep: simultaneity
+sims1 <- ts_sims(startvalues = STARTS, net = ts_net1, statistics = STATS, nsims = NSIM, p2step = c(1,0,0), verbose  = FALSE, parallel = TRUE) #ministep
 
-sims3 <- ts_sims(nsims=1000, parallel=TRUE, net=net1, rate=10, statistics=list(ts_degree, ts_recip), parameters=c(-1,2), p2step=1, dist1=2, dist2=2, chain=FALSE) #twostep: weak coordination
+sims2 <- ts_sims(startvalues = STARTS, net = ts_net1, statistics = STATS, nsims = NSIM, p2step = c(0,1,0), verbose  = FALSE, parallel = TRUE) #twostep: simultaneity
 
-sims4 <- ts_sims(nsims=1000, parallel=TRUE, net=net1, rate=10, statistics=list(ts_degree, ts_recip), parameters=c(-1,2), p2step=1, dist1=2,  chain=FALSE) #twostep: strict coordination
+sims3 <- ts_sims(startvalues = STARTS, net = ts_net1, statistics = STATS, nsims = NSIM, p2step = c(0,1,0), dist1 = 2, dist2 = 2, verbose  = FALSE, parallel = TRUE)   #twostep: weak coordination
+
+sims4 <-  ts_sims(startvalues = STARTS, net = ts_net1, statistics = STATS, nsims = NSIM, p2step = c(0,1,0), dist1 = 2, verbose  = FALSE, parallel = TRUE)  #twostep: strict coordination
+
+sims5 <-  ts_sims(startvalues = STARTS, net = ts_net1, statistics = STATS, nsims = NSIM, p2step = c(0,0,1), dist1 = 2, verbose  = FALSE, parallel = TRUE)  #simstep: one actor two ministeps
 ```
 
 ### 3.1.2. Counting dyads
@@ -204,8 +209,9 @@ df1 <- ts_dyads(sims=sims1, simtype="ministep")
 df2 <- ts_dyads(sims=sims2, simtype="twostep: simultaneity")  
 df3 <- ts_dyads(sims=sims3, simtype="twostep: weak coordination")  
 df4 <- ts_dyads(sims=sims4, simtype="twostep: strict coordination")  
+df5 <- ts_dyads(sims=sims5, simtype="simstep")  
 
-df <- rbind(df1, df2, df3, df4)
+df <- rbind(df1, df2, df3, df4, df5)
 ```
 
 ```{r, eval=FALSE, echo=FALSE}
@@ -213,7 +219,7 @@ fsave(df, "dfm1")
 ```
 
 ```{r, eval=TRUE, echo=FALSE}
-load("./data/processed/20221216dfm1")
+load("./data/processed/20231008dfm1")
 df <- x
 rm(x)
 ```
@@ -221,7 +227,7 @@ rm(x)
 ### 3.1.3. Plot results of dyadcensus 
 
 ```{r, fig.cap="Figure 3.1.3. Dyadcensus Model 1"}
-p <- ggplot(df, aes(x=x, y=y, fill=factor(type, levels=c("ministep", "twostep: simultaneity", "twostep: weak coordination", "twostep: strict coordination")))) + 
+p <- ggplot(df, aes(x=x, y=y, fill=factor(type, levels=c("ministep", "twostep: simultaneity", "twostep: weak coordination", "twostep: strict coordination", "simstep")))) + 
   geom_violin(position=position_dodge(.9)) + 
   stat_summary(fun = mean,
                geom = "errorbar",
@@ -259,13 +265,19 @@ Is it unlikely that a transitive triad will emerge if we have coordination, beca
 ### 3.2.1. Simulate networks 
 
 ```{r, eval=FALSE}
-sims1 <- ts_sims(nsims=1000, parallel=TRUE, net=net1, rate=5, statistics=list(ts_degree, ts_recip, ts_transTrip), parameters=c(-2,2, 1), p2step=0, chain=FALSE) #ministep
+NSIM <- 500
+STATS <- list(ts_degree, ts_recip,ts_transTrip)
+STARTS <- c(10, -1, 2, 1)
 
-sims2 <- ts_sims(nsims=1000, parallel=TRUE, net=net1, rate=5, statistics=list(ts_degree, ts_recip,ts_transTrip), parameters=c(-2,2, 1), p2step=1, chain=FALSE) #twostep: simultaneity
+sims1 <- ts_sims(startvalues = STARTS , net = ts_net1, statistics = STATS, nsims = NSIM, p2step = c(1,0,0), verbose  = FALSE, parallel = TRUE) #ministep
 
-sims3 <- ts_sims(nsims=1000, parallel=TRUE, net=net1, rate=5, statistics=list(ts_degree, ts_recip,ts_transTrip), parameters=c(-2,2, 1), p2step=1, dist1=2, dist2=2, chain=FALSE) #twostep: weak coordination
+sims2 <- ts_sims(startvalues = STARTS , net = ts_net1, statistics = STATS, nsims = NSIM, p2step = c(0,1,0), verbose  = FALSE, parallel = TRUE) #twostep: simultaneity
 
-sims4 <- ts_sims(nsims=1000, parallel=TRUE, net=net1, rate=5, statistics=list(ts_degree, ts_recip, ts_transTrip), parameters=c(-2,2,1), p2step=1, dist1=2,  chain=FALSE) #twostep: strict coordination
+sims3 <- ts_sims(startvalues = STARTS , net = ts_net1, statistics = STATS, nsims = NSIM, p2step = c(0,1,0), dist1 = 2, dist2 = 2, verbose  = FALSE, parallel = TRUE)   #twostep: weak coordination
+
+sims4 <-  ts_sims(startvalues = STARTS , net = ts_net1, statistics = STATS, nsims = NSIM, p2step = c(0,1,0), dist1 = 2, verbose  = FALSE, parallel = TRUE)  #twostep: strict coordination
+
+sims5 <-  ts_sims(startvalues = STARTS , net = ts_net1, statistics = STATS, nsims = NSIM, p2step = c(0,0,1), dist1 = 2, verbose  = FALSE, parallel = TRUE)  #simstep: one actor two ministeps
 
 ```
 
@@ -276,8 +288,9 @@ df1 <- ts_dyads(sims=sims1, simtype="ministep")
 df2 <- ts_dyads(sims=sims2, simtype="twostep: simultaneity")  
 df3 <- ts_dyads(sims=sims3, simtype="twostep: weak coordination")  
 df4 <- ts_dyads(sims=sims4, simtype="twostep: strict coordination")  
+df5 <- ts_dyads(sims=sims5, simtype="simstep")  
 
-df <- rbind(df1, df2, df3, df4)
+df <- rbind(df1, df2, df3, df4, df5)
 ```
 
 ```{r, eval=FALSE, echo=FALSE}
@@ -285,7 +298,7 @@ fsave(df, "dfm2")
 ```
 
 ```{r, eval=TRUE, echo=FALSE}
-load("./data/processed/20221216dfm2")
+load("./data/processed/20231008dfm2")
 df <- x
 rm(x)
 ```
@@ -293,7 +306,7 @@ rm(x)
 ### 3.2.3. Plot results of the dyadcensus 
 
 ```{r, fig.cap="Figure 3.2.3. Dyadcensus Model 2"}
-p <- ggplot(df, aes(x=x, y=y, fill=factor(type, levels=c("ministep", "twostep: simultaneity", "twostep: weak coordination", "twostep: strict coordination")))) + 
+p <- ggplot(df, aes(x=x, y=y, fill=factor(type, levels=c("ministep", "twostep: simultaneity", "twostep: weak coordination", "twostep: strict coordination", "simstep")))) + 
   geom_violin(position=position_dodge(.9)) + 
   stat_summary(fun = mean,
                geom = "errorbar",
@@ -318,8 +331,9 @@ df1 <- ts_triads(sims=sims1, simtype="ministep")
 df2 <- ts_triads(sims=sims2, simtype="twostep: simultaneity")  
 df3 <- ts_triads(sims=sims3, simtype="twostep: weak coordination")  
 df4 <- ts_triads(sims=sims4, simtype="twostep: strict coordination")  
+df5 <- ts_triads(sims=sims5, simtype="simstep")  
 
-df <- rbind(df1, df2, df3, df4)
+df <- rbind(df1, df2, df3, df4, df5)
 ```
 
 ```{r, eval=FALSE, echo=FALSE}
@@ -327,7 +341,7 @@ fsave(df, "dfm2_t")
 ```
 
 ```{r, eval=TRUE, echo=FALSE}
-load("./data/processed/20221216dfm2_t")
+load("./data/processed/20231008dfm2_t")
 df <- x
 rm(x)
 ```
@@ -349,7 +363,7 @@ rm(x)
 ```{r, results='hold', fig.cap="Figure 3.2.5a. Triadcensus Model 2 (Triads 030T & 120U)"}
 
 dftest <- df[df$x=="030T" | df$x=="120U", ]
-p1 <- ggplot(dftest, aes(x=x, y=y, fill=factor(type, levels=c("ministep", "twostep: simultaneity", "twostep: weak coordination", "twostep: strict coordination")))) + 
+p1 <- ggplot(dftest, aes(x=x, y=y, fill=factor(type, levels=c("ministep", "twostep: simultaneity", "twostep: weak coordination", "twostep: strict coordination", "simstep")))) + 
   geom_violin(position=position_dodge(.9)) + 
   stat_summary(fun = mean,
                geom = "errorbar",
@@ -370,7 +384,7 @@ p1
 
 ```{r, results='hold', fig.cap="Figure 3.2.5b. Triadcensus Model 2 (Triads 120D & 120C)"}
 dftest <- df[df$x=="120D" | df$x=="120C" , ]
-p2 <- ggplot(dftest, aes(x=x, y=y, fill=factor(type, levels=c("ministep", "twostep: simultaneity", "twostep: weak coordination", "twostep: strict coordination")))) + 
+p2 <- ggplot(dftest, aes(x=x, y=y, fill=factor(type, levels=c("ministep", "twostep: simultaneity", "twostep: weak coordination", "twostep: strict coordination", "simstep")))) + 
   geom_violin(position=position_dodge(.9)) + 
   stat_summary(fun = mean,
                geom = "errorbar",
@@ -391,7 +405,7 @@ p2
 
 ```{r, results='hold', fig.cap="Figure 3.2.5c. Triadcensus Model 2 (Triads 210 & 300)"}
 dftest <- df[df$x=="210" | df$x=="300" , ]
-p3 <- ggplot(dftest, aes(x=x, y=y, fill=factor(type, levels=c("ministep", "twostep: simultaneity", "twostep: weak coordination", "twostep: strict coordination")))) + 
+p3 <- ggplot(dftest, aes(x=x, y=y, fill=factor(type, levels=c("ministep", "twostep: simultaneity", "twostep: weak coordination", "twostep: strict coordination", "simstep")))) + 
   geom_violin(position=position_dodge(.9)) + 
   stat_summary(fun = mean,
                geom = "errorbar",
@@ -411,7 +425,7 @@ p3
 
 ### 3.2.6. Conclusion  
 
-For this network (`net1`) and given the network statistics degree, reciprocity and transitivity...  
+For this network (`ts_net1`) and given the network statistics degree, reciprocity and transitivity...  
 
 - A general conclusion is that the type of ABM does impact the dyad and triad count after the simulation run.  
 - A tentative conclusion would be that weak coordination impacts (complex) triad configurations more than strict coordination, because under weak coordination asymmetric dyads are plausible. 
@@ -426,15 +440,19 @@ It is now likely that a transitive triad will emerge if we have coordination, be
 ### 3.3.1. Simulate networks
 
 ```{r, eval=FALSE}
-nsims <- 500
+NSIM <- 500
+STATS <- list(ts_degree, ts_recip, ts_transTrip, ts_transMedTrip)
+STARTS <- c(10, -2 ,1 ,2 ,2)
 
-sims1 <- ts_sims(nsims=nsims, parallel=TRUE, net=net1, rate=10, statistics=list(ts_degree, ts_recip, ts_transTrip, ts_transMedTrip), parameters=c(-2,1,2,2), p2step=0, chain=FALSE) #twostep: ministep
+sims1 <- ts_sims(startvalues = STARTS, net = ts_net1, statistics = STATS, nsims = NSIM, p2step = c(1,0,0), verbose  = FALSE, parallel = TRUE) #ministep
 
-sims2 <- ts_sims(nsims=nsims, parallel=TRUE, net=net1, rate=10, statistics=list(ts_degree, ts_recip, ts_transTrip, ts_transMedTrip), parameters=c(-2,1,2,2), p2step=1, chain=FALSE) #twostep: random
+sims2 <- ts_sims(startvalues = STARTS, net = ts_net1, statistics = STATS, nsims = NSIM, p2step = c(0,1,0), verbose  = FALSE, parallel = TRUE) #twostep: simultaneity
 
-sims3 <- ts_sims(nsims=nsims, parallel=TRUE, net=net1, rate=10, statistics=list(ts_degree, ts_recip, ts_transTrip, ts_transMedTrip), parameters=c(-2,1,2,2), p2step=1, dist1=2, dist2=2, chain=FALSE) #twostep: weak
+sims3 <- ts_sims(startvalues = STARTS, net = ts_net1, statistics = STATS, nsims = NSIM, p2step = c(0,1,0), dist1 = 2, dist2 = 2, verbose  = FALSE, parallel = TRUE)   #twostep: weak coordination
 
-sims4 <- ts_sims(nsims=nsims, parallel=TRUE, net=net1, rate=5, statistics=list(ts_degree, ts_recip, ts_transTrip, ts_transMedTrip), parameters=c(-2,1,2,2), p2step=1, dist1=2,  chain=FALSE) #twostep: strict coordination
+sims4 <-  ts_sims(startvalues = STARTS, net = ts_net1, statistics = STATS, nsims = NSIM, p2step = c(0,1,0), dist1 = 2, verbose  = FALSE, parallel = TRUE)  #twostep: strict coordination
+
+sims5 <-  ts_sims(startvalues = STARTS, net = ts_net1, statistics = STATS, nsims = NSIM, p2step = c(0,0,1), dist1 = 2, verbose  = FALSE, parallel = TRUE)  #simstep: one actor two ministeps
 ```
 
 ### 3.3.2. Counting dyads
@@ -444,8 +462,9 @@ df1 <- ts_dyads(sims=sims1, simtype="ministep")
 df2 <- ts_dyads(sims=sims2, simtype="twostep: simultaneity")  
 df3 <- ts_dyads(sims=sims3, simtype="twostep: weak coordination")  
 df4 <- ts_dyads(sims=sims4, simtype="twostep: strict coordination")  
+df5 <- ts_dyads(sims=sims5, simtype="simstep") 
 
-df <- rbind(df1, df2, df3, df4)
+df <- rbind(df1, df2, df3, df4, df5)
 ```
 
 ```{r, eval=FALSE, echo=FALSE}
@@ -453,7 +472,7 @@ fsave(df, "dfm3")
 ```
 
 ```{r, eval=TRUE, echo=FALSE}
-load("./data/processed/20221216dfm3")
+load("./data/processed/20231008dfm3")
 df <- x
 rm(x)
 ```
@@ -461,7 +480,7 @@ rm(x)
 ### 3.3.3. Plot results of the dyadcensus 
 
 ```{r, fig.cap="Figure 3.3.3. Dyadcensus Model 3"}
-p <- ggplot(df, aes(x=x, y=y, fill=factor(type, levels=c("ministep", "twostep: simultaneity", "twostep: weak coordination", "twostep: strict coordination")))) + 
+p <- ggplot(df, aes(x=x, y=y, fill=factor(type, levels=c("ministep", "twostep: simultaneity", "twostep: weak coordination", "twostep: strict coordination", "simstep")))) + 
   geom_violin(position=position_dodge(.9)) + 
   stat_summary(fun = mean,
                geom = "errorbar",
@@ -475,8 +494,6 @@ p <- ggplot(df, aes(x=x, y=y, fill=factor(type, levels=c("ministep", "twostep: s
   labs(x = "dyad type", y = "dyad count", fill="simulation type")
   
 p
-
-
 ```
 
 
@@ -487,8 +504,9 @@ df1 <- ts_triads(sims=sims1, simtype="ministep")
 df2 <- ts_triads(sims=sims2, simtype="twostep: simultaneity")  
 df3 <- ts_triads(sims=sims3, simtype="twostep: weak coordination")  
 df4 <- ts_triads(sims=sims4, simtype="twostep: strict coordination")  
+df5 <- ts_triads(sims=sims5, simtype="simstep")  
 
-df <- rbind(df1, df2, df3, df4)
+df <- rbind(df1, df2, df3, df4, df5)
 ```
 
 ```{r, eval=FALSE, echo=FALSE}
@@ -496,7 +514,7 @@ fsave(df, "dfm3_t")
 ```
 
 ```{r, eval=TRUE, echo=FALSE}
-load("./data/processed/20221216dfm3_t")
+load("./data/processed/20231008dfm3_t")
 df <- x
 rm(x)
 ```
@@ -506,7 +524,7 @@ rm(x)
 
 ```{r, results='hold', fig.cap="Figure 3.3.5a. Triadcensus Model 3 (Triads 030T & 120U)"}
 dftest <- df[df$x=="030T" | df$x=="120U", ]
-p1 <- ggplot(dftest, aes(x=x, y=y, fill=factor(type, levels=c("ministep", "twostep: simultaneity", "twostep: weak coordination", "twostep: strict coordination"))))+ 
+p1 <- ggplot(dftest, aes(x=x, y=y, fill=factor(type, levels=c("ministep", "twostep: simultaneity", "twostep: weak coordination", "twostep: strict coordination", "simstep"))))+ 
   geom_violin(position=position_dodge(.9)) + 
   stat_summary(fun = mean,
                geom = "errorbar",
@@ -526,7 +544,7 @@ p1
 
 ```{r, results='hold', fig.cap="Figure 3.2.5b. Triadcensus Model 3 (Triads 120D & 120C)"}
 dftest <- df[df$x=="120D" | df$x=="120C" , ]
-p2 <- ggplot(dftest, aes(x=x, y=y, fill=factor(type, levels=c("ministep", "twostep: simultaneity", "twostep: weak coordination", "twostep: strict coordination")))) + 
+p2 <- ggplot(dftest, aes(x=x, y=y, fill=factor(type, levels=c("ministep", "twostep: simultaneity", "twostep: weak coordination", "twostep: strict coordination", "simstep")))) + 
   geom_violin(position=position_dodge(.9)) + 
   stat_summary(fun = mean,
                geom = "errorbar",
@@ -546,7 +564,7 @@ p2
 
 ```{r, results='hold', fig.cap="Figure 3.2.5c. Triadcensus Model 3 (Triads 210 & 300)"}
 dftest <- df[df$x=="210" | df$x=="300" , ]
-p3 <- ggplot(dftest, aes(x=x, y=y, fill=factor(type, levels=c("ministep", "twostep: simultaneity", "twostep: weak coordination", "twostep: strict coordination")))) + 
+p3 <- ggplot(dftest, aes(x=x, y=y, fill=factor(type, levels=c("ministep", "twostep: simultaneity", "twostep: weak coordination", "twostep: strict coordination", "simstep")))) + 
   geom_violin(position=position_dodge(.9)) + 
   stat_summary(fun = mean,
                geom = "errorbar",
@@ -560,12 +578,11 @@ p3 <- ggplot(dftest, aes(x=x, y=y, fill=factor(type, levels=c("ministep", "twost
   labs(x = "triad type", y = "triad count", fill="simulation type")
 
 p3
-
 ```
 
 ### 3.3.6. Conclusion  
 
-For this network (`net1`) and given the network statistics degree, reciprocity, transitivity and mediated transitivity...  
+For this network (`ts_net1`) and given the network statistics degree, reciprocity, transitivity and mediated transitivity...  
 
 - It is clearly strict coordination that leads to diverging dyad and triad counts.  
 - I tentatively conclude that, as expected, transitive triads are more common under coordination.  

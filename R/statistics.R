@@ -24,6 +24,7 @@ ts_degree <- function(net, ego) {
   return(statistic)
 }
 attr(ts_degree, "name") <- "degree"
+ts_degree <- compiler::cmpfun(ts_degree)
 
 
 
@@ -139,6 +140,7 @@ ts_cycle3 <- function(net, ego) {
       if (length(altersj)>0) {
         for (alter2 in altersj) {
           statistic <- statistic + net[alter2, ego]
+          # for some reason in RSiena the 3cycles are counted and not the number of three cycles for each ego summed
         }
       }
     }
@@ -175,6 +177,8 @@ ts_diffX <- function(net, ego, cov) {
 }
 attr(ts_diffX, "name") <- "diffX"
 
+#' @rdname ts_degree
+#' @export
 ts_simX <- function(net, ego, cov) {
   statistic <- 0
   alters <- which(net[ego,]==1)
@@ -213,4 +217,10 @@ ts_egoXaltX <- function(net, ego, cov) {
 }
 attr(ts_egoXaltX, "name") <- "egoXaltX"
 
-ts_names <- function(x) {attributes(x)$name}
+ts_names <- function(x) {
+  if (length(x) == 1) {
+    attributes(x)$name
+  } else {
+    paste(attributes(x[[1]])$name, x[[2]])
+  }
+}

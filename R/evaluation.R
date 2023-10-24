@@ -21,22 +21,46 @@
 #' ts_eval(net=ts_net1, ego=10, ccovar=df_ccovar1, statistics=list(ts_degree, ts_recip, ts_transTrip,
 #' ts_transMedTrip, list(ts_egoX, "cov1")), parameters=c(-2,2,7,7,1))
 
-ts_eval <- function(net, ego, statistics, ccovar=NULL, parameters) {
-  # calculuate value of evaluation function
+ts_eval <- function(net, ego, statistics, ccovar = NULL, parameters) {
 
-    s <- 0
-    for (j in 1:length(statistics)) {
-      if (length(statistics[[j]])==1) s <- s + parameters[j] * statistics[[j]](net, ego)
-      if (length(statistics[[j]])==2) s <- s + parameters[j] * statistics[[j]][[1]](net, ego, ccovar[,statistics[[j]][[2]]])
+  # prepare dataset
+  ccovar <- ts_prepdata(ccovar)
+
+  # Initialize the result
+  s <- 0
+
+  # Iterate over statistics
+  for (j in seq_along(statistics)) {
+    stat <- statistics[[j]]
+
+    if (length(stat) == 1) {
+      # Single argument statistic function
+      s <- s + parameters[j] * stat(net, ego)
+    #} else if (length(stat) == 2) { #we only have stats of length 1 or 2
+    } else {
+      # Two-argument statistic function
+      s <- s + parameters[j] * stat[[1]](net, ego, ccovar[, stat[[2]]])
     }
+  }
 
-
-    # s <- foreach(j = 1:length(statistics), .combine = 'c') %dopar% {
-    #   if (length(statistics[[j]])==1) { s <- parameters[j] * statistics[[j]](net, ego) }
-    #   if (length(statistics[[j]])==2) { s <- parameters[j] * statistics[[j]][[1]](net, ego, ccovar[,statistics[[j]][[2]]]) }
-    #   s
-    #   }
-    # s <- sum(s)
-    #
   return(s)
 }
+
+# #faster?
+# #' @export
+# ts_eval2 <- function(net, ego, statistics, ccovar = NULL, parameters) {
+#
+#   # prepare dataset
+#   ccovar <- ts_prepdata(ccovar)
+#
+#   netstats <- sapply(statistics, FUN = function(stat) {
+#     if (length(stat) == 1) {
+#       # Single argument statistic function
+#       stat(net, ego)
+#       # } else if (length(stat) == 2) { #we only have stats of length 1 or 2
+#     } else {
+#       stat[[1]](net, ego, ccovar[, stat[[2]]])
+#     }
+#   })
+#   return(sum(parameters * netstats))
+# }

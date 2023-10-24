@@ -27,8 +27,7 @@ ts_select <- function(net, steps=1, dist1=NULL, modet1="degree"){
     if (steps==2) {
       actors[2] <- sample(c(1:nrow(net))[-actors[1]], 1)
     }
-  }
-  if (!is.null(dist1)) {
+  } else {
     #determine distance matrix
     if (modet1=="degree") {
       net <- net + t(net)
@@ -37,16 +36,20 @@ ts_select <- function(net, steps=1, dist1=NULL, modet1="degree"){
     }
     distmat <- sna::geodist(net, inf.replace=dist1 + 1)$gdist
     diag(distmat) <- dist1 + 1
-    distmat <- distmat <= dist1
-    #sample egos
-    tryCatch({
-      actors[1] <- sample(1:nrow(net), 1, prob = rowSums(distmat)>1) #only egos who have at least one alter fitting the criteria
-      actors[2] <- sample(1:nrow(net), 1, prob = distmat[actors[1],]) #only alters that fit the criteria
-      },
-      error = function(e) {
-               cat("We have problems sampling agents to start coordination. \n Probably your parameters for the ABM are ill-chosen and the density of the network became too low.")
-      })
+    # distmat <- distmat <= dist1
+    # #sample egos
+    # tryCatch({
+    #   actors[1] <- sample(1:nrow(net), 1, prob = rowSums(distmat)>1) #only egos who have at least one alter fitting the criteria
+    #   actors[2] <- sample(1:nrow(net), 1, prob = distmat[actors[1],]) #only alters that fit the criteria
+    #   },
+    #   error = function(e) {
+    #            cat("We have problems sampling agents to start coordination. \n Probably your parameters for the ABM are ill-chosen and the density of the network became too low.")
+    #   })
+    pool <- which(distmat <= dist1, arr.ind = TRUE)
+    actors <- as.numeric(pool[sample(nrow(pool), 1),])
     }
   return(actors)
 }
+
+
 

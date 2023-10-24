@@ -14,6 +14,7 @@
 \alias{ts_egoX}
 \alias{ts_altX}
 \alias{ts_diffX}
+\alias{ts_simX}
 \alias{ts_absdiffX}
 \alias{ts_sameX}
 \alias{ts_egoXaltX}
@@ -44,6 +45,8 @@ ts_egoX(net, ego, cov)
 ts_altX(net, ego, cov)
 
 ts_diffX(net, ego, cov)
+
+ts_simX(net, ego, cov)
 
 ts_absdiffX(net, ego, cov)
 

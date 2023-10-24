@@ -17,19 +17,20 @@ ts_estim(
   ccovar = NULL,
   statistics = NULL,
   b = 0.5,
-  conv = 0.05,
-  nite = 300,
+  conv = 0.001,
+  nite = 1000,
   itef1 = 50,
-  itef3 = 300,
-  p2step = c(0, 1, 0),
+  itef3 = 1000,
+  p2step = c(1, 0, 0),
   dist1 = NULL,
   dist2 = NULL,
   modet1 = "degree",
   modet2 = "degree",
   verbose = TRUE,
   parallel = FALSE,
-  phase1 = FALSE,
-  phase3 = FALSE
+  returnDeps = FALSE,
+  phase1 = TRUE,
+  phase3 = TRUE
 )
 
 ts_targets(
@@ -76,7 +77,8 @@ ts_phase3(
   modet1 = NULL,
   modet2 = NULL,
   verbose = TRUE,
-  parallel = FALSE
+  parallel = FALSE,
+  returnDeps = FALSE
 )
 }
 \arguments{
@@ -147,7 +149,10 @@ is passed to \code{\link[=ts_sims]{ts_sims()}}.}
 \item{verbose, }{TRUE/FALSE. If set to true it shows the iteration steps and
 some results.}
 
-\item{parallel}{TRUE/FALSE.}
+\item{parallel}{Boolean. TRUE/FALSE.}
+
+\item{returnDeps}{Boolean. If \code{TRUE} the simulated dependent variables
+(networks, behaviour) of phase3 will be returned.}
 
 \item{phase1}{TRUE/FALSE, If False no Jacobian matrix is calculated.}
 
@@ -194,17 +199,20 @@ jac <- ts_phase1(net1 = s501,
  ccovar = NULL,
  itef1 = 30)
 dinv <- solve(jac)
+#estimate without the use of RSiena
 ts_estim(net1 = s501,
 net2 = s502,
 statistics = list(ts_degree, ts_recip),
 nite = 30,
  phase1 = FALSE)
+ #estimate without the use of RSiena
 ts_estim(net1 = s501,
 net2 = s502,
 statistics = list(ts_degree, ts_recip),
 nite = 30,
 itef1 = 10,
 phase1 = TRUE)
+#estimate without the use of RSiena
 ts_estim(net1 = s501,
  net2 = s502,
  statistics = list(ts_degree, ts_recip),
@@ -219,7 +227,7 @@ stat <- list(ts_degree, ts_recip)
 ts_phase3(startvalues = startvalues,
 net1 = s501,
 statistics = stat,
-itef1 = 10,
+itef3 = 10,
 verbose = TRUE)
 library(RSiena)
 mynet <- sienaDependent(array(c(s501, s502), dim=c(50, 50, 2)))

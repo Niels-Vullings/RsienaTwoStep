@@ -3,11 +3,14 @@
 \name{ts_centering}
 \alias{ts_centering}
 \alias{ts_simij}
+\alias{ts_prepdata}
 \title{Data preparation}
 \usage{
 ts_centering(cov)
 
 ts_simij(cov, min = NULL, max = NULL)
+
+ts_prepdata(ccovar)
 }
 \arguments{
 \item{cov}{numeric, behavioral scores of actors}
@@ -15,8 +18,11 @@ ts_simij(cov, min = NULL, max = NULL)
 \item{min}{numeric, minimum value of behavioral scores of actors. If \code{NULL} the empirically observed minimum is used.}
 
 \item{max}{numeric, maximum value of behavioral scores of actors. If \code{NULL} the empirically observed maximum is used.}
+
+\item{ccovar}{data frame with named time-constant covariates.}
 }
 \description{
+\code{ts_dataprep} performs centering and similarity score and set attribute prepared to TRUE
 \code{ts_centering} centers the variables before use.
 \code{ts_simij} calculates the similarity scores before use.
 }

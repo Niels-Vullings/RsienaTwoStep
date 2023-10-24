@@ -21,9 +21,6 @@
 #' @param chain TRUE/FALSE, set to `TRUE` if you want to save all the subsequent
 #'   networks (after the ministep or twostep) during the simulation. If `FALSE`
 #'   only the end network is saved.
-#' @param preparedata logical, if set to TRUE variables are demeaned and range
-#'   is added. This is set to FALSE when running [`ts_estim()`] because here
-#'   `ccovar` has already been prepared.
 #' @return If `chain=FALSE` a `list` (of length `nsims`) of adjacency matrices
 #'   representing the final network after the simulated evolution. If
 #'   `chain=TRUE` a `list` of lists of adjacency matrices. Each inner list
@@ -76,7 +73,8 @@
 #' p2step = c(0, 1, 0))
 #' stopCluster(my.cluster)
 #' #Since the only official way to "unregister" a foreach backend is to register
-#' the sequential backend: registerDoSEQ()
+#' the sequential backend:
+#' registerDoSEQ()
 #'   }
 #' @importFrom foreach %dopar%
 
@@ -86,7 +84,6 @@ ts_sims <- function(ans = NULL,
                     startvalues = NULL,
                     net1 = NULL,
                     ccovar = NULL,
-                    preparedata = TRUE,
                     statistics = NULL,
                     nsims = 1000,
                     p2step = c(1, 0, 0),
@@ -139,6 +136,7 @@ ts_sims <- function(ans = NULL,
     }
   }
 
+  namesstatistics <- NA
   namesstatistics <- c("rate", sapply(statistics, ts_names))
   names(statistics) <- namesstatistics[-1]
 
@@ -163,7 +161,7 @@ ts_sims <- function(ans = NULL,
         matrix(
           NA,
           nrow = length(mydata$cCovars[[1]]),
-          ncol = length(mydata$cCovars$cCovars)
+          ncol = length(mydata$cCovars)
         )
       for (i in 1:length(mydata$cCovars)) {
         data[, i] <-
@@ -184,12 +182,7 @@ ts_sims <- function(ans = NULL,
   }
 
   # prepare dataset
-  if (!is.null(ccovar) & preparedata) {
-    for (i in 1:ncol(ccovar)) {
-      ccovar[, i] <- ts_centering(ccovar[, i])
-      ccovar[, i] <- ts_simij(ccovar[, i])
-    }
-  }
+  ccovar <- ts_prepdata(ccovar)
 
 
   ### end of initialization
@@ -241,7 +234,6 @@ ts_sim <- function(
     startvalues = NULL,
     net1 = NULL,
     ccovar = NULL,
-    preparedata = FALSE,
     statistics = NULL,
     p2step = c(1, 0, 0),
     dist1 = NULL,
@@ -297,6 +289,7 @@ ts_sim <- function(
     }
   }
 
+  namesstatistics <- NA
   namesstatistics <- c("rate", sapply(statistics, ts_names))
   names(statistics) <- namesstatistics[-1]
 
@@ -321,7 +314,7 @@ ts_sim <- function(
         matrix(
           NA,
           nrow = length(mydata$cCovars[[1]]),
-          ncol = length(mydata$cCovars$cCovars)
+          ncol = length(mydata$cCovars)
         )
       for (i in 1:length(mydata$cCovars)) {
         data[, i] <-
@@ -342,12 +335,7 @@ ts_sim <- function(
   }
 
   # prepare dataset
-  if (!is.null(ccovar) & preparedata) {
-    for (i in 1:ncol(ccovar)) {
-      ccovar[, i] <- ts_centering(ccovar[, i])
-      ccovar[, i] <- ts_simij(ccovar[, i])
-    }
-  }
+  ccovar <- ts_prepdata(ccovar)
 
 
   ###End of Initialization
@@ -357,11 +345,14 @@ ts_sim <- function(
   nministep <- rate * nrow(net1) + 1
   net_n <- net1
   nets <- list()
+  #it would be nice if I could preallocate the nets list, but since I can mix p2steps with ministeps this is not easy.
+  # if (chain & normal == 1) nets <- vector("list", length = nministep -1 )
+  # if (chain & normal != 1) nets <- vector("list", length = nministep/2 )
   ministep <- 1
   iteration <- 1
   while (ministep < nministep) {
     # normal ministep or 2step?
-    normal <- sample(c(1, 2, 3), 1, prob = p2step)
+    normal <- sample(c(1, 2, 3), 1, prob = p2step) #improve! we do not need to sample if no mixing.
 
     # normal model
     if (normal == 1) {
@@ -379,22 +370,28 @@ ts_sim <- function(
           statistics = statistics,
           parameters = parameters
         )
-      eval <- eval - max(eval)
-      # pick new network
+
+      # #eval <- eval - max(eval)
+      # # pick new network
+      # net_n <-
+      #   options[[sample(1:length(eval),
+      #     size = 1,
+      #     prob = exp(eval) / sum(exp(eval))
+      #   )]]
+
+
+      # # pick new network
       net_n <-
         options[[sample(1:length(eval),
           size = 1,
-          prob = exp(eval) / sum(exp(eval))
+          prob = exp(eval)
         )]]
-      if (chain) {
-        nets[[iteration]] <- net_n
-      }
-      iteration <- iteration + 1
-      ministep <- ministep + 1
-    }
 
-    # model with simultaneity
-    if (normal == 2) {
+      if (chain) {
+        nets[[ministep]] <- net_n
+      }
+      ministep <- ministep + 1
+    } else if (normal == 2) {  # model with simultaneity
       results <-
         ts_alternatives_twostep(
           net = net_n,
@@ -407,6 +404,9 @@ ts_sim <- function(
       options <-
         results[[2]] # all possible future networks after the twostep
       if (is.null(egos) & is.null(options)) {
+        if (chain) {
+          nets[[iteration]] <- net_n
+        }
         iteration <- iteration + 1
       }
 
@@ -435,22 +435,25 @@ ts_sim <- function(
           )
         # pick new network
         eval <- eval1 + eval2
+
+
+        #McFadden choice function.
         eval <- eval - max(eval)
         net_n <-
           options[[sample(1:length(eval),
             size = 1,
-            prob = exp(eval) / sum(exp(eval))
+            prob = exp(eval)
           )]]
+
         if (chain) {
           nets[[iteration]] <- net_n
         }
         iteration <- iteration + 1
         ministep <- ministep + 2
-      }
-    }
 
+      }
+    } else if (normal == 3) {
     # model with two simultaneous ministeps of the same ego
-    if (normal == 3) {
       # sample agent
       ego <- ts_select(net1)
       # options
@@ -465,13 +468,15 @@ ts_sim <- function(
           statistics = statistics,
           parameters = parameters
         )
-      eval <- eval - max(eval)
+
       # pick new network
+      eval <- eval - max(eval)
       net_n <-
         options[[sample(1:length(eval),
           size = 1,
-          prob = exp(eval) / sum(exp(eval))
+          prob = exp(eval)
         )]]
+
       if (chain) {
         nets[[iteration]] <- net_n
       }

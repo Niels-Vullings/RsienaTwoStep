@@ -12,7 +12,6 @@ ts_sims(
   startvalues = NULL,
   net1 = NULL,
   ccovar = NULL,
-  preparedata = TRUE,
   statistics = NULL,
   nsims = 1000,
   p2step = c(1, 0, 0),
@@ -32,7 +31,6 @@ ts_sim(
   startvalues = NULL,
   net1 = NULL,
   ccovar = NULL,
-  preparedata = FALSE,
   statistics = NULL,
   p2step = c(1, 0, 0),
   dist1 = NULL,
@@ -63,10 +61,6 @@ manually, retrieved from \code{ans} or \code{mydata}.}
 
 \item{ccovar}{data frame with named time-constant covariates. If not provided
 manually, retrieved from \code{ans} or \code{mydata}.}
-
-\item{preparedata}{logical, if set to TRUE variables are demeaned and range
-is added. This is set to FALSE when running \code{\link[=ts_estim]{ts_estim()}} because here
-\code{ccovar} has already been prepared.}
 
 \item{statistics}{list of statistics of \code{RsienaTwoStep}, see: \code{\link[=ts_degree]{ts_degree()}}
 and DETAILS. If not provided manually, retrieved from \code{ans} or \code{myeff}.}
@@ -103,7 +97,7 @@ only the end network is saved.}
 \item{verbose}{TRUE/FALSE. If set to true it shows the iteration steps and
 some results.}
 
-\item{parallel}{TRUE/FALSE.}
+\item{parallel}{Boolean. TRUE/FALSE.}
 }
 \value{
 If \code{chain=FALSE} a \code{list} (of length \code{nsims}) of adjacency matrices
@@ -177,7 +171,8 @@ parallel = TRUE,
 p2step = c(0, 1, 0))
 stopCluster(my.cluster)
 #Since the only official way to "unregister" a foreach backend is to register
-the sequential backend: registerDoSEQ()
+the sequential backend:
+registerDoSEQ()
   }
 }
 \seealso{

@@ -4,6 +4,7 @@
 \alias{ts_alternatives_ministep}
 \alias{ts_alternatives_simstep}
 \alias{ts_alternatives_twostep}
+\alias{ts_alternative}
 \title{Possible networks after ministep, simstep or twostep}
 \usage{
 ts_alternatives_ministep(net, ego)
@@ -17,6 +18,8 @@ ts_alternatives_twostep(
   modet1 = "degree",
   modet2 = "degree"
 )
+
+ts_alternative(net, ego, alter)
 }
 \arguments{
 \item{net}{matrix, the adjacency matrix representing the relations between
@@ -42,9 +45,13 @@ allows directed paths starting from ego2 and ending at ego1. See:
 directed paths starting from ego1 and ending at ego2. "\code{indegree}" only
 allows directed paths starting from ego2 and ending at ego1. See:
 \code{DETAILS}.}
+
+\item{alter}{numeric, value indicating alter (column number of net)}
 }
 \value{
-list, a list of the alternative adjacency matrices after all possible ministeps of ego (\code{ts_alternatives_ministep}) or after all possible twosteps of two egos (\code{ts_alternatives_twostep})
+list, a list of the alternative adjacency matrices after all possible
+ministeps of ego (\code{ts_alternatives_ministep}) or after all possible
+twosteps of two egos (\code{ts_alternatives_twostep})
 }
 \description{
 \code{\link[=ts_alternatives_ministep]{ts_alternatives_ministep()}} constructs the possible future
@@ -53,7 +60,8 @@ networks at time2 after a ministep of \code{ego} given the network \code{net} at
 after a twostep of two internally sampled egos (via \code{\link[=ts_select]{ts_select()}}) given the
 network \code{net} at time1.
 \code{\link[=ts_alternatives_simstep]{ts_alternatives_simstep()}} constructs the possible future
-networks at time2 after two simultaneous ministeps of the same \code{ego} given the network \code{net} at time1.
+networks at time2 after two simultaneous ministeps of the same \code{ego} given
+the network \code{net} at time1.
 }
 \details{
 \code{\link[=ts_alternatives_ministep]{ts_alternatives_ministep()}} mimics the ministep assumption as
@@ -63,23 +71,25 @@ implemented in the SAOM of \code{\link[RSiena:siena07]{RSiena::siena07()}}
 two actors to simultaneously make a ministep, that is a \strong{twostep}.
 The function implements three types of coordination:
 \enumerate{
-\item \strong{simultaneity}: when two actors are picked at random to simultaneously make
-a ministep;
+\item \strong{simultaneity}: when two actors are picked at random to simultaneously
+make a ministep;
 \item \strong{\emph{weak} coordination}: two actors are picked at random to
 simultaneously make a ministep but only specific possible future networks are
 regarded as the result of coordination (as determined by \code{dist1}, \code{dist2}
 \code{modet1} and \code{modet2}) and included in the choice set of the two actors;
-\item \strong{\emph{strict} coordination}: only actors are sampled to make a twostep who are
-connected at time1 (as determined by \code{dist1} and \code{modet1}).
+\item \strong{\emph{strict} coordination}: only actors are sampled to make a twostep
+who are connected at time1 (as determined by \code{dist1} and \code{modet1}).
 }
 
-\code{\link[=ts_alternatives_simstep]{ts_alternatives_simstep()}} allows one actor to make two subsequent ministeps and thus
-opens the door for strategic actions. That is, the first ministep may not contribute to
-increased satisfaction of the actor (the network after the first ministep is not evaluated
-more favorably than the original network) but the subsequent ministep may make up for this.
+\code{\link[=ts_alternatives_simstep]{ts_alternatives_simstep()}} allows one actor to make two subsequent
+ministeps and thus opens the door for strategic actions.
+That is, the first ministep may not contribute to increased satisfaction
+of the actor (the network after the first ministep is not evaluated
+more favorably than the original network) but the subsequent
+ministep may make up for this.
 }
 \examples{
-ts_alternatives_ministep(net=ts_net1, ego=3)
+ts_alternatives_ministep(net = ts_net1, ego = 3)
 }
 \references{
 \insertRef{ripley2022manual}{RsienaTwoStep}
