@@ -286,17 +286,9 @@ registerDoParallel(mycl)
 
 ---  
 
-# 1. Running `siena07()`
+# 3. Running `Siena07()`
 
-Make sure that in `sienaAlgorithmCreate()`: the argument `cond` is set to `FALSE` so the rate parameter is estimated and can be accessed via `summary(ans)$theta`.  
-Make sure that in `siena07` the `returnDeps` argument is set to `TRUE` so the simulated networks are saved. 
- 
-
-Model: Degree, reciprocity, transitive triplets, 3cycle, smoke similarity, alcohol alter, alcohol ego, alcohol ego X alcohol alter 
-
-## 5.1. Running `Siena07()
-
-Preparing the dataset
+## Step 1. Prepare the dataset
 ```{r}
 mynet <- sienaDependent(array(c(s501, s502), dim=c(50, 50, 2)))
 alcohol <- s50a
@@ -306,16 +298,24 @@ alcohol <- coCovar(alcohol[, 1])
 mydata <- sienaDataCreate(mynet, smoke, alcohol)
 ```
 
-Settup up the algorithm and define the model
+## Step 2. Set up up the algorithm. 
+
+Set conditional to `FALSE`, this way we estimate the rate parameter I will be able to retrieve the rate parameter estimate in theta. 
+Also set findiff to `TRUE`. In RsienaTwoStep the estimates of derivatives (phase1 and phase3) are estimated using finite differences. 
+
 ```{r, eval=FALSE}
-myalgorithm <- sienaAlgorithmCreate(cond=FALSE) #toggle set conditional to retrieve the rate parameter in theta!
+myalgorithm <- sienaAlgorithmCreate(cond = FALSE, findiff = TRUE) #toggle set conditional to retrieve the rate parameter in theta!
+```
+
+## Step 3. Define the model
+```{r, eval=FALSE}
 myeff <- getEffects(mydata)
 myeff <- includeEffects(myeff, cycle3, transTrip)
 myeff <- includeEffects(myeff, egoX, altX, egoXaltX, interaction1 = "alcohol")
 myeff <- includeEffects(myeff, simX, interaction1 = "smoke")
 ```
 
-
+## Step 4. Estimate the model. 
 ```{r, eval=FALSE}
 ans3 <- siena07(myalgorithm, data=mydata, effects=myeff, batch=TRUE, returnDeps = TRUE)
 ```
@@ -336,17 +336,24 @@ let's have a look
 ans3
 ```
 
-# 5.1. Estimate via `RsienaTwoStep`
+We will leave step 5 (assessing model fit via GOF and RI etc) for later. 
+
+# 4. Estimate via `RsienaTwoStep`
 
 First we will demonstrate that we can estimate the same model without using `siena07()`. 
 
-Prepare the dataset
+## Step 1. Prepare the dataset
 
 ```{r}
 DF <- data.frame(alcohol = s50a[, 1], smoke = s50s[, 1])
 ```
 
-Define the model. Include all names of the statistics in a list. If the statistic requires a covariate use a list with the first element the name of the statistic and the second element the name of the covariate. This should be the same name as used in your dataset. 
+
+No need to set up an algorithm. 
+
+## Step 2. Define the model. 
+
+Include all names of the statistics in a list. The aim is to use the shortname of these effects as listed in the RSiena model with a prefix "ts_" added to them. If the statistic requires a covariate use a list with the first element the name of the statistic and the second element the name of the covariate. This should be the same name as used in your dataset. 
 
 ```{r}
 STATS <- list(ts_degree, 
@@ -358,6 +365,8 @@ STATS <- list(ts_degree,
               list(ts_egoX, "alcohol"), 
               list(ts_egoXaltX, "alcohol"))
 ```
+
+## Intermezzo: check targets
 
 As a brief intermezzo, check if the statistics are programmed correctly by comparing the target values. 
 
@@ -372,14 +381,19 @@ fshowdf(df)
 ```
 Everything is fine. 
 
-We could estimate the parameters and the SE separately.This means we set `phase3` to `FALSE`. 
+
+## Step 3. Estimate model 
+
+### Step 3a. Estimate parameters. 
+
+We could estimate the parameters and the SE separately. This means we need to set `phase3` to `FALSE`. 
 
 
 ```{r, eval=FALSE}
-ts_ans1a <- ts_estim(net1 = s501, net2= s502, statistics = STATS, ccovar = DF, p2step=c(1,0,0), parallel = TRUE, phase1 = TRUE, phase3 = FALSE)
+ts_ans1a <- ts_estim(net1 = s501, net2= s502, statistics = STATS, ccovar = DF, parallel = TRUE, phase3 = FALSE)
 ```
 
-We could also start with the data objects of RSiena. Note that we still perform subphase1 ourselves.
+We could also start with the data objects of RSiena. Note that we still perform phase1 ourselves.
 
 ```{r, eval=FALSE}
 ts_ans1b <- ts_estim(mydata = mydata, myeff = myeff, parallel = TRUE, phase3 = FALSE)
@@ -389,25 +403,25 @@ We could also start with the result of an `RSiena::siena07()` estimation.
 We now use the final estimates as our starting values and as phase1 the results of phase3 as stored in ans. This is (more or less) similar as to using prevAns in RSiena. 
 
 ```{r, eval=FALSE}
-ts_ans1c <- ts_estim(ans = ans3, phase3 = FALSE, nite=30, parallel = TRUE)
+ts_ans1c <- ts_estim(ans = ans3, phase3 = FALSE, parallel = TRUE)
 ```
 
 
-```{r, eval=FALSE}
+```{r, eval=FALSE, echo=FALSE}
 fsave(ts_ans1c, file="ts_ans1c.Rdata")
 ```
 
 ```{r, eval=TRUE, echo=FALSE}
-load("./data/processed/20231009ts_ans1c.Rdata")
+load("./data/processed/20231024ts_ans1c.Rdata")
 ts_ans1c <- x
 rm(x)
 ```
 
+### Intermezzo: check convergence visually  
+
 let's have a look if parameters converged. 
 
 ```{r}
-library(tidyr)
-
 df <- data.frame(ts_ans1c)
 vars <- colnames(df)
 df$ite <- 1:nrow(ts_ans1c)
@@ -416,37 +430,83 @@ df <- df %>% pivot_longer(cols= vars,
                           names_to='statistic',
                           values_to='estimate')
 
-library(ggplot2)
-
-#plot sales by store
 ggplot(df, aes(x=ite, y=estimate)) + 
   geom_line(aes(color=statistic))
-
 ```
 
+Let us zoom in a little on transTrip
+```{r}
+df <- data.frame(ts_ans1c)
+vars <- colnames(df)
+df$ite <- 1:nrow(ts_ans1c)
+#convert data from wide to long format
+df <- df %>% pivot_longer(cols= vars[c(4)],
+                          names_to='statistic',
+                          values_to='estimate')
+
+ggplot(df, aes(x=ite, y=estimate)) + 
+  geom_line(aes(color=statistic))
+```
+And on the last 250 iterations or so. 
+
+```{r}
+df <- data.frame(ts_ans1c)
+vars <- colnames(df)
+df$ite <- 1:nrow(ts_ans1c)
+#convert data from wide to long format
+df <- df[750:1000,] %>% pivot_longer(cols= vars[c(4)],
+                          names_to='statistic',
+                          values_to='estimate')
+
+ggplot(df, aes(x=ite, y=estimate)) + 
+  geom_line(aes(color=statistic))
+```
+
+
 Well, what do you make out of this? 
-If the lines keep oscillating around a specific value, try to increase the `b` parameter. Conversely, if the lines did not converge but you see no oscillation you could decrase the `b` parameter. 
+If the lines keep oscillating around a specific value, try to increase the `b` parameter. Conversely, if the lines did not converge but you see no oscillation you could decrease the `b` parameter. In this case, I think we should/could increase b each 250 iterations or so. 
 
 You could also try to re-estimate the model with different starting values. 
 
 I like to inspect the results of the Robbins Monro algorithm in this way, before I go to phase3 because phase3 takes up quite some time. 
 
-Okay but let us move on to phase3. For reliable SE and tstats I think you really need to set `itef3` to 1000. 
+
+Let us have a look at the estimation. 
+
+Quite in line with the original ans3 estimates! 
+```{r}
+#retrieve the estimates from phase2. Given the oscilations, let us take the mean of the last 250!
+ESTIM_naive <- ts_ans1c[nrow(ts_ans1c),]
+ESTIM_meaned <- colMeans(ts_ans1c[900: nrow(ts_ans1c),])
+fshowdf(data.frame(estim_naive = ESTIM_naive, estim_meaned = ESTIM_meaned))
+ans3
+```
+
+### Step 3b. Estimate SE, tstats and tconv.max
 
 Because we want to assess the GOF later, make sure to set `returnDeps = TRUE`
-```{r}
-#retrieve the estimates from phase2. 
-
+```{r, eval=FALSE}
 ESTIM <- ts_ans1c[nrow(ts_ans1c),]
-
-
-ans1c_phase3 <- ts_phase3(startvalues = ESTIM, net1 = s501, net2= s502, statistics = STATS, ccovar = DF, itef3 = 10, parallel = TRUE, returnDeps = TRUE)
+ans1c_phase3 <- ts_phase3(startvalues = ESTIM, net1 = s501, net2= s502, statistics = STATS, ccovar = DF, parallel = TRUE, returnDeps = TRUE, itef3 = 1000)
 
 #which should be equivalent to: 
-# ans1c_phase3 <- ts_phase3(ans = ts_ans1c, startvalues = ESTIM, itef3 = 10, parallel = TRUE, returnDeps = TRUE)
-
+# ans1c_phase3 <- ts_phase3(ans = ts_ans1c, startvalues = ESTIM, parallel = TRUE, returnDeps = TRUE)
 ```
-# here
+
+```{r echo=FALSE, eval=FALSE}
+fsave(ans1c_phase3, "ans1c_phase3.rda")
+```
+
+```{r, echo=FALSE}
+load("./data/processed/20231025ans1c_phase3.rda")
+ans1c_phase3 <- x
+rm(x)
+```
+
+
+
+Let us have a look at the final results. 
+
 ```{r}
 SE <- sqrt(diag(ans1c_phase3$covtheta))
 tstat <- ans1c_phase3$tstat
@@ -461,45 +521,41 @@ knitr::kable(df, digits = 3, "html") %>%
 ```
 
 
+# 5. Compare the estimates of the different models
+
+- With different models I mean models with the same statistics but using different assumptions with respect to the theory of (inter)action
+
+## Estimate models
+
+We will estimate phase1 ourselves and will estimate phase2 and 3 in one go. 
+
+### ministep
 ```{r}
-(colMeans(ts_covtheta$zdevs[,1:9]) - ts_targets(net1 = s501, net2 = s502, statistics = STATS, ccovar = DF)) /  (diag(stats::cov(ts_covtheta$zdevs[,1:9])))
+ts_ansMS <- ts_estim(net1 = s501, net2= s502, statistics = STATS, ccovar = DF, parallel = TRUE, returnDeps = TRUE)
+```
 
-sqrt(diag(ts_covtheta$covtheta))
+### simultaneity
+```{r}
+ts_ansS <- ts_estim(net1 = s501, net2= s502, statistics = STATS, ccovar = DF, parallel = TRUE)
 
-zbar <- colMeans(ts_covtheta$zdevs[,1:9])
-zobs <- ts_targets(net1 = s501, net2 = s502, statistics = STATS, ccovar = DF)
-Sigma <- stats::cov(ts_covtheta$zdevs[,1:9])
+sims2m3 <- ts_sims(nsims=100, parallel=TRUE, net=s501, ccovar=df, rate=summary(ans3)$theta[1], statistics=list(ts_degree, ts_recip, ts_transTrip, ts_cycle3, list(ts_simX, "smoke"), list(ts_altX, "alcohol"), list(ts_egoX, "alcohol"), list(ts_egoXaltX, "alcohol")), parameters=est, p2step=c(0,1,0), chain=FALSE)
+fsave(sims2m3, file="sims2m3.Rdata")
 
-(zbar - zobs) / sqrt(diag(Sigma))
+#weak coordination
+sims3m3 <- ts_sims(nsims=100, parallel=TRUE, net=s501, ccovar=df, rate=summary(ans3)$theta[1], statistics=list(ts_degree, ts_recip, ts_transTrip, ts_cycle3, list(ts_simX, "smoke"), list(ts_altX, "alcohol"), list(ts_egoX, "alcohol"), list(ts_egoXaltX, "alcohol")), parameters=est, p2step=c(0,1,0), dist1=2, dist2=2, chain=FALSE)
+fsave(sims3m3, file="sims3m3.Rdata")
 
-sumsq <- 0
-for (i in 1:100) {
-  sumsq <- sumsq + ts_covtheta$zdevs[i,1:9] %*% t(ts_covtheta$zdevs[i,1:9])
-}
+#strict coordination
+sims4m3 <- ts_sims(nsims=100, parallel=TRUE, net=s501, ccovar=df, rate=summary(ans3)$theta[1], statistics=list(ts_degree, ts_recip, ts_transTrip, ts_cycle3, list(ts_simX, "smoke"), list(ts_altX, "alcohol"), list(ts_egoX, "alcohol"), list(ts_egoXaltX, "alcohol")), parameters=est, p2step=c(0,1,0), dist1=2, chain=FALSE)
+fsave(sims4m3, file="sims4m3.Rdata")
 
-Sigma2 <-  sumsq/1000 - (zbar %*% t(zbar))
-tstats <- (zbar - zobs) / sqrt(diag(Sigma))
-
-tconv.max <- sqrt(t(zbar - zobs) %*% solve(Sigma)  %*% (zbar - zobs))
-
-
-ts_covtheta$tstat
-ts_covtheta$tconv.max
-
+#simstep
+sims5m3 <- ts_sims(nsims=100, parallel=TRUE, net=s501, ccovar=df, rate=summary(ans3)$theta[1], statistics=list(ts_degree, ts_recip, ts_transTrip, ts_cycle3, list(ts_simX, "smoke"), list(ts_altX, "alcohol"), list(ts_egoX, "alcohol"), list(ts_egoXaltX, "alcohol")), parameters=est, p2step=c(0,0,1), chain=FALSE)
+fsave(sims5m3, file="sims5m3.Rdata")
 ```
 
 
-```{r}
-fsave(df, "dfts1.rda")
-```
-```{r}
-ts_covtheta <- ts_phase3(startvalues = ESTIM, net1 = s501, net2= s502, statistics = STATS, ccovar = DF, itef3 = 10, p2step=c(1,0,0), parallel = TRUE)
 
-ts_covtheta$zdevs
-(colMeans(ts_covtheta$zdevs[,1:9]) - ts_targets(net1 = s501, net2 = s502, statistics = STATS, ccovar = DF)) / sqrt(diag(cov(ts_covtheta$zdevs[,1:9])))
-
-SE <- sqrt(diag(ts_covtheta$covtheta))
-```
 
 
 ```{r}
