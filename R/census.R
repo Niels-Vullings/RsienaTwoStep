@@ -1,19 +1,29 @@
 #' @title Network census
 #'
-#' @description These functions calculate characteristics of the simulated networks. For now, only a dyad census and a triad census are implemented.
+#' @description These functions calculate characteristics of the simulated
+#'   networks. For now, only a dyad census and a triad census are implemented.
 #'
-#' @details For examples on how to use these statistics see: vignette("Introduction_RsienaTwoStep").
+#' @details For examples on how to use these statistics see:
+#'   vignette("Introduction_RsienaTwoStep").
 #'
 #' @family networkcensus
-#' @param sims list, the result of [`ts_sims()`] the adjacency matrix representing the relations between actors. Valid values are 0 and 1.
-#' @param simtype string, name of the simulation type used (e.g. *ministep*, *twostep*).
-#' @param forplot logical, if set to `FALSE` a dataframe is returned with in the column the network characteristic and each row represents a simulation outcome.
-#' If set to `TRUE` this dataframe is manipulated a bit, so that each row represents one specific network characteristic for each simulation outcome, this is useful for plotting.
+#' @param sims list, a list of (simulated) networks, the adjacency matrices
+#'   representing the relations between actors. Valid values are 0 and 1. These
+#'   simulated networks can be saved in objects that result from running
+#'   [`ts_sims()`], [`ts_estim()`] or [`RSiena::siena07()`].
+#' @param simtype string, name of the simulation type used (e.g. *ministep*,
+#'   *twostep*).
+#' @param forplot logical, if set to `FALSE` a dataframe is returned with in the
+#'   column the network characteristic and each row represents a simulation
+#'   outcome. If set to `TRUE` this dataframe is manipulated a bit, so that each
+#'   row represents one specific network characteristic for each simulation
+#'   outcome, this is useful for plotting.
 #' @param cov numeric, covariate scores
 #' @importFrom foreach %dopar%
 #' @importFrom iterators icount
 #' @return `data.frame`
-#' @seealso [`RSiena::sienaGOF()`], [`RSiena::sienaGOF-auxiliary()`], [`RSiena::TriadCensus()`]
+#' @seealso [`RSiena::sienaGOF()`], [`RSiena::sienaGOF-auxiliary()`],
+#'   [`RSiena::TriadCensus()`]
 #' @examples
 #' \dontrun{
 #' results_ministep <- ts_sims(net=net1, rate=5, statistics=list(ts_degree, ts_recip),
@@ -98,3 +108,19 @@ ts_nacf <- function(sims, simtype="notypespecified", forplot=TRUE, cov) {
   df$type <- simtype
   return(df)
 }
+#
+# #' @rdname ts_dyads
+# #' @export
+# ts_RSienanets <- function(ans) {
+#
+#   n <- dims(ans$f$Data1$depvars$mynet)[, , 1])[1]
+#   sims <- foreach(i = 1:length(ans$sims)) %dopar% {
+#     edges <- ans$sims[[i]][[1]][[1]][[1]]
+#     # create empty adjacency matrix
+#     adj <- matrix(0, n, n)
+#     # put edge values in desired places
+#     adj[edges[, 1:2]] <- edges[, 3]
+#     adj
+#     }
+# }
+#

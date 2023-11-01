@@ -168,7 +168,7 @@ packages = c("RsienaTwoStep", "RSiena", "doParallel", "compiler", "ggplot2", "ti
 fpackage.check(packages)
 ```
 
-## 1.3. Auxiliary functions for `RSiena::SienaGOF()`
+  ## 1.3. Auxiliary functions for `RSiena::SienaGOF()`
 
 Please see: `RSiena::SienaGOF()`.  
 
@@ -303,9 +303,10 @@ mydata <- sienaDataCreate(mynet, smoke, alcohol)
 Set conditional to `FALSE`, this way we estimate the rate parameter I will be able to retrieve the rate parameter estimate in theta. 
 Also set findiff to `TRUE`. In RsienaTwoStep the estimates of derivatives (phase1 and phase3) are estimated using finite differences. 
 
-```{r, eval=FALSE}
-myalgorithm <- sienaAlgorithmCreate(cond = FALSE, findiff = TRUE) #toggle set conditional to retrieve the rate parameter in theta!
+```{r, eval=FALSE} 
+myalgorithm <- sienaAlgorithmCreate(cond = FALSE, findiff = TRUE, projname=NULL) #toggle set conditional to retrieve the rate parameter in theta!
 ```
+
 
 ## Step 3. Define the model
 ```{r, eval=FALSE}
@@ -475,7 +476,7 @@ Let us have a look at the estimation.
 
 Quite in line with the original ans3 estimates! 
 ```{r}
-#retrieve the estimates from phase2. Given the oscilations, let us take the mean of the last 250!
+#retrieve the estimates from phase2. Given the oscillations, let us take the mean of the last 250!
 ESTIM_naive <- ts_ans1c[nrow(ts_ans1c),]
 ESTIM_meaned <- colMeans(ts_ans1c[900: nrow(ts_ans1c),])
 fshowdf(data.frame(estim_naive = ESTIM_naive, estim_meaned = ESTIM_meaned))
@@ -487,7 +488,8 @@ ans3
 Because we want to assess the GOF later, make sure to set `returnDeps = TRUE`
 ```{r, eval=FALSE}
 ESTIM <- ts_ans1c[nrow(ts_ans1c),]
-ans1c_phase3 <- ts_phase3(startvalues = ESTIM, net1 = s501, net2= s502, statistics = STATS, ccovar = DF, parallel = TRUE, returnDeps = TRUE, itef3 = 1000)
+ESTIM <- ans3$theta
+ans1c_phase3 <- ts_phase3(startvalues = ESTIM, net1 = s501, net2= s502, statistics = STATS, ccovar = DF, parallel = TRUE, returnDeps = FALSE, itef3 = 20, verbose = TRUE)
 
 #which should be equivalent to: 
 # ans1c_phase3 <- ts_phase3(ans = ts_ans1c, startvalues = ESTIM, parallel = TRUE, returnDeps = TRUE)
@@ -529,12 +531,37 @@ knitr::kable(df, digits = 3, "html") %>%
 
 We will estimate phase1 ourselves and will estimate phase2 and 3 in one go. 
 
-### ministep
+
+
 ```{r}
-ts_ansMS <- ts_estim(net1 = s501, net2= s502, statistics = STATS, ccovar = DF, parallel = TRUE, returnDeps = TRUE)
+### simultaneity
+#ts_ansS <- ts_estim(net1 = s501, net2= s502, statistics = STATS, ccovar = DF, parallel = TRUE, returnDeps = TRUE, p2step = c(0,1,0))
+#no convergence. rate becomes very large, degree very negative. 
+
+ts_ansS <- ts_estim(ans3, nite=250, conv = 0.02, parallel = TRUE, returnDeps = TRUE, p2step = c(0,1,0), itef3 = 250)
+
+fsave(ts_ansS, "ts_ansS.rda")
+
+### weak coordination
+ts_ansWC <- ts_estim(net1 = s501, net2= s502, statistics = STATS, ccovar = DF, parallel = TRUE, returnDeps = TRUE, p2step = c(0,1,0), dist1 = 2, dist2 = 2, conv = 0.02, nite = 250, itef3 = 250)
+fsave(ts_ansWC, "ts_ansWC.rda")
+
+### strict coordination
+ts_ansSC <- ts_estim(net1 = s501, net2= s502, statistics = STATS, ccovar = DF, parallel = TRUE, returnDeps = TRUE, p2step = c(0,1,0), dist1 = 2)
+fsave(ts_ansSC, "ts_ansSC.rda")
+
+### simstep
+ts_ansST <- ts_estim(net1 = s501, net2= s502, statistics = STATS, ccovar = DF, parallel = TRUE, returnDeps = TRUE, p2step = c(0,1,0), dist1 = 2)
+fsave(ts_ansST, "ts_ansST.rda")
+
 ```
 
-### simultaneity
+
+
+
+
+
+
 ```{r}
 ts_ansS <- ts_estim(net1 = s501, net2= s502, statistics = STATS, ccovar = DF, parallel = TRUE)
 

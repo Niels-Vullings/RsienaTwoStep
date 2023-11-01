@@ -1131,11 +1131,9 @@ ts_phase3 <- function(ans = NULL,
   }
 
 
-  #als ik returnDeps wil, wrs makkelijkste om nieuwe parallel te maken.
-  # dan list laten uitspugen met twee elementen, nets en res. zie hier: https://stackoverflow.com/questions/19791609/saving-multiple-outputs-of-foreach-dopar-loop
-  # hierna nets in aparte list zetten en van de res weer een data.frame.
   if (parallel & !returnDeps) {
-    res <- foreach(i = 1: itef3, .combine="rbind") %dopar% {
+
+   res <- foreach(i = 1: itef3, .combine="rbind", .verbose = verbose) %dopar% {
 
       # Zbar
       set.seed(crn[i])
