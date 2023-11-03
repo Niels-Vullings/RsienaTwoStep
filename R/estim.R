@@ -72,8 +72,8 @@
 #' @param phase3 TRUE/FALSE, if FALSE no SE are calculated
 #' @references \insertRef{ripley2022manual}{RsienaTwoStep}
 #'   \insertRef{snijders2001statistical}{RsienaTwoStep}
-#' @returns A dataframe of estimated parameters. The last row are the final
-#'   solutions of the Robbins Monro algorithm.
+#' @returns If `phase3 = FALSE ` A dataframe of estimated parameters. The last row are the final
+#'   solutions of the Robbins Monro algorithm. If `Phase 3 = TRUE` a list with first list element the data frame of estimated parameters and the second element the results of phase 3.
 #' @export
 #' @seealso [`ts_sims()`],
 #' [`ts_degree()`],
@@ -893,6 +893,7 @@ if (!parallel) {
 
 #' @rdname ts_estim
 #' @export
+#' @returns list, containing: `estim`, `covtheta`, `tstat` `tconv.max`, `zdevs`, and if `returnDeps = TRUE` `simnets`
 ts_phase3 <- function(ans = NULL,
                       mydata = NULL,
                       myeff = NULL,

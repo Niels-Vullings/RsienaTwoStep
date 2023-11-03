@@ -155,7 +155,7 @@ colorize <- function(x, color) {
 fshowdf <- function(x, ...) {
     knitr::kable(x, digits = 3, "html", ...) %>%
         kableExtra::kable_styling(bootstrap_options = c("striped", "hover")) %>%
-        kableExtra::scroll_box(width = "100%", height = "300px")
+        kableExtra::scroll_box(width = "100%", height = "600px")
 }
 
 ```
@@ -168,7 +168,7 @@ packages = c("RsienaTwoStep", "RSiena", "doParallel", "compiler", "ggplot2", "ti
 fpackage.check(packages)
 ```
 
-  ## 1.3. Auxiliary functions for `RSiena::SienaGOF()`
+## 1.3. Auxiliary functions for `RSiena::SienaGOF()`
 
 Please see: `RSiena::SienaGOF()`.  
 
@@ -427,7 +427,7 @@ df <- data.frame(ts_ans1c)
 vars <- colnames(df)
 df$ite <- 1:nrow(ts_ans1c)
 #convert data from wide to long format
-df <- df %>% pivot_longer(cols= vars,
+df <- df %>% pivot_longer(cols= all_of(vars),
                           names_to='statistic',
                           values_to='estimate')
 
@@ -448,6 +448,7 @@ df <- df %>% pivot_longer(cols= vars[c(4)],
 ggplot(df, aes(x=ite, y=estimate)) + 
   geom_line(aes(color=statistic))
 ```
+
 And on the last 250 iterations or so. 
 
 ```{r}
@@ -478,21 +479,22 @@ Quite in line with the original ans3 estimates!
 ```{r}
 #retrieve the estimates from phase2. Given the oscillations, let us take the mean of the last 250!
 ESTIM_naive <- ts_ans1c[nrow(ts_ans1c),]
-ESTIM_meaned <- colMeans(ts_ans1c[900: nrow(ts_ans1c),])
-fshowdf(data.frame(estim_naive = ESTIM_naive, estim_meaned = ESTIM_meaned))
-ans3
+ESTIM_meaned <- colMeans(ts_ans1c[750: nrow(ts_ans1c),])
+fshowdf(data.frame(RSiena_estim = ans3$theta, TS_estim_last = ESTIM_naive, TS_estim_mean = ESTIM_meaned))
 ```
+
 
 ### Step 3b. Estimate SE, tstats and tconv.max
 
-Because we want to assess the GOF later, make sure to set `returnDeps = TRUE`
-```{r, eval=FALSE}
-ESTIM <- ts_ans1c[nrow(ts_ans1c),]
+#### retrieve estimates
+```{r}
+ESTIM <- ts_ans1c[nrow(ts_ans1c),] #we will take the last for now. 
 ESTIM <- ans3$theta
-ans1c_phase3 <- ts_phase3(startvalues = ESTIM, net1 = s501, net2= s502, statistics = STATS, ccovar = DF, parallel = TRUE, returnDeps = FALSE, itef3 = 20, verbose = TRUE)
+```
 
-#which should be equivalent to: 
-# ans1c_phase3 <- ts_phase3(ans = ts_ans1c, startvalues = ESTIM, parallel = TRUE, returnDeps = TRUE)
+#### estimate phase 3
+```{r, eval=FALSE}
+ans1c_phase3 <- ts_phase3(startvalues = ESTIM, net1 = s501, net2= s502, statistics = STATS, ccovar = DF, parallel = TRUE, returnDeps = TRUE, verbose = TRUE)
 ```
 
 ```{r echo=FALSE, eval=FALSE}
@@ -506,7 +508,6 @@ rm(x)
 ```
 
 
-
 Let us have a look at the final results. 
 
 ```{r}
@@ -517,46 +518,211 @@ df <- data.frame(estim = ESTIM, SE = SE, tstat = tstat)
 
 knitr::kable(df, digits = 3, "html") %>%
         kableExtra::kable_styling(bootstrap_options = c("striped", "hover")) %>%
-        kableExtra::scroll_box(width = "100%", height = "300px") %>%
+        kableExtra::scroll_box(width = "100%", height = "500px") %>%
         kableExtra::footnote(general = paste("tconv.max:", round(tconv.max, 3), sep=" "))
 
 ```
 
 
+My conclusion is that with RSienatwostep we can properly estimate a (very simple) network evolution model. 
+Good job! 
+
 # 5. Compare the estimates of the different models
 
-- With different models I mean models with the same statistics but using different assumptions with respect to the theory of (inter)action
+With different models I mean models with the same statistics but using different assumptions with respect to the theory of (inter)action. 
 
-## Estimate models
+I also think this is a nice workflow if we want to test robustness of ministep model: 
 
-We will estimate phase1 ourselves and will estimate phase2 and 3 in one go. 
+1. estimate ministep model (with SE, and fit statistics)  
+2. estimate twostep models (fase2 only)
+    a. simultaneity
+    b. strict coordination  
+    c. weak coordination  
+    d. simstep  
+3. visually check model convergence  
+4. see if twostep models lead to (substantially) different estimates  
+5. if so, estimate phase3 of these models (and fit statistics)  
+6. Compare GOF  
+7. Compare model evolution of different models  
 
+## estimate ministep model
 
+We already did this above ofcourse. But hey,..
 
-```{r}
-### simultaneity
-#ts_ansS <- ts_estim(net1 = s501, net2= s502, statistics = STATS, ccovar = DF, parallel = TRUE, returnDeps = TRUE, p2step = c(0,1,0))
-#no convergence. rate becomes very large, degree very negative. 
+### via RSiena
 
-ts_ansS <- ts_estim(ans3, nite=250, conv = 0.02, parallel = TRUE, returnDeps = TRUE, p2step = c(0,1,0), itef3 = 250)
+```{r, eval=FALSE}
+#Step 1. prepare dataset
+mynet <- sienaDependent(array(c(s501, s502), dim=c(50, 50, 2)))
+alcohol <- s50a
+smoke <- s50s
+smoke <- coCovar(smoke[, 1])
+alcohol <- coCovar(alcohol[, 1])
+mydata <- sienaDataCreate(mynet, smoke, alcohol)
 
-fsave(ts_ansS, "ts_ansS.rda")
+# Step 2. algorithm
+myalgorithm <- sienaAlgorithmCreate(cond = FALSE, findiff = TRUE, projname=NULL) 
 
-### weak coordination
-ts_ansWC <- ts_estim(net1 = s501, net2= s502, statistics = STATS, ccovar = DF, parallel = TRUE, returnDeps = TRUE, p2step = c(0,1,0), dist1 = 2, dist2 = 2, conv = 0.02, nite = 250, itef3 = 250)
-fsave(ts_ansWC, "ts_ansWC.rda")
+# Step 3. Define the model
+myeff <- getEffects(mydata)
+myeff <- includeEffects(myeff, cycle3, transTrip)
+myeff <- includeEffects(myeff, egoX, altX, egoXaltX, interaction1 = "alcohol")
+myeff <- includeEffects(myeff, simX, interaction1 = "smoke")
 
-### strict coordination
-ts_ansSC <- ts_estim(net1 = s501, net2= s502, statistics = STATS, ccovar = DF, parallel = TRUE, returnDeps = TRUE, p2step = c(0,1,0), dist1 = 2)
-fsave(ts_ansSC, "ts_ansSC.rda")
+# Step 4. Estimate the model. 
+ans3 <- siena07(myalgorithm, data=mydata, effects=myeff, batch=TRUE, returnDeps = TRUE)
+```
 
-### simstep
-ts_ansST <- ts_estim(net1 = s501, net2= s502, statistics = STATS, ccovar = DF, parallel = TRUE, returnDeps = TRUE, p2step = c(0,1,0), dist1 = 2)
-fsave(ts_ansST, "ts_ansST.rda")
+### via RsienaTwoStep
 
+```{r, eval=FALSE}
+#Step 1. prepare dataset
+DF <- data.frame(alcohol = s50a[, 1], smoke = s50s[, 1])
+#Step 2. define the model 
+STATS <- list(ts_degree, 
+              ts_recip, 
+              ts_transTrip, 
+              ts_cycle3, 
+              list(ts_simX, "smoke"), 
+              list(ts_altX, "alcohol"), 
+              list(ts_egoX, "alcohol"), 
+              list(ts_egoXaltX, "alcohol"))
+#Step 3. estimate Ministep model (default)
+ts_ansMS <- ts_estim(net1 = s501, net2= s502, statistics = STATS, ccovar = DF, parallel = TRUE)
 ```
 
 
+## Estimate twostep models
+
+We will use the ans of 'RSiena07()` as our input. We only estimate phase2. 
+The goal is not so much to come to a perfect estimate but to check if the estimates are within the CI of the original estimates of RSiena. Only if this would not be the case, there may be a need to estimate the model by using different assumptions. 
+
+```{r, eval=FALSE}
+### simultaneity
+ts_ansS <- ts_estim(ans = ans3, nite = 250, conv = 0.01, parallel = TRUE, phase3 = FALSE, p2step = c(0,1,0))
+fsave(ts_ansS, "ts_ansS.rda")
+
+### weak coordination
+ts_ansWC <- ts_estim(ans = ans3, nite = 250, conv = 0.01, parallel = TRUE, phase3 = FALSE, p2step = c(0,1,0), dist1 = 2, dist2 = 2)
+fsave(ts_ansWC, "ts_ansWC.rda")
+
+### strict coordination
+ts_ansSC <- ts_estim(ans = ans3, nite = 250, conv = 0.01, parallel = TRUE, phase3 = FALSE, p2step = c(0,1,0), dist1 = 2)
+fsave(ts_ansSC, "ts_ansSC.rda")
+
+### simstep
+ts_ansST <- ts_estim(ans = ans3, nite = 250, conv = 0.01, parallel = TRUE, phase3 = FALSE, p2step = c(0,0,1))
+fsave(ts_ansST, "ts_ansST.rda")
+```
+
+
+```{r, echo=FALSE}
+load("./data/processed/20231031ts_ansS.rda")
+ts_ansS <- x
+rm(x)
+load("./data/processed/20231031ts_ansWC.rda")
+ts_ansWC <- x
+rm(x)
+load("./data/processed/20231101ts_ansSC.rda")
+ts_ansSC <- x
+rm(x)
+load("./data/processed/20231101ts_ansST.rda")
+ts_ansST <- x
+rm(x)
+```
+
+### check convergence visually  
+
+
+
+#### Simultaneity
+```{r}
+ts_ans <- ts_ansS
+df <- data.frame(ts_ans)
+vars <- colnames(df)
+df$ite <- 1:nrow(ts_ans)
+#convert data from wide to long format
+df <- df %>% pivot_longer(cols= vars,
+                          names_to='statistic',
+                          values_to='estimate')
+
+ggplot(df, aes(x=ite, y=estimate)) + 
+  geom_line(aes(color=statistic))
+```
+
+#### weak coordination
+```{r}
+ts_ans <- ts_ansWC
+df <- data.frame(ts_ans)
+vars <- colnames(df)
+df$ite <- 1:nrow(ts_ans)
+#convert data from wide to long format
+df <- df %>% pivot_longer(cols= vars,
+                          names_to='statistic',
+                          values_to='estimate')
+
+ggplot(df, aes(x=ite, y=estimate)) + 
+  geom_line(aes(color=statistic))
+```
+
+#### strict coordination
+```{r}
+ts_ans <- ts_ansSC
+df <- data.frame(ts_ans)
+vars <- colnames(df)
+df$ite <- 1:nrow(ts_ans)
+#convert data from wide to long format
+df <- df %>% pivot_longer(cols= vars,
+                          names_to='statistic',
+                          values_to='estimate')
+
+ggplot(df, aes(x=ite, y=estimate)) + 
+  geom_line(aes(color=statistic))
+```
+
+#### simstep
+```{r}
+ts_ans <- ts_ansST
+df <- data.frame(ts_ans)
+vars <- colnames(df)
+df$ite <- 1:nrow(ts_ans)
+#convert data from wide to long format
+df <- df %>% pivot_longer(cols= vars,
+                          names_to='statistic',
+                          values_to='estimate')
+
+ggplot(df, aes(x=ite, y=estimate)) + 
+  geom_line(aes(color=statistic))
+```
+
+```{r}
+#CI of RSiena
+down <- ans3$theta - 1.96 * sqrt(diag(ans3$covtheta))
+up <- ans3$theta + 1.96 * sqrt(diag(ans3$covtheta))
+#our statistics
+stats <-  factor(vars, levels = vars)
+#final estimates 
+b_s <- ts_ansS[nrow(ts_ansS),]
+b_sc <- ts_ansSC[nrow(ts_ansSC),]
+b_wc <- ts_ansWC[nrow(ts_ansWC),]
+b_st <- ts_ansST[nrow(ts_ansST),]
+#put everything in a dataframe
+my.dt <- data.frame(statistics = stats, estimate=ans3$theta, down=down, up=up, b_s=b_s, b_sc=b_sc, b_wc=b_wc, b_st=b_st)
+#use different layers to plot the seperate estimates. and include a manual legend. 
+ggplot(my.dt, aes(x=statistics, y=estimate)) +         
+       geom_point(size = 3, aes(color="ministep")) +
+       geom_errorbar(aes(ymin = down, ymax = up, color="ministep")) + 
+      geom_point(size = 3, alpha = 0.5, aes(x=stats, y=b_s, color="simultaneity" )) + 
+  geom_point(size = 3, alpha = 0.5, aes(x=stats, y=b_sc , color="strict coordination")) + 
+  geom_point(size = 3, alpha = 0.5, aes(x=stats, y=b_wc, color="weak coordination")) + 
+  geom_point(size = 3, alpha = 0.5, aes(x=stats, y=b_st, color="simstep")) + 
+  scale_color_manual(name= "Estimation type", 
+                     breaks = c("ministep", "simultaneity", "strict coordination", "weak coordination", "simstep"),
+                     values = c("ministep"= "black", "simultaneity" = "red", "strict coordination" = "blue", "weak coordination" = "green", "simstep" = "orange")) + 
+  scale_x_discrete(guide = guide_axis(n.dodge = 2)) +
+  scale_y_continuous(n.breaks=10)
+
+```
 
 
 

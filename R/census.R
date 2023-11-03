@@ -108,19 +108,37 @@ ts_nacf <- function(sims, simtype="notypespecified", forplot=TRUE, cov) {
   df$type <- simtype
   return(df)
 }
-#
-# #' @rdname ts_dyads
-# #' @export
-# ts_RSienanets <- function(ans) {
-#
-#   n <- dims(ans$f$Data1$depvars$mynet)[, , 1])[1]
-#   sims <- foreach(i = 1:length(ans$sims)) %dopar% {
-#     edges <- ans$sims[[i]][[1]][[1]][[1]]
-#     # create empty adjacency matrix
-#     adj <- matrix(0, n, n)
-#     # put edge values in desired places
-#     adj[edges[, 1:2]] <- edges[, 3]
-#     adj
-#     }
-# }
-#
+
+#' @rdname ts_dyads
+#' @export
+#' @param mode Character string, “out” for out-degree, “in” for in-degree or “total” for the sum of the two. “all” is a synonym of “total”.
+ts_degree <- function(sims, mode="out", cumulative = FALSE, simtype="notypespecified", forplot=TRUE) {
+  nsims <- length(sims)
+  df <- foreach::foreach(1:nsims, i=iterators::icount(), .combine="rbind") %dopar% {
+    sna::nacf(sims[[i]], cov, type = "moran", neighborhood.type = "out", demean = TRUE)[2]
+  }
+  df <- as.data.frame(df)
+  df$type <- simtype
+  return(df)
+}
+
+t1 <- table(igraph::degree(igraph::graph_from_adjacency_matrix(nets[[1]]), mode = mode))
+t1 <- table(igraph::degree(igraph::graph_from_adjacency_matrix(nets[[2]]), mode = mode))
+
+
+#' @rdname ts_dyads
+#' @export
+ts_RSienanets <- function(ans) {
+   n <- dim(ans$f$Data1$depvars$mynet[, , 1])[1]
+   sims <- foreach(i = 1:length(ans$sims)) %dopar% {
+     edges <- ans$sims[[i]][[1]][[1]][[1]]
+     # create empty adjacency matrix
+     adj <- matrix(0, n, n)
+     # put edge values in desired places
+     adj[edges[, 1:2]] <- edges[, 3]
+     adj
+   }
+   return(sims)
+ }
+
+igraph::graph_from_adjacency_matrix()
