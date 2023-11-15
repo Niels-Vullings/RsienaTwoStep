@@ -262,7 +262,7 @@ to do change to dofuture
 https://www.r-bloggers.com/2023/06/dofuture-a-better-foreach-parallelization-operator-than-dopar/
 
 ```{r, results='hide'}
-no_cores <- detectCores() - 1
+no_cores <- detectCores() 
 mycl <- makeCluster(rep("localhost", no_cores))
 clusterEvalQ(mycl, library(RsienaTwoStep)) 
 clusterEvalQ(mycl, library("network"))
@@ -593,6 +593,7 @@ ts_ansMS <- ts_estim(net1 = s501, net2= s502, statistics = STATS, ccovar = DF, p
 
 
 ## Estimate twostep models
+### phase2
 
 We will use the ans of 'RSiena07()` as our input. We only estimate phase2. 
 The goal is not so much to come to a perfect estimate but to check if the estimates are within the CI of the original estimates of RSiena. Only if this would not be the case, there may be a need to estimate the model by using different assumptions. 
@@ -603,11 +604,11 @@ ts_ansS <- ts_estim(ans = ans3, nite = 250, conv = 0.01, parallel = TRUE, phase3
 fsave(ts_ansS, "ts_ansS.rda")
 
 ### weak coordination
-ts_ansWC <- ts_estim(ans = ans3, nite = 250, conv = 0.01, parallel = TRUE, phase3 = FALSE, p2step = c(0,1,0), dist1 = 2, dist2 = 2)
+ts_ansWC <- ts_estim(ans = ans3, nite = 250, conv = 0.01, parallel = TRUE, phase3 = FALSE, p2step = c(0,1,0), dist1 = 2, dist2 = 2, modet1 = "degree", modet2 = "degree")
 fsave(ts_ansWC, "ts_ansWC.rda")
 
 ### strict coordination
-ts_ansSC <- ts_estim(ans = ans3, nite = 250, conv = 0.01, parallel = TRUE, phase3 = FALSE, p2step = c(0,1,0), dist1 = 2)
+ts_ansSC <- ts_estim(ans = ans3, nite = 250, conv = 0.01, parallel = TRUE, phase3 = FALSE, p2step = c(0,1,0), dist1 = 2, modet1 = "degree" )
 fsave(ts_ansSC, "ts_ansSC.rda")
 
 ### simstep
@@ -617,19 +618,117 @@ fsave(ts_ansST, "ts_ansST.rda")
 
 
 ```{r, echo=FALSE}
-load("./data/processed/20231031ts_ansS.rda")
+load("./data/processed/20231104ts_ansS.rda")
 ts_ansS <- x
 rm(x)
-load("./data/processed/20231031ts_ansWC.rda")
+load("./data/processed/20231104ts_ansWC.rda")
 ts_ansWC <- x
 rm(x)
-load("./data/processed/20231101ts_ansSC.rda")
+load("./data/processed/20231105ts_ansSC.rda")
 ts_ansSC <- x
 rm(x)
-load("./data/processed/20231101ts_ansST.rda")
+load("./data/processed/20231105ts_ansST.rda")
 ts_ansST <- x
 rm(x)
 ```
+
+
+### phase3
+
+We will use the ans of 'RSiena07()` as our input. We only estimate phase2. 
+The goal is not so much to come to a perfect estimate but to check if the estimates are within the CI of the original estimates of RSiena. Only if this would not be the case, there may be a need to estimate the model by using different assumptions. 
+
+```{r, eval=FALSE}
+b_s <- ts_ansS[nrow(ts_ansS),]
+b_sc <- ts_ansSC[nrow(ts_ansSC),]
+b_wc <- ts_ansWC[nrow(ts_ansWC),]
+b_st <- ts_ansST[nrow(ts_ansST),]
+
+
+
+### simultaneity
+ts_ansSp3 <- ts_phase3(mydata = mydata, myeff = myeff, startvalues =  b_s, parallel = TRUE, returnDeps = TRUE, p2step = c(0,1,0))
+fsave(ts_ansSp3, "ts_ansSp3.rda")
+
+### weak coordination
+ts_ansWCp3 <- ts_phase3(mydata = mydata, myeff = myeff, startvalues =  b_wc, parallel = TRUE, returnDeps = TRUE, p2step = c(0,1,0), dist1 = 2, dist2 = 2, modet1 = "degree", modet2 = "degree")
+fsave(ts_ansWCp3, "ts_ansWCp3.rda")
+
+### strict coordination
+ts_ansSCp3 <- ts_phase3(mydata = mydata, myeff = myeff, startvalues =  b_sc, parallel = TRUE, returnDeps = TRUE, p2step = c(0,1,0), dist1 = 2, modet1 = "degree")
+fsave(ts_ansSCp3, "ts_ansSCp3.rda")
+
+### simstep
+ts_ansSTp3 <- ts_phase3(mydata = mydata, myeff = myeff, startvalues =  b_st, parallel = TRUE, returnDeps = TRUE, p2step = c(0,0,1))
+fsave(ts_ansSTp3, "ts_ansSTp3.rda")
+```
+
+```{r}
+estim_MS <- ans3$theta
+SE_MS <- sqrt(diag(ans3$covtheta))
+tstat_MS <- ans3$tconv
+tconv.max_MS <- ans3$tconv.max
+
+estim_S <- ts_ansSp3$estim
+SE_S <- sqrt(diag(ts_ansSp3$covtheta))
+tstat_S <- ts_ansSp3$tstat
+tconv.max_S <- ts_ansSp3$tconv.max
+
+estim_WC <- ts_ansWCp3$estim
+SE_WC <- sqrt(diag(ts_ansWCp3$covtheta))
+tstat_WC <- ts_ansWCp3$tstat
+tconv.max_WC <- ts_ansWCp3$tconv.max
+
+estim_SC <- ts_ansSCp3$estim
+SE_SC <- sqrt(diag(ts_ansSCp3$covtheta))
+tstat_SC <- ts_ansSCp3$tstat
+tconv.max_SC <- ts_ansSCp3$tconv.max
+
+estim_ST <- ts_ansSTp3$estim
+SE_ST <- sqrt(diag(ts_ansSTp3$covtheta))
+tstat_ST <- ts_ansSTp3$tstat
+tconv.max_ST <- ts_ansSTp3$tconv.max
+
+
+df <- data.frame(estim_MS = estim_MS, SE_MS = SE_MS, tstat_MS = tstat_MS,
+                estim_S = estim_S, SE_S = SE_S, tstat_S = tstat_S,
+                 estim_WC = estim_WC, SE_WC = SE_WC, tstat_WC = tstat_WC,
+                 estim_SC = estim_SC, SE_SC = SE_SC, tstat_SC = tstat_SC,
+                 estim_ST = estim_ST, SE_ST = SE_ST, tstat_ST = tstat_ST)
+
+results <- knitr::kable(df, digits = 3, "html",
+             col.names = rep(c("Estim", "SE", "tstat"), 5)) %>% 
+        kableExtra::add_header_above(c(" ", "ministep$^a$" = 3, "simultaneity$^b$" = 3, "weak coordination$^c$" = 3, "strict coordination$^d$" = 3, "simstep$^e$" = 3)) %>%
+        kableExtra::kable_styling(bootstrap_options = c("striped", "hover")) %>%
+  kableExtra::add_footnote(c(paste("tconv.max:", round(tconv.max_MS, 3), sep=" "),
+                             paste("tconv.max:", round(tconv.max_S, 3), sep=" "),
+                             paste("tconv.max:", round(tconv.max_WC, 3), sep=" "),
+                             paste("tconv.max:", round(tconv.max_SC, 3), sep=" "),
+                             paste("tconv.max:", round(tconv.max_ST, 3), sep=" ")
+                             ), notation="alphabet") %>%
+        kableExtra::scroll_box(width = "100%", height = "500px") 
+        
+results
+kableExtra::save_kable(results, "data/processed/results.html")
+```
+kableExtra::add_footnote(paste("tconv.max:", round(tconv.max_MS, 3), sep=" "), notation = "alphabet")
+
+
+```{r, echo=FALSE}
+load("./data/processed/20231104ts_ansS.rda")
+ts_ansS <- x
+rm(x)
+load("./data/processed/20231104ts_ansWC.rda")
+ts_ansWC <- x
+rm(x)
+load("./data/processed/20231105ts_ansSC.rda")
+ts_ansSC <- x
+rm(x)
+load("./data/processed/20231105ts_ansST.rda")
+ts_ansST <- x
+rm(x)
+```
+
 
 ### check convergence visually  
 
@@ -699,6 +798,13 @@ ggplot(df, aes(x=ite, y=estimate)) +
 #CI of RSiena
 down <- ans3$theta - 1.96 * sqrt(diag(ans3$covtheta))
 up <- ans3$theta + 1.96 * sqrt(diag(ans3$covtheta))
+
+#CI of simultaneity
+down_s <- b_s - 1.96 * sqrt(diag(ts_ansSp3$covtheta))
+up_s <- b_s + 1.96 * sqrt(diag(ts_ansSp3$covtheta))
+
+
+
 #our statistics
 stats <-  factor(vars, levels = vars)
 #final estimates 
@@ -707,12 +813,13 @@ b_sc <- ts_ansSC[nrow(ts_ansSC),]
 b_wc <- ts_ansWC[nrow(ts_ansWC),]
 b_st <- ts_ansST[nrow(ts_ansST),]
 #put everything in a dataframe
-my.dt <- data.frame(statistics = stats, estimate=ans3$theta, down=down, up=up, b_s=b_s, b_sc=b_sc, b_wc=b_wc, b_st=b_st)
+my.dt <- data.frame(statistics = stats, estimate=ans3$theta, down=down, up=up, b_s=b_s, b_sc=b_sc, b_wc=b_wc, b_st=b_st, down_s = down_s, up_s = up_s)
 #use different layers to plot the seperate estimates. and include a manual legend. 
 ggplot(my.dt, aes(x=statistics, y=estimate)) +         
-       geom_point(size = 3, aes(color="ministep")) +
-       geom_errorbar(aes(ymin = down, ymax = up, color="ministep")) + 
+      geom_point(size = 3, aes(color="ministep")) +
+      geom_errorbar(aes(ymin = down, ymax = up, color="ministep")) + 
       geom_point(size = 3, alpha = 0.5, aes(x=stats, y=b_s, color="simultaneity" )) + 
+      #geom_errorbar(aes(ymin = down_s, ymax = up_s, color="simultaneity")) + 
   geom_point(size = 3, alpha = 0.5, aes(x=stats, y=b_sc , color="strict coordination")) + 
   geom_point(size = 3, alpha = 0.5, aes(x=stats, y=b_wc, color="weak coordination")) + 
   geom_point(size = 3, alpha = 0.5, aes(x=stats, y=b_st, color="simstep")) + 
