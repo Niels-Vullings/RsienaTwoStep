@@ -4,6 +4,8 @@
 \alias{ts_dyads}
 \alias{ts_triads}
 \alias{ts_nacf}
+\alias{ts_degreecount}
+\alias{ts_rsienanets}
 \title{Network census}
 \usage{
 ts_dyads(sims, simtype = "notypespecified", forplot = TRUE)
@@ -11,25 +13,43 @@ ts_dyads(sims, simtype = "notypespecified", forplot = TRUE)
 ts_triads(sims, simtype = "notypespecified", forplot = TRUE)
 
 ts_nacf(sims, simtype = "notypespecified", forplot = TRUE, cov)
+
+ts_degreecount(sims, mode = "out", simtype = "notypespecified", forplot = TRUE)
+
+ts_rsienanets(ans)
 }
 \arguments{
-\item{sims}{list, the result of \code{\link[=ts_sims]{ts_sims()}} the adjacency matrix representing the relations between actors. Valid values are 0 and 1.}
+\item{sims}{list, a list of (simulated) networks, the adjacency matrices
+representing the relations between actors. Valid values are 0 and 1. These
+simulated networks can be saved in objects that result from running
+\code{\link[=ts_sims]{ts_sims()}}, \code{\link[=ts_estim]{ts_estim()}} or \code{\link[RSiena:siena07]{RSiena::siena07()}}.}
 
-\item{simtype}{string, name of the simulation type used (e.g. \emph{ministep}, \emph{twostep}).}
+\item{simtype}{string, name of the simulation type used (e.g. \emph{ministep},
+\emph{twostep}).}
 
-\item{forplot}{logical, if set to \code{FALSE} a dataframe is returned with in the column the network characteristic and each row represents a simulation outcome.
-If set to \code{TRUE} this dataframe is manipulated a bit, so that each row represents one specific network characteristic for each simulation outcome, this is useful for plotting.}
+\item{forplot}{logical, if set to \code{FALSE} a dataframe is returned with in the
+column the network characteristic and each row represents a simulation
+outcome. If set to \code{TRUE} this dataframe is manipulated a bit, so that each
+row represents one specific network characteristic for each simulation
+outcome, this is useful for plotting.}
 
 \item{cov}{numeric, covariate scores}
+
+\item{mode}{Character string, “out” for out-degree, “in” for in-degree or “total” for the sum of the two. “all” is a synonym of “total”.}
+
+\item{ans}{Results of class sienaFit, produced by a call to
+\code{\link[RSiena:siena07]{RSiena::siena07()}}}
 }
 \value{
 \code{data.frame}
 }
 \description{
-These functions calculate characteristics of the simulated networks. For now, only a dyad census and a triad census are implemented.
+These functions calculate characteristics of the simulated
+networks. For now, only a dyad census and a triad census are implemented.
 }
 \details{
-For examples on how to use these statistics see: vignette("Introduction_RsienaTwoStep").
+For examples on how to use these statistics see:
+vignette("Introduction_RsienaTwoStep").
 }
 \examples{
 \dontrun{
@@ -58,6 +78,6 @@ p
 }
 }
 \seealso{
-\code{\link[RSiena:sienaGOF]{RSiena::sienaGOF()}}, \code{\link[RSiena:sienaGOF-auxiliary]{RSiena::sienaGOF-auxiliary()}}, \code{\link[RSiena:sienaGOF-auxiliary]{RSiena::TriadCensus()}}
+\code{\link[RSiena:sienaGOF]{RSiena::sienaGOF()}}, \code{\link[RSiena:sienaGOF-auxiliary]{RSiena::sienaGOF-auxiliary()}}
 }
 \concept{networkcensus}

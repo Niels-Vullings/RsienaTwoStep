@@ -46,6 +46,33 @@
     <loc>https://jochemtolsma.github.io/RsienaTwoStep/LICENSE.html</loc>
   </url>
   <url>
+    <loc>https://jochemtolsma.github.io/RsienaTwoStep/reference/df_ccovar1.html</loc>
+  </url>
+  <url>
+    <loc>https://jochemtolsma.github.io/RsienaTwoStep/reference/DyadCensus.sna.html</loc>
+  </url>
+  <url>
+    <loc>https://jochemtolsma.github.io/RsienaTwoStep/reference/f_alternatives_ministep.html</loc>
+  </url>
+  <url>
+    <loc>https://jochemtolsma.github.io/RsienaTwoStep/reference/f_degree.html</loc>
+  </url>
+  <url>
+    <loc>https://jochemtolsma.github.io/RsienaTwoStep/reference/f_dyads.html</loc>
+  </url>
+  <url>
+    <loc>https://jochemtolsma.github.io/RsienaTwoStep/reference/f_eval.html</loc>
+  </url>
+  <url>
+    <loc>https://jochemtolsma.github.io/RsienaTwoStep/reference/f_geodist.html</loc>
+  </url>
+  <url>
+    <loc>https://jochemtolsma.github.io/RsienaTwoStep/reference/f_select.html</loc>
+  </url>
+  <url>
+    <loc>https://jochemtolsma.github.io/RsienaTwoStep/reference/f_sims.html</loc>
+  </url>
+  <url>
     <loc>https://jochemtolsma.github.io/RsienaTwoStep/reference/index.html</loc>
   </url>
   <url>
@@ -55,7 +82,16 @@
     <loc>https://jochemtolsma.github.io/RsienaTwoStep/reference/net2.html</loc>
   </url>
   <url>
+    <loc>https://jochemtolsma.github.io/RsienaTwoStep/reference/s501.html</loc>
+  </url>
+  <url>
+    <loc>https://jochemtolsma.github.io/RsienaTwoStep/reference/s502.html</loc>
+  </url>
+  <url>
     <loc>https://jochemtolsma.github.io/RsienaTwoStep/reference/ts_alternatives_ministep.html</loc>
+  </url>
+  <url>
+    <loc>https://jochemtolsma.github.io/RsienaTwoStep/reference/ts_centering.html</loc>
   </url>
   <url>
     <loc>https://jochemtolsma.github.io/RsienaTwoStep/reference/ts_degree.html</loc>
@@ -64,10 +100,19 @@
     <loc>https://jochemtolsma.github.io/RsienaTwoStep/reference/ts_dyads.html</loc>
   </url>
   <url>
+    <loc>https://jochemtolsma.github.io/RsienaTwoStep/reference/ts_estim.html</loc>
+  </url>
+  <url>
     <loc>https://jochemtolsma.github.io/RsienaTwoStep/reference/ts_eval.html</loc>
   </url>
   <url>
     <loc>https://jochemtolsma.github.io/RsienaTwoStep/reference/ts_geodist.html</loc>
+  </url>
+  <url>
+    <loc>https://jochemtolsma.github.io/RsienaTwoStep/reference/ts_net1.html</loc>
+  </url>
+  <url>
+    <loc>https://jochemtolsma.github.io/RsienaTwoStep/reference/ts_net2.html</loc>
   </url>
   <url>
     <loc>https://jochemtolsma.github.io/RsienaTwoStep/reference/ts_select.html</loc>

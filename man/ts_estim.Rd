@@ -70,12 +70,12 @@ ts_phase3(
   ccovar = NULL,
   statistics = NULL,
   startvalues = NULL,
-  itef3 = 100,
+  itef3 = 1000,
   p2step = c(1, 0, 0),
   dist1 = NULL,
   dist2 = NULL,
-  modet1 = NULL,
-  modet2 = NULL,
+  modet1 = "degree",
+  modet2 = "degree",
   verbose = TRUE,
   parallel = FALSE,
   returnDeps = FALSE
@@ -159,8 +159,10 @@ some results.}
 \item{phase3}{TRUE/FALSE, if FALSE no SE are calculated}
 }
 \value{
-A dataframe of estimated parameters. The last row are the final
-solutions of the Robbins Monro algorithm.
+If \code{phase3 = FALSE } A dataframe of estimated parameters. The last row are the final
+solutions of the Robbins Monro algorithm. If \verb{Phase 3 = TRUE} a list with first list element the data frame of estimated parameters and the second element the results of phase 3.
+
+list, containing: \code{estim}, \code{covtheta}, \code{tstat} \code{tconv.max}, \code{zdevs}, and if \code{returnDeps = TRUE} \code{simnets}
 }
 \description{
 \code{ts_estim} is the workhorse function of the package

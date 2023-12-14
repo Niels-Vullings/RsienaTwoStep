@@ -19,11 +19,13 @@
 #'   row represents one specific network characteristic for each simulation
 #'   outcome, this is useful for plotting.
 #' @param cov numeric, covariate scores
+#' @param mode Character string, “out” for out-degree, “in” for in-degree or “total” for the sum of the two. “all” is a synonym of “total”.
+#' @param ans Results of class sienaFit, produced by a call to
+#'   [`RSiena::siena07()`]
 #' @importFrom foreach %dopar%
 #' @importFrom iterators icount
 #' @return `data.frame`
-#' @seealso [`RSiena::sienaGOF()`], [`RSiena::sienaGOF-auxiliary()`],
-#'   [`RSiena::TriadCensus()`]
+#' @seealso [`RSiena::sienaGOF()`], [`RSiena::sienaGOF-auxiliary()`]
 #' @examples
 #' \dontrun{
 #' results_ministep <- ts_sims(net=net1, rate=5, statistics=list(ts_degree, ts_recip),
@@ -111,24 +113,46 @@ ts_nacf <- function(sims, simtype="notypespecified", forplot=TRUE, cov) {
 
 #' @rdname ts_dyads
 #' @export
-#' @param mode Character string, “out” for out-degree, “in” for in-degree or “total” for the sum of the two. “all” is a synonym of “total”.
-ts_degree <- function(sims, mode="out", cumulative = FALSE, simtype="notypespecified", forplot=TRUE) {
-  nsims <- length(sims)
-  df <- foreach::foreach(1:nsims, i=iterators::icount(), .combine="rbind") %dopar% {
-    sna::nacf(sims[[i]], cov, type = "moran", neighborhood.type = "out", demean = TRUE)[2]
+ts_degreecount <- function(sims, mode="out", simtype="notypespecified", forplot=TRUE) {
+ nsims <- length(sims)
+ nactors <- dim(sims[[1]])[1]
+ mattemp <- matrix(0, nrow=nsims, ncol=nactors)
+  for (j in 1:nsims) {
+  t1 <- table(igraph::degree(igraph::graph_from_adjacency_matrix(sims[[j]]), mode = mode))
+  degrees <- as.numeric(names(t1))
+  freqs <- as.numeric(t1)
+    for (i in 1:length(t1)) {
+    mattemp[j, degrees[i] + 1] <- freqs[i]
+    }
   }
-  df <- as.data.frame(df)
-  df$type <- simtype
-  return(df)
+ df <- as.data.frame(mattemp)
+ names(df) <- paste0("deg", 1:nactors)
+ df <- df[,colSums(df)!=0]
+
+ if (forplot) {
+   degrees <- names(df)
+   dflist <- list()
+   for (i in 1:length(degrees)) {
+     dflist[[i]] <- df
+   }
+   df <- do.call(rbind, dflist)
+   df$x <- rep(degrees, each=nsims)
+   df$y <- NA
+
+   for (i in 1:length(degrees)) {
+     df$y[df$x==degrees[i]] <- df[,degrees[i]][df$x==degrees[i]]
+   }
+   df <- df[,c("x", "y")]
+ }
+
+ df$x <- factor(df$x, levels=unique(df$x))
+ df$type <- simtype
+ return(df)
 }
-
-t1 <- table(igraph::degree(igraph::graph_from_adjacency_matrix(nets[[1]]), mode = mode))
-t1 <- table(igraph::degree(igraph::graph_from_adjacency_matrix(nets[[2]]), mode = mode))
-
 
 #' @rdname ts_dyads
 #' @export
-ts_RSienanets <- function(ans) {
+ts_rsienanets <- function(ans) {
    n <- dim(ans$f$Data1$depvars$mynet[, , 1])[1]
    sims <- foreach(i = 1:length(ans$sims)) %dopar% {
      edges <- ans$sims[[i]][[1]][[1]][[1]]
@@ -141,4 +165,3 @@ ts_RSienanets <- function(ans) {
    return(sims)
  }
 
-igraph::graph_from_adjacency_matrix()
