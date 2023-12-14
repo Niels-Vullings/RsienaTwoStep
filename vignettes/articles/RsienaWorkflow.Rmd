@@ -163,7 +163,7 @@ fshowdf <- function(x, ...) {
 ## 1.2. Packages
 
 ```{r, results='hide', message=FALSE}
-packages = c("RsienaTwoStep", "RSiena", "doParallel", "compiler", "ggplot2", "tidyverse")
+packages = c("RsienaTwoStep", "RSiena", "doParallel", "compiler", "ggplot2", "tidyverse", "kableExtra")
 
 fpackage.check(packages)
 ```

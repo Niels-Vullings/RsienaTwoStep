@@ -38,44 +38,6 @@
 #'   startvalues = c(3, -2, 1),
 #'   p2step = c(0, 1, 0)
 #' )
-#' #start with RSiena objects
-#' \dontrun{
-#' library(RSiena)
-#' mynet <- sienaDependent(array(c(s501, s502), dim=c(50, 50, 2)))
-#' mydata <- sienaDataCreate(mynet)
-#' #toggle set conditional to retrieve the rate parameter in theta!
-#' myalgorithm <- sienaAlgorithmCreate(cond=FALSE)
-#' myeff <- getEffects(mydata)
-#' ts_sims(
-#'   mydata = mydata,
-#'   myeff = myeff
-#'   nsims = 2,
-#'   parallel = FALSE,
-#'   p2step = c(0, 1, 0))
-#'  # or if you already used RSiena to estimate a model:
-#'  ans1 <- siena07(myalgorithm, data=mydata, effects=myeff)
-#'  ts_sims(
-#'   ans = ans1
-#'   nsims = 2,
-#'   parallel = FALSE,
-#'   p2step = c(0, 1, 0)
-#' # Use a cluster
-#' library(parallel)
-#' n.cores <- parallel::detectCores() - 1  #save one core for other work
-#' # create the cluster
-#' my.cluster <- parallel::makeCluster(n.cores) #default PSOCK cluster
-#' # register it to be used by %dopar%
-#' doParallel::registerDoParallel(cl = my.cluster)
-#' ts_sims(mydata = mydata,
-#' myeff = myeff,
-#' nsims = 20,
-#' parallel = TRUE,
-#' p2step = c(0, 1, 0))
-#' stopCluster(my.cluster)
-#' #Since the only official way to "unregister" a foreach backend is to register
-#' the sequential backend:
-#' registerDoSEQ()
-#'   }
 #' @importFrom foreach %dopar%
 
 ts_sims <- function(ans = NULL,
