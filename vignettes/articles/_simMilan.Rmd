@@ -1,5 +1,7 @@
 ---
 title: "RSienaWorkFlow"
+editor_options: 
+  chunk_output_type: inline
 ---
 
 ```{r, include = FALSE}
@@ -139,6 +141,11 @@ fsave <- function(x, file, location = "./data/processed/", ...) {
     save(x, file = totalname)
 }
 
+fload.R  <- function(fileName){
+  load(fileName)
+  get(ls()[ls() != "fileName"])
+}
+
 fpackage.check <- function(packages) {
     lapply(packages, FUN = function(x) {
         if (!require(x, character.only = TRUE)) {
@@ -163,7 +170,7 @@ fshowdf <- function(x, ...) {
 ## 1.2. Packages
 
 ```{r, results='hide', message=FALSE}
-packages = c("RsienaTwoStep", "RSiena", "doParallel", "compiler", "ggplot2", "tidyverse", "kableExtra")
+packages = c("RsienaTwoStep", "RSiena", "doParallel", "compiler", "ggplot2", "tidyverse", "kableExtra", "igraph")
 
 fpackage.check(packages)
 ```
@@ -173,28 +180,15 @@ fpackage.check(packages)
 
 # 2. Setting up cluster
 
-<!---
-to do change to dofuture
-https://www.r-bloggers.com/2023/06/dofuture-a-better-foreach-parallelization-operator-than-dopar/
---->
-
 ```{r, results='hide'}
-no_cores <- detectCores() 
+no_cores <- detectCores()
 mycl <- makeCluster(rep("localhost", no_cores))
-clusterEvalQ(mycl, library(RsienaTwoStep)) 
+clusterEvalQ(mycl, library(RsienaTwoStep))
 clusterEvalQ(mycl, library("network"))
 clusterEvalQ(mycl, library("RSiena"))
 clusterEvalQ(mycl, library("sna"))
 registerDoParallel(mycl)
 #stopCluster(cl = mycl)
-
-
-#perhaps this is better (backend independent):
-# library(doFuture)
-# doFuture::registerDoFuture()
-# future::plan("multisession", workers = detectCores() - 1)
-## Explicitly close multisession workers by switching plan
-# plan(sequential)
 ```
 
 
@@ -204,12 +198,16 @@ registerDoParallel(mycl)
 
 ## 3.1. Prepare the dataset
 ```{r}
-mynet <- sienaDependent(array(c(s501, s502), dim=c(50, 50, 2)))
-alcohol <- s50a
+friend.data.w1 <- s501
+friend.data.w2 <- s502
+drink <- s50a
 smoke <- s50s
+
+friendship <- sienaDependent(array(c(friend.data.w1, friend.data.w2), dim = c(50, 50, 2)))  
+alcohol <- sienaDependent(drink[,1:2], type = "behavior")
 smoke <- coCovar(smoke[, 1])
-alcohol <- coCovar(alcohol[, 1])
-mydata <- sienaDataCreate(mynet, smoke, alcohol)
+
+mydata <- sienaDataCreate(friendship, smoke, alcohol)
 ```
 
 ## 3.2. Set up up the algorithm. 
@@ -224,40 +222,36 @@ myalgorithm <- sienaAlgorithmCreate(cond = FALSE, findiff = TRUE, projname=NULL)
 ```{r}
 myeff <- getEffects(mydata)
 myeff <- includeEffects(myeff, cycle3, transTrip)
-myeff <- includeEffects(myeff, egoX, altX, egoXaltX, interaction1 = "alcohol")
 myeff <- includeEffects(myeff, simX, interaction1 = "smoke")
+myeff <- includeEffects(myeff, absDiffX, interaction1 = "alcohol")
+myeff <- includeEffects(myeff, name = "alcohol", avAlt, interaction1 = "friendship")
+myeff <- includeEffects(myeff, name = "alcohol", effFrom, interaction1 = "smoke")
 ```
 
 ## 3.4. Estimate the model. 
 ```{r, eval=FALSE}
-ans3 <- siena07(myalgorithm, data=mydata, effects=myeff, batch=TRUE, returnDeps = TRUE)
-fsave(ans3, file="ans3.Rdata")
+ansb1 <- siena07(myalgorithm, data=mydata, effects=myeff, batch=TRUE, returnDeps = TRUE)
+fsave(ansb1, file="ansb1.Rdata")
 ```
 
 ```{r, eval=TRUE, echo=FALSE}
-load("./data/processed/20231009ans3.Rdata")
-ans3 <- x
-rm(x)
+ansb1 <- fload.R("./data/processed/20231221ansb1.Rdata")
 ```
 
 let's have a look
 ```{r}
-ans3
+ansb1
 ```
 <br> 
 
 # 4. Estimate via `RsienaTwoStep`
 
-First we will demonstrate that we can estimate the same model without using `siena07()`. 
-
 ## 4.1. Prepare the dataset
 
 ```{r}
-DF <- data.frame(alcohol = s50a[, 1], smoke = s50s[, 1])
+DF <- data.frame(alcohol.1 = s50a[, 1], alcohol.2 = s50a[, 2], smoke = s50s[, 1])
 ```
 
-
-No need to set up an algorithm. 
 
 ## 4.2. Define the model. 
 
@@ -266,12 +260,14 @@ Include all names of the statistics in a list. The aim is to use the shortname o
 ```{r}
 STATS <- list(ts_degree, 
               ts_recip, 
-              ts_transTrip, 
-              ts_cycle3, 
+              ts_transTrip,
+              ts_cycle3,
               list(ts_simX, "smoke"), 
-              list(ts_altX, "alcohol"), 
-              list(ts_egoX, "alcohol"), 
-              list(ts_egoXaltX, "alcohol"))
+              list(ts_absDiffX, "alcohol"), 
+              ts_linear,
+              ts_quad,
+              list(ts_avAlt, "friendship"), 
+              list(ts_effFrom, "smoke"))
 ```
 
 ### 4.2.1. Check statistics 
@@ -279,16 +275,327 @@ STATS <- list(ts_degree,
 As a brief intermezzo, check if the statistics are programmed correctly by comparing the target values. 
 
 ```{r}
-t1 <- ts_targets(ans3) #target values calculated by `siena07()`
+t1 <- ts_targets(ansb1) #target values calculated by `siena07()`
 t2 <- ts_targets(mydata=mydata, myeff=myeff) #target values calculated by RsienaTwoStep based on RSiena objects. 
 t3 <- ts_targets(net1 = s501, net2 = s502, statistics = STATS, ccovar = DF) #target values calculated by RsienaTwoStep based on RsienaTwoStep objects.
-
 df <- data.frame(Siena_original = t1, ts_siena_objects = t2, ts_twostep_object = t3 )
 rownames(df) <- names(t3)
 fshowdf(df)
 ```
 <br> 
+
 Everything is fine. 
+
+## 4.3. Sim model 
+
+```{r, eval=FALSE}
+STARTS <- ansb1$theta
+STARTS[1] <- 6 #rate basic rate parameter friendship 
+STARTS[6] <- 1 #eval smoke similarity 
+STARTS[7] <- -1 #eval alcohol abs. difference
+STARTS[8] <- 6 #rate rate alcohol period 1 
+STARTS[11] <- 2 #eval alcohol average alter
+dfstart <- data.frame(stats = names(t3), simvalue = STARTS)
+fshowdf(dfstart)
+NSIM <- 100
+```
+
+
+```{r, eval=FALSE}
+sims <- ts_sims(net1 = s501, startvalues = STARTS, statistics = STATS, ccovar = DF, nsims = NSIM, parallel = TRUE)
+
+fsave(sims, file="sims.Rdata")
+```
+
+```{r}
+sims <- fload.R("./data/processed/20240420sims.Rdata")
+```
+
+```{r}
+library(igraph)
+CRP <- colorRampPalette(c("purple", "yellow"))
+cols <- CRP(5)
+g2 <- (graph_from_adjacency_matrix(sims[[2]]$net_n, mode = "directed"))
+V(g2)$size <- 10
+V(g2)$label <- round(sims[[2]]$beh_n)
+V(g2)$label.cex <- .5
+V(g2)$color <- cols[V(g2)$label + 3]
+E(g2)$arrow.size <- .2
+plot(g2)
+```
+
+```{r, eval=FALSE}
+simsTS <- ts_sims(net1 = s501, startvalues = STARTS, statistics = STATS, ccovar = DF, p2step = c(0,1,0), dist1 = 2, nsims = NSIM, parallel = TRUE)
+
+fsave(simsTS, file="simsTS.Rdata")
+```
+```{r}
+simsTS <- fload.R("./data/processed/20240421simsTS.Rdata")
+```
+
+```{r}
+CRP <- colorRampPalette(c("purple", "yellow"))
+cols <- CRP(5)
+g2 <- (graph_from_adjacency_matrix(simsTS[[2]]$net_n, mode = "directed"))
+V(g2)$size <- 10
+V(g2)$label <- round(simsTS[[2]]$beh_n)
+V(g2)$label.cex <- .5
+V(g2)$color <- cols[V(g2)$label + 3]
+E(g2)$arrow.size <- 0.2
+plot(g2)
+```
+
+
+
+some additional functions I need to include in census.R
+```{r, eval=FALSE}
+ts_sd <- function(sims, simtype="notypespecified", forplot=TRUE) {
+  nsims <- length(sims)
+  df <- foreach::foreach(1:nsims, i=iterators::icount(), .combine="rbind") %dopar% {
+    sd(sims[[i]][[2]])
+  }
+  df <- as.data.frame(df)
+  colnames(df) <- "sd"
+
+  df$type <- simtype
+  return(df)
+}
+
+ts_mean <- function(sims, simtype="notypespecified", forplot=TRUE) {
+  nsims <- length(sims)
+  #combine results of dyad.census
+  df <- foreach::foreach(1:nsims, i=iterators::icount(), .combine="rbind") %dopar% {
+    mean(sims[[i]][[2]])
+  }
+  df <- as.data.frame(df)
+  colnames(df) <- "mean"
+
+  df$type <- simtype
+  return(df)
+}
+
+ts_nacf <- function(sims, simtype="notypespecified", forplot=TRUE, cov = NULL) {
+  nsims <- length(sims)
+  df <- foreach::foreach(1:nsims, i=iterators::icount(), .combine="rbind") %dopar% {
+    if (!is.null(cov) & length(sims[[1]]) == 1) { sna::nacf(sims[[i]], cov, type = "moran", neighborhood.type = "out", demean = TRUE)[2] 
+      } else if (!is.null(cov) & length(sims[[1]]) > 1) { 
+        sna::nacf(sims[[i]]$net_n, cov, type = "moran", neighborhood.type = "out", demean = TRUE)[2] 
+      } else {
+      sna::nacf(sims[[i]]$net_n, sims[[i]]$beh_n, type = "moran", neighborhood.type = "out", demean = TRUE)[2]
+    }
+  }
+  df <- as.data.frame(df)
+  df$type <- simtype
+  colnames(df)[1] <- "MI"
+  return(df)
+}
+
+
+# #total degree
+# t <- foreach(i=1:NSIM, .combine=c) %do%
+#   sum(sims[[i]][[1]])
+# mean(t)
+
+```
+
+
+```{r, eval=FALSE}
+df_sd <- ts_sd(sims, simtype = "ministep")
+df_mean <- ts_mean(sims, simtype = "ministep")
+df_nacf <- ts_nacf(sims, simtype = "ministep")
+
+dfts_sd <- ts_sd(sims = simsTS, simtype = "strict coordination")
+dfts_mean <- ts_mean(simsTS, simtype = "strict coordination")
+dfts_nacf <- ts_nacf(simsTS, simtype = "strict coordination")
+
+mean(df_sd$sd)
+mean(dfts_sd$sd)
+mean(df_mean$mean)
+mean(dfts_mean$mean)
+```
+
+
+
+```{r}
+dft_sd <- rbind(df_sd, dfts_sd)
+p1 <- ggplot(dft_sd, aes(x=factor(type, levels=c("ministep", "strict coordination")), y=sd, fill=factor(type, levels=c("ministep", "strict coordination")))) + 
+  geom_violin(position=position_dodge(.9)) + 
+  stat_summary(fun = mean,
+               geom = "errorbar",
+               fun.max = function(x) mean(x) + sd(x),
+               fun.min = function(x) mean(x) - sd(x),
+               width=.1,
+               color="red", position=position_dodge(.9)) + 
+  stat_summary(fun = mean,
+               geom = "point",
+               color="red", position=position_dodge(.9)) +
+  ylim(0, 2) + 
+  labs(x = "simtype", y = "SD alcohol", fill = "simulation type")
+p1
+
+dft_mean <- rbind(df_mean, dfts_mean)
+p2 <- ggplot(dft_mean, aes(x=factor(type, levels=c("ministep", "strict coordination")), y=mean, fill=factor(type, levels=c("ministep", "strict coordination")))) + 
+  geom_violin(position=position_dodge(.9)) + 
+  stat_summary(fun = mean,
+               geom = "errorbar",
+               fun.max = function(x) mean(x) + sd(x),
+               fun.min = function(x) mean(x) - sd(x),
+               width=.1,
+               color="red", position=position_dodge(.9)) + 
+  stat_summary(fun = mean,
+               geom = "point",
+               color="red", position=position_dodge(.9)) +
+  ylim(-2, 2) +
+  labs(x = "simtype", y = "mean alcohol", fill = "simulation type")
+p2
+
+dft_nacf <- rbind(df_nacf, dfts_nacf)
+
+p3 <- ggplot(dft_nacf, aes(x=factor(type, levels=c("ministep", "strict coordination")), y=MI, fill=factor(type, levels=c("ministep", "strict coordination")))) + 
+  geom_violin(position=position_dodge(.9)) + 
+  stat_summary(fun = mean,
+               geom = "errorbar",
+               fun.max = function(x) mean(x) + sd(x),
+               fun.min = function(x) mean(x) - sd(x),
+               width=.1,
+               color="red", position=position_dodge(.9)) + 
+  stat_summary(fun = mean,
+               geom = "point",
+               color="red", position=position_dodge(.9)) +
+  ylim(-2, 2) +
+  labs(x = "simtype", y = "alcohol based segregation", fill = "simulation type")
+p3
+
+
+```
+
+
+
+
+
+
+
+
+
+
+```{r, eval=FALSE, echo=FALSE}
+fsave(ts_ansb1, file="ts_ansb1.Rdata")
+```
+
+```{r, eval=TRUE, echo=FALSE}
+load("./data/processed/20240107ts_ansb1.Rdata")
+ts_ansb1 <- x
+rm(x)
+```
+
+### 4.3.2. check convergence visually  
+
+let's have a look if parameters converged. 
+
+```{r}
+df <- data.frame(ts_ansb1)
+vars <- colnames(df)
+df$ite <- 1:nrow(ts_ansb1)
+#convert data from wide to long format
+df <- df %>% pivot_longer(cols= all_of(vars),
+                          names_to='statistic',
+                          values_to='estimate')
+
+ggplot(df, aes(x=ite, y=estimate)) + 
+  geom_line(aes(color=statistic))
+```
+<br> 
+
+### Estimates
+
+```{r}
+df_est <- data.frame(colMeans(ts_ansb1[750:1000,]))
+df_est$RSiena <- ansb1$theta
+colnames(df_est) <- c("RsienaTwoStep", "RSiena")
+fshowdf(df_est)
+
+```
+
+
+
+Let us zoom in a little on transTrip
+```{r}
+df <- data.frame(ts_ans1c)
+vars <- colnames(df)
+df$ite <- 1:nrow(ts_ans1c)
+#convert data from wide to long format
+df <- df %>% pivot_longer(cols= vars[c(4)],
+                          names_to='statistic',
+                          values_to='estimate')
+
+ggplot(df, aes(x=ite, y=estimate)) + 
+  geom_line(aes(color=statistic))
+```
+<br> 
+And on the last 250 iterations or so. 
+
+```{r}
+df <- data.frame(ts_ans1c)
+vars <- colnames(df)
+df$ite <- 1:nrow(ts_ans1c)
+#convert data from wide to long format
+df <- df[750:1000,] %>% pivot_longer(cols= vars[c(4)],
+                          names_to='statistic',
+                          values_to='estimate')
+
+ggplot(df, aes(x=ite, y=estimate)) + 
+  geom_line(aes(color=statistic))
+```
+<br> 
+
+
+
+# okay let us re-estimate the simulated data
+
+```{r}
+ts_simdata$startvalues_sim
+friendship <- sienaDependent(array(c(ts_simdata$net_sim1, ts_simdata$net_sim2), dim = c(50, 50,
+    2)))  
+
+alcohol <- sienaDependent(as.matrix(ts_simdata$DF_sim[,1:2]), type = "behavior")
+smoke <- coCovar(as.numeric(ts_simdata$DF_sim[,3]))
+mydata <- sienaDataCreate(friendship, smoke, alcohol)
+
+myeff <- getEffects(mydata)
+myeff <- includeEffects(myeff, cycle3, transTrip)
+myeff <- includeEffects(myeff, simX, interaction1 = "smoke")
+myeff <- includeEffects(myeff, absDiffX, interaction1 = "alcohol")
+myeff <- includeEffects(myeff, name = "alcohol", avAlt, interaction1 = "friendship")
+myeff <- includeEffects(myeff, name = "alcohol", effFrom, interaction1 = "smoke")
+
+print01Report(mydata)
+
+myalgorithm <- sienaAlgorithmCreate(cond = FALSE, findiff = TRUE, projname="simdata") 
+
+anssimdata1 <- siena07(myalgorithm, data=mydata, effects=myeff, batch=TRUE, returnDeps = TRUE)
+ans2simdata1 <- siena07(myalgorithm, data=mydata, effects=myeff, prevAns = anssimdata1, batch=TRUE, returnDeps = TRUE)
+```
+
+```{r}
+
+```
+
+
+
+```{r}
+library(igraph)
+g1 <- (graph_from_adjacency_matrix(ts_simdata$net_sim1, mode = "directed"))
+V(g1)$size <- .2
+E(g1)$arrow.size <- .2
+l <- layout_with_mds(g1)
+plot(g1, layout = l)
+
+
+g2 <- (graph_from_adjacency_matrix(ts_simdata$net_sim2, mode = "directed"))
+V(g2)$size <- .2
+E(g2)$arrow.size <- .2
+plot(g2, layout = l)
+```
 
 
 ## 4.3. Estimate model 
@@ -305,7 +612,8 @@ ts_ans1a <- ts_estim(net1 = s501, net2= s502, statistics = STATS, ccovar = DF, p
 We could also start with the data objects of RSiena. Note that we still perform phase1 ourselves.
 
 ```{r, eval=FALSE}
-ts_ans1b <- ts_estim(mydata = mydata, myeff = myeff, parallel = TRUE, phase3 = FALSE)
+ansb1$
+ts_ans1b <- ts_estim(ans = ansb1, startvalues = , parallel = TRUE, phase3 = FALSE)
 ```
 
 We could also start with the result of an `RSiena::siena07()` estimation. 
@@ -430,7 +738,7 @@ With different models I mean models with the same statistics but using different
 I also think this is a nice workflow if we want to test robustness of ministep model: 
 
 1. estimate ministep model (with SE, and fit statistics)  
-2. estimate twostep models (phase2 only)  
+2. estimate twostep models (fase2 only)  
     a. simultaneity  
     b. strict coordination  
     c. weak coordination  

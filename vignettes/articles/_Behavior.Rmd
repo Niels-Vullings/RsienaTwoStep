@@ -1,5 +1,7 @@
 ---
 title: "RSienaWorkFlow"
+editor_options: 
+  chunk_output_type: inline
 ---
 
 ```{r, include = FALSE}
@@ -173,28 +175,15 @@ fpackage.check(packages)
 
 # 2. Setting up cluster
 
-<!---
-to do change to dofuture
-https://www.r-bloggers.com/2023/06/dofuture-a-better-foreach-parallelization-operator-than-dopar/
---->
-
 ```{r, results='hide'}
-no_cores <- detectCores() 
+no_cores <- detectCores()
 mycl <- makeCluster(rep("localhost", no_cores))
-clusterEvalQ(mycl, library(RsienaTwoStep)) 
+clusterEvalQ(mycl, library(RsienaTwoStep))
 clusterEvalQ(mycl, library("network"))
 clusterEvalQ(mycl, library("RSiena"))
 clusterEvalQ(mycl, library("sna"))
 registerDoParallel(mycl)
 #stopCluster(cl = mycl)
-
-
-#perhaps this is better (backend independent):
-# library(doFuture)
-# doFuture::registerDoFuture()
-# future::plan("multisession", workers = detectCores() - 1)
-## Explicitly close multisession workers by switching plan
-# plan(sequential)
 ```
 
 
@@ -204,12 +193,18 @@ registerDoParallel(mycl)
 
 ## 3.1. Prepare the dataset
 ```{r}
-mynet <- sienaDependent(array(c(s501, s502), dim=c(50, 50, 2)))
-alcohol <- s50a
+friend.data.w1 <- s501
+friend.data.w2 <- s502
+drink <- s50a
 smoke <- s50s
+
+friendship <- sienaDependent(array(c(friend.data.w1, friend.data.w2), dim = c(50, 50,
+    2)))  
+alcohol <- sienaDependent(drink[,1:2], type = "behavior")
 smoke <- coCovar(smoke[, 1])
-alcohol <- coCovar(alcohol[, 1])
-mydata <- sienaDataCreate(mynet, smoke, alcohol)
+
+mydata <- sienaDataCreate(friendship, smoke, alcohol)
+#print01Report(mydata)
 ```
 
 ## 3.2. Set up up the algorithm. 
@@ -218,46 +213,44 @@ Set conditional to `FALSE`, this way we estimate the rate parameter and I will b
 Also set 'findiff' to `TRUE`. In `RsienaTwoStep` the estimates of derivatives (phase1 and phase3) are estimated using finite differences. 
 
 ```{r, eval=FALSE, message=FALSE} 
-myalgorithm <- sienaAlgorithmCreate(cond = FALSE, findiff = TRUE, projname=NULL) 
+myalgorithm <- sienaAlgorithmCreate(cond = FALSE, findiff = TRUE, projname=NULL)
 ```
 ## 3.3. Define the model
 ```{r}
 myeff <- getEffects(mydata)
 myeff <- includeEffects(myeff, cycle3, transTrip)
-myeff <- includeEffects(myeff, egoX, altX, egoXaltX, interaction1 = "alcohol")
 myeff <- includeEffects(myeff, simX, interaction1 = "smoke")
+myeff <- includeEffects(myeff, absDiffX, interaction1 = "alcohol")
+myeff <- includeEffects(myeff, name = "alcohol", avAlt, interaction1 = "friendship")
+myeff <- includeEffects(myeff, name = "alcohol", effFrom, interaction1 = "smoke")
 ```
 
 ## 3.4. Estimate the model. 
 ```{r, eval=FALSE}
-ans3 <- siena07(myalgorithm, data=mydata, effects=myeff, batch=TRUE, returnDeps = TRUE)
-fsave(ans3, file="ans3.Rdata")
+ansb1 <- siena07(myalgorithm, data=mydata, effects=myeff, batch=TRUE, returnDeps = TRUE)
+#fsave(ansb1, file="ansb1.Rdata")
 ```
 
 ```{r, eval=TRUE, echo=FALSE}
-load("./data/processed/20231009ans3.Rdata")
-ans3 <- x
+load("./data/processed/20231221ansb1.Rdata")
+ansb1 <- x
 rm(x)
 ```
 
 let's have a look
 ```{r}
-ans3
+ansb1
 ```
 <br> 
 
 # 4. Estimate via `RsienaTwoStep`
 
-First we will demonstrate that we can estimate the same model without using `siena07()`. 
-
 ## 4.1. Prepare the dataset
 
 ```{r}
-DF <- data.frame(alcohol = s50a[, 1], smoke = s50s[, 1])
+DF <- data.frame(alcohol.1 = s50a[, 1], alcohol.2 = s50a[, 2], smoke = s50s[, 1])
 ```
 
-
-No need to set up an algorithm. 
 
 ## 4.2. Define the model. 
 
@@ -266,12 +259,14 @@ Include all names of the statistics in a list. The aim is to use the shortname o
 ```{r}
 STATS <- list(ts_degree, 
               ts_recip, 
-              ts_transTrip, 
-              ts_cycle3, 
+              ts_transTrip,
+              ts_cycle3,
               list(ts_simX, "smoke"), 
-              list(ts_altX, "alcohol"), 
-              list(ts_egoX, "alcohol"), 
-              list(ts_egoXaltX, "alcohol"))
+              list(ts_absDiffX, "alcohol"), 
+              ts_linear,
+              ts_quad,
+              list(ts_avAlt, "friendship"), 
+              list(ts_effFrom, "smoke"))
 ```
 
 ### 4.2.1. Check statistics 
@@ -279,17 +274,16 @@ STATS <- list(ts_degree,
 As a brief intermezzo, check if the statistics are programmed correctly by comparing the target values. 
 
 ```{r}
-t1 <- ts_targets(ans3) #target values calculated by `siena07()`
+t1 <- ts_targets(ansb1) #target values calculated by `siena07()`
 t2 <- ts_targets(mydata=mydata, myeff=myeff) #target values calculated by RsienaTwoStep based on RSiena objects. 
 t3 <- ts_targets(net1 = s501, net2 = s502, statistics = STATS, ccovar = DF) #target values calculated by RsienaTwoStep based on RsienaTwoStep objects.
-
 df <- data.frame(Siena_original = t1, ts_siena_objects = t2, ts_twostep_object = t3 )
 rownames(df) <- names(t3)
 fshowdf(df)
 ```
 <br> 
-Everything is fine. 
 
+Everything is fine. 
 
 ## 4.3. Estimate model 
 
@@ -297,32 +291,17 @@ Everything is fine.
 
 We could estimate the parameters and the SE separately. This means we need to set `phase3` to `FALSE`. 
 
-
 ```{r, eval=FALSE}
-ts_ans1a <- ts_estim(net1 = s501, net2= s502, statistics = STATS, ccovar = DF, parallel = TRUE, phase3 = FALSE)
+ts_ansb1 <- ts_estim(net1 = s501, net2= s502, statistics = STATS, ccovar = DF, parallel = TRUE, phase3 = FALSE)
 ```
-
-We could also start with the data objects of RSiena. Note that we still perform phase1 ourselves.
-
-```{r, eval=FALSE}
-ts_ans1b <- ts_estim(mydata = mydata, myeff = myeff, parallel = TRUE, phase3 = FALSE)
-```
-
-We could also start with the result of an `RSiena::siena07()` estimation. 
-We now use the final estimates as our starting values and as phase1 the results of phase3 as stored in ans. This is (more or less) similar as to using prevAns in RSiena. 
-
-```{r, eval=FALSE}
-ts_ans1c <- ts_estim(ans = ans3, phase3 = FALSE, parallel = TRUE)
-```
-
 
 ```{r, eval=FALSE, echo=FALSE}
-fsave(ts_ans1c, file="ts_ans1c.Rdata")
+fsave(ts_ansb1, file="ts_ansb1.Rdata")
 ```
 
 ```{r, eval=TRUE, echo=FALSE}
-load("./data/processed/20231024ts_ans1c.Rdata")
-ts_ans1c <- x
+load("./data/processed/20240107ts_ansb1.Rdata")
+ts_ansb1 <- x
 rm(x)
 ```
 
@@ -331,9 +310,9 @@ rm(x)
 let's have a look if parameters converged. 
 
 ```{r}
-df <- data.frame(ts_ans1c)
+df <- data.frame(ts_ansb1)
 vars <- colnames(df)
-df$ite <- 1:nrow(ts_ans1c)
+df$ite <- 1:nrow(ts_ansb1)
 #convert data from wide to long format
 df <- df %>% pivot_longer(cols= all_of(vars),
                           names_to='statistic',
@@ -343,61 +322,35 @@ ggplot(df, aes(x=ite, y=estimate)) +
   geom_line(aes(color=statistic))
 ```
 <br> 
-Let us zoom in a little on transTrip
-```{r}
-df <- data.frame(ts_ans1c)
-vars <- colnames(df)
-df$ite <- 1:nrow(ts_ans1c)
-#convert data from wide to long format
-df <- df %>% pivot_longer(cols= vars[c(4)],
-                          names_to='statistic',
-                          values_to='estimate')
 
-ggplot(df, aes(x=ite, y=estimate)) + 
-  geom_line(aes(color=statistic))
-```
-<br> 
-And on the last 250 iterations or so. 
+### Estimates
 
 ```{r}
-df <- data.frame(ts_ans1c)
-vars <- colnames(df)
-df$ite <- 1:nrow(ts_ans1c)
-#convert data from wide to long format
-df <- df[750:1000,] %>% pivot_longer(cols= vars[c(4)],
-                          names_to='statistic',
-                          values_to='estimate')
+df_est <- data.frame(colMeans(ts_ansb1[750:1000,]))
+df_est$RSiena <- ansb1$theta
+colnames(df_est) <- c("RsienaTwoStep", "RSiena")
+fshowdf(df_est)
 
-ggplot(df, aes(x=ite, y=estimate)) + 
-  geom_line(aes(color=statistic))
 ```
+
 <br> 
-
-Well, what do you make out of this? 
-If the lines keep oscillating around a specific value, try to increase the `b` parameter. Conversely, if the lines did not converge but you see no oscillation you could decrease the `b` parameter. In this case, I think we should/could increase b each 250 iterations or so. 
-
-You could also try to re-estimate the model with different starting values. 
-
-I like to inspect the results of the Robbins Monro algorithm in this way, before I go to phase3 because phase3 takes up quite some time. 
-
 
 ### 4.3.3. Estimate SE, tstats and tconv.max
 
 ```{r}
-ESTIM <- ts_ans1c[nrow(ts_ans1c),] #we will take the last for now. 
-ESTIM <- ans3$theta
+ESTIM <- df_est$RsienaTwoStep
 ```
 
 ```{r, eval=FALSE}
-ans1c_phase3 <- ts_phase3(startvalues = ESTIM, net1 = s501, net2= s502, statistics = STATS, ccovar = DF, itef3 = 1000, parallel = TRUE, returnDeps = TRUE, verbose = TRUE)
+ansb1_phase3 <- ts_phase3(startvalues = ESTIM, net1 = s501, net2= s502, statistics = STATS, ccovar = DF, itef3 = 1000, parallel = TRUE, returnDeps = TRUE, verbose = TRUE)
 ```
 
 ```{r echo=FALSE, eval=FALSE}
-fsave(ans1c_phase3, "ans1c_phase3.rda")
+fsave(ansb1_phase3, "ansb1_phase3.rda")
 ```
 
 ```{r, echo=FALSE}
-load("./data/processed/20231025ans1c_phase3.rda")
+load("./data/processed/20231025ansb1_phase3.rda")
 ans1c_phase3 <- x
 rm(x)
 ```
@@ -407,9 +360,9 @@ rm(x)
 Let us have a look at the final results. 
 
 ```{r}
-SE <- sqrt(diag(ans1c_phase3$covtheta))
-tstat <- ans1c_phase3$tstat
-tconv.max <- ans1c_phase3$tconv.max
+SE <- sqrt(diag(ansb1_phase3$covtheta))
+tstat <- ansb1_phase3$tstat
+tconv.max <- ansb1_phase3$tconv.max
 df <- data.frame(estim = ESTIM, SE = SE, "tratio" = tstat)
 
 knitr::kable(df, digits = 3, "html", escape=FALSE, col.names = c("Estimate", "Standard <br> Error", "Convergence <br> t-ratio")) %>%
@@ -420,71 +373,10 @@ knitr::kable(df, digits = 3, "html", escape=FALSE, col.names = c("Estimate", "St
 ```
 
 <br> 
-My conclusion is that with RSienatwostep we can properly estimate a (very simple) network evolution model using the common ministep assumption. 
+My conclusion is that with RSienatwostep we can properly estimate a (very simple) network co-evolution model using the common ministep assumption. 
 Good job! 
 
 # 5. Compare the estimates of the different twostep models
-
-With different models I mean models with the same statistics but using different assumptions with respect to the theory of (inter)action. 
-
-I also think this is a nice workflow if we want to test robustness of ministep model: 
-
-1. estimate ministep model (with SE, and fit statistics)  
-2. estimate twostep models (phase2 only)  
-    a. simultaneity  
-    b. strict coordination  
-    c. weak coordination  
-    d. simstep  
-3. visually check model convergence  
-4. see if twostep models lead to (substantially) different estimates  
-5. if so, estimate phase3 of these models (and fit statistics) and compare final models  
-6. Compare GOF  
-
-## 5.1. estimate ministep model
-
-We already did this above of course. But hey,..
-
-### 5.1.1. via RSiena
-
-```{r, eval=FALSE}
-#Step 1. prepare dataset
-mynet <- sienaDependent(array(c(s501, s502), dim=c(50, 50, 2)))
-alcohol <- s50a
-smoke <- s50s
-smoke <- coCovar(smoke[, 1])
-alcohol <- coCovar(alcohol[, 1])
-mydata <- sienaDataCreate(mynet, smoke, alcohol)
-
-# Step 2. algorithm
-myalgorithm <- sienaAlgorithmCreate(cond = FALSE, findiff = TRUE, projname=NULL) 
-
-# Step 3. Define the model
-myeff <- getEffects(mydata)
-myeff <- includeEffects(myeff, cycle3, transTrip)
-myeff <- includeEffects(myeff, egoX, altX, egoXaltX, interaction1 = "alcohol")
-myeff <- includeEffects(myeff, simX, interaction1 = "smoke")
-
-# Step 4. Estimate the model. 
-ans3 <- siena07(myalgorithm, data=mydata, effects=myeff, batch=TRUE, returnDeps = TRUE)
-```
-
-### 5.1.2. via RsienaTwoStep
-
-```{r, eval=FALSE}
-#Step 1. prepare dataset
-DF <- data.frame(alcohol = s50a[, 1], smoke = s50s[, 1])
-#Step 2. define the model 
-STATS <- list(ts_degree, 
-              ts_recip, 
-              ts_transTrip, 
-              ts_cycle3, 
-              list(ts_simX, "smoke"), 
-              list(ts_altX, "alcohol"), 
-              list(ts_egoX, "alcohol"), 
-              list(ts_egoXaltX, "alcohol"))
-#Step 3. estimate Ministep model (default)
-ts_ansMS <- ts_estim(net1 = s501, net2= s502, statistics = STATS, ccovar = DF, parallel = TRUE)
-```
 
 
 ## 5.2. Estimate twostep models
@@ -495,20 +387,20 @@ The goal is not so much to come to a perfect estimate but to check if the estima
 
 ```{r, eval=FALSE}
 ### simultaneity
-ts_ansS <- ts_estim(ans = ans3, nite = 250, conv = 0.01, parallel = TRUE, phase3 = FALSE, p2step = c(0,1,0))
-fsave(ts_ansS, "ts_ansS.rda")
+ts_ansb1S <- ts_estim(ans = ans3, nite = 500, conv = 0.01, parallel = TRUE, phase3 = FALSE, p2step = c(0,1,0))
+fsave(ts_ansb1S, "ts_ansb1S.rda")
 
 ### weak coordination
-ts_ansWC <- ts_estim(ans = ans3, nite = 250, conv = 0.01, parallel = TRUE, phase3 = FALSE, p2step = c(0,1,0), dist1 = 2, dist2 = 2, modet1 = "degree", modet2 = "degree")
-fsave(ts_ansWC, "ts_ansWC.rda")
+ts_ansb1WC <- ts_estim(ans = ans3, nite = 500, conv = 0.01, parallel = TRUE, phase3 = FALSE, p2step = c(0,1,0), dist1 = 2, dist2 = 2, modet1 = "degree", modet2 = "degree")
+fsave(ts_ansb1WC, "ts_ansb1WC.rda")
 
 ### strict coordination
-ts_ansSC <- ts_estim(ans = ans3, nite = 250, conv = 0.01, parallel = TRUE, phase3 = FALSE, p2step = c(0,1,0), dist1 = 2, modet1 = "degree" )
-fsave(ts_ansSC, "ts_ansSC.rda")
+ts_ansb1SC <- ts_estim(ans = ans3, nite = 500, conv = 0.01, parallel = TRUE, phase3 = FALSE, p2step = c(0,1,0), dist1 = 2, modet1 = "degree" )
+fsave(ts_ansb1SC, "ts_ansb1SC.rda")
 
 ### simstep
-ts_ansST <- ts_estim(ans = ans3, nite = 250, conv = 0.01, parallel = TRUE, phase3 = FALSE, p2step = c(0,0,1))
-fsave(ts_ansST, "ts_ansST.rda")
+ts_ansb1ST <- ts_estim(ans = ans3, nite = 500, conv = 0.01, parallel = TRUE, phase3 = FALSE, p2step = c(0,0,1))
+fsave(ts_ansb1ST, "ts_ansb1ST.rda")
 ```
 
 
@@ -528,7 +420,7 @@ rm(x)
 ```
 
 ## 5.3. check convergence visually  {.tabset .tabset-fade} 
-We see that weak coordination, strict coordination and simstep stopped after the maximum of 250 iterations. Thus, for these models it takes (a bit) longer to reach convergence. We also observe more wobbly lines. But all in all, not too bad? 
+
 
 ### 5.3.1. simultaneity
 ```{r, warning=FALSE, message=FALSE}
@@ -679,6 +571,7 @@ rm(x)
 
 
 ```{r}
+ans3 <- ansb1
 estim_MS <- ans3$theta
 SE_MS <- sqrt(diag(ans3$covtheta))
 tstat_MS <- ans3$tconv
@@ -932,3 +825,61 @@ Conclusion:
 
 RsienaTwoStep offers a workflow for assessing the extent to which the ministep assumption is crucial. By crucial I mean that parameter estimates and model fit depend on the chosen 'micro theory of interaction'.  
 In the above example, the assumption is not crucial. All theories of interaction lead to similar conclusions with respect to the significance of the included statistics and the GOF of the ministep and twostep models are very similar. Perhaps the simstep models has the best GOF.  
+
+
+
+
+---- 
+
+- klad
+
+
+
+# okay let us re-estimate the simulated data
+
+```{r}
+ts_simdata$startvalues_sim
+friendship <- sienaDependent(array(c(ts_simdata$net_sim1, ts_simdata$net_sim2), dim = c(50, 50,
+    2)))  
+
+alcohol <- sienaDependent(as.matrix(ts_simdata$DF_sim[,1:2]), type = "behavior")
+smoke <- coCovar(as.numeric(ts_simdata$DF_sim[,3]))
+mydata <- sienaDataCreate(friendship, smoke, alcohol)
+
+myeff <- getEffects(mydata)
+myeff <- includeEffects(myeff, cycle3, transTrip)
+myeff <- includeEffects(myeff, simX, interaction1 = "smoke")
+myeff <- includeEffects(myeff, absDiffX, interaction1 = "alcohol")
+myeff <- includeEffects(myeff, name = "alcohol", avAlt, interaction1 = "friendship")
+myeff <- includeEffects(myeff, name = "alcohol", effFrom, interaction1 = "smoke")
+
+print01Report(mydata)
+
+myalgorithm <- sienaAlgorithmCreate(cond = FALSE, findiff = TRUE, projname="simdata") 
+
+anssimdata1 <- siena07(myalgorithm, data=mydata, effects=myeff, batch=TRUE, returnDeps = TRUE)
+ans2simdata1 <- siena07(myalgorithm, data=mydata, effects=myeff, prevAns = anssimdata1, batch=TRUE, returnDeps = TRUE)
+```
+
+```{r}
+
+```
+
+
+
+```{r}
+library(igraph)
+g1 <- (graph_from_adjacency_matrix(ts_simdata$net_sim1, mode = "directed"))
+V(g1)$size <- .2
+E(g1)$arrow.size <- .2
+l <- layout_with_mds(g1)
+plot(g1, layout = l)
+
+
+g2 <- (graph_from_adjacency_matrix(ts_simdata$net_sim2, mode = "directed"))
+V(g2)$size <- .2
+E(g2)$arrow.size <- .2
+plot(g2, layout = l)
+```
+
+

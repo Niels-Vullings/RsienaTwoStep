@@ -61,7 +61,7 @@
 #' @examples
 #' ts_alternatives_ministep(net = ts_net1, ego = 3)
 #' @export
-ts_alternatives_ministep <- function(net, ego) {
+ts_alternatives_ministep <- function(net, ego, dist1 = NULL, modet1 = "degree") {
   num_alternatives <- ncol(net)
 
   # Use mapply to generate alternative networks for all alters
@@ -70,6 +70,14 @@ ts_alternatives_ministep <- function(net, ego) {
 
   # Ensure ego's relations to itself are not changed
   list_alternatives[[ego]] <- net
+
+  # Filter out all options that do not meet dist1/modet1 criteria
+  if (!is.null(dist1)) {
+    dist_t1 <- ts_geodist(net = net, ego1 = ego, ego2 = 1:ncol(net),
+                          degree = modet1)
+    list_alternatives <- list_alternatives[(dist_t1 <= dist1)]
+  }
+
 
   return(list_alternatives)
 }

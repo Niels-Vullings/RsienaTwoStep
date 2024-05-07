@@ -1,7 +1,7 @@
 #' @title Network census
 #'
 #' @description These functions calculate characteristics of the simulated
-#'   networks. For now, only a dyad census and a triad census are implemented.
+#'   networks.
 #'
 #' @details For examples on how to use these statistics see:
 #'   vignette("Introduction_RsienaTwoStep").

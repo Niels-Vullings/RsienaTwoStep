@@ -1,17 +1,23 @@
 #' @title Network Statistics
 #'
-#' @description These functions calculate the respective network statistic for ego. When multiplied with the importance of each statistic (the 'parameters') this constitutes the network evaluation of ego. See: [`ts_eval()`].
+#' @description These functions calculate the respective network statistic for
+#'   ego. When multiplied with the importance of each statistic (the
+#'   'parameters') this constitutes the network evaluation of ego. See:
+#'   [`ts_eval()`].
 #'
-#' @details For examples on how to use these statistics see: `vignette("1.Introduction_RsienaTwoStep", package="RsienaTwoStep")`.
+#' @details For examples on how to use these statistics see:
+#'   `vignette("1.Introduction_RsienaTwoStep", package="RsienaTwoStep")`.
 #'
-#' For the mathematical definition of these network statistics see chapter 12 of the RSiena manual \insertCite{ripley2022manual}{RsienaTwoStep}.
+#'   For the mathematical definition of these network statistics see chapter 12
+#'   of the RSiena manual \insertCite{ripley2022manual}{RsienaTwoStep}.
 #' @family networkstatistics
-#' @param net matrix, the adjacency matrix representing the relations between actors. Valid values are 0 and 1.
+#' @param net matrix, the adjacency matrix representing the relations between
+#'   actors. Valid values are 0 and 1.
 #' @param cov numeric, covariate scores
-#' @param ego numeric, the ego for which we want to calculate the network statistic.
+#' @param ego numeric, the ego for which we want to calculate the network
+#'   statistic.
 #'
-#' @references
-#' \insertRef{ripley2022manual}{RsienaTwoStep}
+#' @references \insertRef{ripley2022manual}{RsienaTwoStep}
 #' @return numeric value
 #' @seealso [`ts_eval()`]
 #' @examples
@@ -140,7 +146,8 @@ ts_cycle3 <- function(net, ego) {
       if (length(altersj)>0) {
         for (alter2 in altersj) {
           statistic <- statistic + net[alter2, ego]
-          # for some reason in RSiena the 3cycles are counted and not the number of three cycles for each ego summed
+          # for some reason in RSiena the 3cycles are counted and not the number
+          # of three cycles for each ego summed
         }
       }
     }
@@ -189,13 +196,13 @@ attr(ts_simX, "name") <- "simX"
 
 #' @rdname ts_degree
 #' @export
-ts_absdiffX <- function(net, ego, cov) {
+ts_absDiffX <- function(net, ego, cov) {
   statistic <- 0
   alters <- which(net[ego,]==1)
   statistic <- sum(abs(cov[alters] - cov[ego]))
   return(statistic)
 }
-attr(ts_absdiffX, "name") <- "absdiffX"
+attr(ts_absDiffX, "name") <- "absDiffX"
 
 #' @rdname ts_degree
 #' @export

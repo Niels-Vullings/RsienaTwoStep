@@ -13,11 +13,21 @@ knitr::opts_chunk$set(
 )
 ```
 
- <a href="https://jochemtolsma.github.io/RsienaTwoStep/"><img src="man/figures/logo.png" align="left" height="139" /></a>
+<!--
+[![R-CMD-check](https://github.com/JochemTolsma/RsienaTwoStep/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/JochemTolsma/RsienaTwoStep/actions/workflows/R-CMD-check.yaml)  
+
+  [![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
+-->
 
 ---  
 
-# 1. GOAL
+<!-- badges: start -->
+[![R-CMD-check](https://github.com/r-lib/pkgdown/workflows/R-CMD-check/badge.svg)](https://github.com/r-lib/pkgdown/actions){.pkgdown-devel}
+
+  [![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
+<!-- badges: end -->
+
+# 1. RsienaTwoStep <img src="man/figures/logo.png" align="right", alt = "", width="120" />
  
 The goal of `RsienaTwoStep` is to provide a method to asses the extent to which results obtained by `RSiena::siena07()` depend on the validity of the **ministep** assumption.
 
@@ -70,7 +80,7 @@ library(RsienaTwoStep)
 ## 3.1. Our network
 
 ```{r, message=FALSE, warning=FALSE, results='hold'}
-net1g <- igraph::graph_from_adjacency_matrix(net1, mode="directed")
+net1g <- igraph::graph_from_adjacency_matrix(ts_net1, mode="directed")
 plot(net1g)
 ```
 
@@ -80,12 +90,12 @@ This is of  course not necessary but will make the simulations a lot faster.
 
 ```{r}
 library(doParallel)
-#stopCluster(my.cluster) 
 n.cores <- parallel::detectCores() - 1  #save one core for other work
 # create the cluster
 my.cluster <- parallel::makeCluster(n.cores, type = "PSOCK")
 # register it to be used by %dopar%
 doParallel::registerDoParallel(cl = my.cluster)
+#stopCluster(my.cluster) 
 ```
 
 
@@ -101,11 +111,12 @@ We can now simulate network given different assumptions with respect to tie-chan
 Below we simulate according to the traditional ministep assumption, a twostep assumption and a simstep assumption.  
 
 ```{r}
-sims1 <- ts_sims(nsims=1000, parallel=TRUE, net=net1, rate=10, statistics=list(ts_degree, ts_recip), parameters=c(-1,2), p2step=c(1,0,0), chain=FALSE) #ministep only (one actor can make one tie change)
+#the first value of the startvalues arg refers to the rate parameter
+sims1 <- ts_sims(net1=ts_net1, startvalues=c(10,-1,2), statistics=list(ts_degree, ts_recip), p2step=c(1,0,0), parallel=TRUE) #ministep only (one actor can make one tie change)
 
-sims2 <- ts_sims(nsims=1000, parallel=TRUE, net=net1, rate=10, statistics=list(ts_degree, ts_recip), parameters=c(-1,2), p2step=c(0,1,0), chain=FALSE) #twostep-simultaneity (two random actors can make one tie change simultaneously)
+sims2 <- ts_sims(net1=ts_net1, startvalues=c(10,-1,2), statistics=list(ts_degree, ts_recip), p2step=c(0,1,0), parallel=TRUE) #twostep-simultaneity (two random actors can make one tie change simultaneously)
 
-sims3 <- ts_sims(nsims=1000, parallel=TRUE, net=net1, rate=10, statistics=list(ts_degree, ts_recip), parameters=c(-1,2), p2step=c(0,0,1), chain=FALSE) #simstep (one actor can make two tie changes simultaneously)
+sims3 <- ts_sims(net1=ts_net1, startvalues=c(10,-1,2), statistics=list(ts_degree, ts_recip), p2step=c(0,0,1), parallel=TRUE) #simstep (one actor can make two tie changes simultaneously)
 ```
 
 ### 3.3.2. Network census 
