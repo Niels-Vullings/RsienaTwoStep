@@ -17,6 +17,9 @@ reference:
   - ts_alternatives_ministep
   - ts_alternatives_twostep
   - ts_alternatives_simstep
+  - ts_alternatives_ministep_beh
+  - ts_alternatives_twostep_beh
+  - ts_alternatives_simstep_beh
   - ts_select
   - ts_sims
   - ts_sim
@@ -38,9 +41,11 @@ reference:
   - ts_altX
   - ts_diffX
   - ts_simX
-  - ts_absdiffX
+  - ts_absDiffX
   - ts_sameX
   - ts_egoXaltX
+  - ts_avAlt
+  - ts_effFrom
 - title: Network census
   desc: |
     Functions for network census
@@ -59,6 +64,7 @@ reference:
   - df_ccovar1
   - s501
   - s502
+  - ts_simdata
 - title: Miscellaneous
   desc: |
     data preperation, selecting actors for the ministep or twostep, and calculating the pathlength between the actors

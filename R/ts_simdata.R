@@ -1,6 +1,6 @@
 #' ts_simdata
 #'
-#' A simulated co-evoluation of friendships and alcohol consumption
+#' A simulated co-evolution of friendships and alcohol consumption
 #'
 #'
 #' @format ## `ts_simdata`
