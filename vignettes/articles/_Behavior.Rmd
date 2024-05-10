@@ -1,5 +1,5 @@
 ---
-title: "RSienaWorkFlow"
+title: "Co-evolution behavior and network"
 editor_options: 
   chunk_output_type: inline
 ---
@@ -342,7 +342,7 @@ ESTIM <- df_est$RsienaTwoStep
 ```
 
 ```{r, eval=FALSE}
-ansb1_phase3 <- ts_phase3(startvalues = ESTIM, net1 = s501, net2= s502, statistics = STATS, ccovar = DF, itef3 = 1000, parallel = TRUE, returnDeps = TRUE, verbose = TRUE)
+ansb1_phase3 <- ts_phase3(startvalues = ESTIM, net1 = s501, net2= s502, statistics = STATS, ccovar = DF, itef3 = 500, parallel = TRUE, returnDeps = TRUE, verbose = TRUE)
 ```
 
 ```{r echo=FALSE, eval=FALSE}
@@ -350,8 +350,8 @@ fsave(ansb1_phase3, "ansb1_phase3.rda")
 ```
 
 ```{r, echo=FALSE}
-load("./data/processed/20231025ansb1_phase3.rda")
-ans1c_phase3 <- x
+load("./data/processed/20240508ansb1_phase3.rda")
+ansb1_phase3 <- x
 rm(x)
 ```
 
@@ -387,19 +387,19 @@ The goal is not so much to come to a perfect estimate but to check if the estima
 
 ```{r, eval=FALSE}
 ### simultaneity
-ts_ansb1S <- ts_estim(ans = ans3, nite = 500, conv = 0.01, parallel = TRUE, phase3 = FALSE, p2step = c(0,1,0))
+ts_ansb1S <- ts_estim(ans = ansb1, nite = 500, conv = 0.01, parallel = TRUE, phase3 = FALSE, p2step = c(0,1,0))
 fsave(ts_ansb1S, "ts_ansb1S.rda")
 
 ### weak coordination
-ts_ansb1WC <- ts_estim(ans = ans3, nite = 500, conv = 0.01, parallel = TRUE, phase3 = FALSE, p2step = c(0,1,0), dist1 = 2, dist2 = 2, modet1 = "degree", modet2 = "degree")
+ts_ansb1WC <- ts_estim(ans = ansb1, nite = 500, conv = 0.01, parallel = TRUE, phase3 = FALSE, p2step = c(0,1,0), dist1 = 2, dist2 = 2, modet1 = "degree", modet2 = "degree")
 fsave(ts_ansb1WC, "ts_ansb1WC.rda")
 
 ### strict coordination
-ts_ansb1SC <- ts_estim(ans = ans3, nite = 500, conv = 0.01, parallel = TRUE, phase3 = FALSE, p2step = c(0,1,0), dist1 = 2, modet1 = "degree" )
+ts_ansb1SC <- ts_estim(ans = ansb1, nite = 500, conv = 0.01, parallel = TRUE, phase3 = FALSE, p2step = c(0,1,0), dist1 = 2, modet1 = "degree" )
 fsave(ts_ansb1SC, "ts_ansb1SC.rda")
 
 ### simstep
-ts_ansb1ST <- ts_estim(ans = ans3, nite = 500, conv = 0.01, parallel = TRUE, phase3 = FALSE, p2step = c(0,0,1))
+ts_ansb1ST <- ts_estim(ans = ansb1, nite = 500, conv = 0.01, parallel = TRUE, phase3 = FALSE, p2step = c(0,0,1))
 fsave(ts_ansb1ST, "ts_ansb1ST.rda")
 ```
 

@@ -1032,7 +1032,7 @@ ts_phase3 <- function(ans = NULL,
   }
 
   if (parallel & returnDeps) {
-    restemp <- foreach(i = 1: itef3) %dopar% {
+    restemp <- foreach(i = 1: itef3, .verbose = verbose) %dopar% {
       # to save the simulated z-scores (for one itef1)
       rest <- rest2 <- rep(NA, pn)
 
@@ -1113,10 +1113,11 @@ ts_phase3 <- function(ans = NULL,
           )
         }
         rest <- c(rest, rest2)
-
-      list(rest = rest, simnet = sims1$net_n)
+        restemp <- list(rest = rest, simnet = sims1$net_n)
       }
+      restemp
     }
+
     #convert nested list back to res and simnets
     resnets <- lapply(restemp, `[[`, 2)
     res <- do.call(rbind, lapply(restemp, `[[`, 1))
