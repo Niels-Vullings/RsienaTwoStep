@@ -27,7 +27,9 @@ knitr::opts_chunk$set(
   [![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
 <!-- badges: end -->
 
-# 1. RsienaTwoStep <img src="man/figures/logo.png" align="right", alt = "", width="120" />
+# 1. RsienaTwoStep 
+
+<img src="man/figures/logo.png" align="right", alt = "", width="120" />
  
 The goal of `RsienaTwoStep` is to provide a method to asses the extent to which results obtained by `RSiena::siena07()` depend on the validity of the **ministep** assumption.
 
