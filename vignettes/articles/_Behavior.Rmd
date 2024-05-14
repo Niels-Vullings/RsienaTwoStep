@@ -487,19 +487,19 @@ ggplot(df, aes(x=ite, y=estimate)) +
 
 ```{r}
 #CI of RSiena
-down <- ans3$theta - 1.96 * sqrt(diag(ans3$covtheta))
-up <- ans3$theta + 1.96 * sqrt(diag(ans3$covtheta))
+down <- ansb1$theta - 1.96 * sqrt(diag(ansb1$covtheta))
+up <- ansb1$theta + 1.96 * sqrt(diag(ansb1$covtheta))
 
 #our statistics
 stats <-  factor(vars, levels = vars)
 #final estimates 
-b_s <- ts_ansS[nrow(ts_ansS),]
-b_sc <- ts_ansSC[nrow(ts_ansSC),]
-b_wc <- ts_ansWC[nrow(ts_ansWC),]
-b_st <- ts_ansST[nrow(ts_ansST),]
+b_s <- ts_ansb1S[nrow(ts_ansb1S),]
+b_sc <- ts_ansb1SC[nrow(ts_ansb1SC),]
+b_wc <- ts_ansb1WC[nrow(ts_ansb1WC),]
+b_st <- ts_ansb1ST[nrow(ts_ansb1ST),]
 
 #put everything in a dataframe
-my.dt <- data.frame(statistics = stats, estimate=ans3$theta, down=down, up=up, b_s=b_s, b_sc=b_sc, b_wc=b_wc, b_st=b_st)
+my.dt <- data.frame(statistics = stats, estimate=ansb1$theta, down=down, up=up, b_s=b_s, b_sc=b_sc, b_wc=b_wc, b_st=b_st)
 
 #use different layers to plot the separate estimates. and include a manual legend. 
 ggplot(my.dt, aes(x=statistics, y=estimate)) +         
