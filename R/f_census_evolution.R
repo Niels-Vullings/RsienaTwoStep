@@ -186,11 +186,13 @@ ts_triads.evo <- function(t1,t2, filter = FALSE) {
 
         filt <- df[df$equal <=2,] #Filters data to only include rows that classify as "valid"
         df <- reshape2::melt(table(filt$typeT1, filt$typeT2, dnn = c("Timepoint.1", "Timepoint.2")))
+        df$percentage <- round(df$value/sum(df$value), digits = 3)*100
         print(as.data.frame(df[order(df$Timepoint.1, decreasing = FALSE),]))
 
       } else{
 
         df <- reshape2::melt(table(df$typeT1, df$typeT2, dnn = c("Timepoint.1", "Timepoint.2")))
+        df$percentage <- round(df$value/sum(df$value), digits = 3)*100
         print(as.data.frame(df[order(df$Timepoint.1, decreasing = FALSE),]))
 
       }
