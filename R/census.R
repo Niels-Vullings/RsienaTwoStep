@@ -134,6 +134,7 @@ ts_dyads <- function(sims, net1, simtype="notypespecified", forplot=TRUE) {
                                      names_to = "x",
                                      values_to = "y")
   }
+
   return(df)
 }
 
@@ -142,10 +143,8 @@ ts_dyads <- function(sims, net1, simtype="notypespecified", forplot=TRUE) {
 ts_triads <- function(sims, net1, simtype="notypespecified", forplot=TRUE) {
 
   if(is.list(sims) == TRUE){
-
     nsims <- length(sims)
   } else{
-
     nsims <- 1
   }
 
