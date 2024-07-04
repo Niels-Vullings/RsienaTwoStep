@@ -173,10 +173,32 @@ ts_estim <- function(ans = NULL,
                      phase3 = TRUE) {
 
   ### initializing function
-  # retrieve all data from `ans` if provided
-  # otherwise check mydata and myeff.
-  # still no data, then should have been provided via other arguments directly
 {
+  # starting networks
+  nets <- ts_netprep(ans=ans, mydata=mydata, net1=net1, net2=net2)
+  net1 <- nets$net1
+  net2 <- nets$net2
+
+  # ccovar (and deps)
+  ccovar <- ts_dataprep(ans= ans, mydata= mydata, ccovar=ccovar)
+
+  # included statistics
+  stats <- ts_statprep(ans = ans, myeff = myeff, statistics = statistics)
+  statistics <- stats$statistics
+  namesstatistics <- stats$namesstatistics
+  ratebeh <- stats$ratebeh
+  netstats <- stats$netstats
+
+  #startvalues (afster ts_statprep)
+  startvalues <- ts_startprep(ans=ans, myeff=myeff, net1 = net1, net2 = net2,
+                              ccovar = ccovar, startvalues= startvalues,
+                              namesstatistics = namesstatistics)
+
+}
+
+
+  ### Phase 1
+  {
   # INVERSE OF jacobi matrix for phase1
   if (!is.null(ans)) {
     dinv <-
@@ -197,6 +219,7 @@ ts_estim <- function(ans = NULL,
       dist2 = dist2,
       modet1 = modet1,
       modet2 = modet2,
+      verbose = verbose,
       parallel = parallel
     )
     dinv <- solve(jacob)
@@ -206,7 +229,7 @@ ts_estim <- function(ans = NULL,
     if (verbose) print("skipped phase 1, no dinv in Robbins-Monro algorithm used.")
   }
 
-
+  print("targets")
   # target Z statistics
   targets <- ts_targets(
     ans = ans,
@@ -217,126 +240,20 @@ ts_estim <- function(ans = NULL,
     ccovar = ccovar,
     statistics = statistics
   )
-
-  # starting networks
-  if (is.null(net1)) {
-    if (!is.null(ans)) {
-      net1 <- (ans$f$Data1$depvars$mynet)[, , 1]
-    } else if (!is.null(mydata)) {
-      net1 <- (mydata$depvars$mynet[, , 1])
-    }
-  }
-  if (is.null(net2)) {
-    if (!is.null(ans)) {
-      net2 <- (ans$f$Data1$depvars$mynet)[, , 2]
-    } else if (!is.null(mydata)) {
-      net2 <- (mydata$depvars$mynet[, , 2])
-    }
-  }
-
-
-  # included statistics
-  if (is.null(statistics)) {
-    if (!is.null(ans)) {
-      # namesstatistics <- ans$effects$shortName
-      statistics <- ans$effects$shortName
-      statistics[statistics == "density"] <- "degree"
-      statistics <- as.list((paste0("ts_", statistics))[-1])
-      # names(statistics) <- ans$effects$shortName[-1]
-      statistics <- lapply(statistics, get)
-      for (i in 1:length(statistics)) {
-        if (ans$effects$interaction1[i + 1] != "")
-          statistics[[i]] <-
-            list(statistics[[i]], ans$effects$interaction1[i + 1])
-      }
-    } else if (!is.null(myeff)) {
-      # namesstatistics <- myeff$shortName[myeff$include]
-      statistics <- myeff$shortName[myeff$include]
-      statistics[statistics == "density"] <- "degree"
-      statistics <- as.list((paste0("ts_", statistics))[-1])
-      # names(statistics) <- myeff$shortName[myeff$include][-1]
-      statistics <- lapply(statistics, get)
-      for (i in 1:length(statistics)) {
-        if (myeff$interaction1[myeff$include][i + 1] != "") {
-          statistics[[i]] <-
-            list(statistics[[i]], myeff$interaction1[myeff$include][i + 1])
-        }
-      }
-    }
-  }
-
-  namesstatistics <- NA
-  namesstatistics <- c("rate", sapply(statistics, ts_names))
-  names(statistics) <- namesstatistics[-1]
-
-  # check if there are ccovars stored in ans
-  if (is.null(ccovar)) {
-    if (!is.null(ans) & length(ans$f$Data1$cCovars) > 0) {
-      data <-
-        matrix(
-          NA,
-          nrow = length(ans$f$Data1$cCovars[[1]]),
-          ncol = length(ans$f$Data1$cCovars)
-        )
-      for (i in 1:length(ans$f$Data1$cCovars)) {
-        data[, i] <-
-          as.numeric(ans$f$Data1$cCovars[[i]]) + attr(ans$f$Data1$cCovars[[i]], "mean")
-      }
-      ccovar <- as.data.frame(data)
-      colnames(ccovar) <- names(ans$f$Data1$cCovars)
-    } else if (length(mydata$cCovars) > 0) {
-      data <-
-        matrix(
-          NA,
-          nrow = length(mydata$cCovars[[1]]),
-          ncol = length(mydata$cCovars)
-        )
-      for (i in 1:length(mydata$cCovars)) {
-        data[, i] <-
-          as.numeric(mydata$cCovars[[i]]) + attr(mydata$cCovars[[i]], "mean")
-      }
-      ccovar <- as.data.frame(data)
-      colnames(ccovar) <- names(mydata$cCovars)
-    }
-  }
-
-  # prepare dataset
-  ccovar <- ts_prepdata(ccovar)
+  print(targets)
 
 
 
-  if (is.null(startvalues)) {
-    if (!is.null(ans)) {
-      startvalues <- ans$theta
-    } else if (!is.null(myeff)) {
-      startvalues <- summary(myeff)$initialValue
-    } else {
-      # this is far from perfect. ASK TS how he gets initial values
-      # startvalue_rate <- targets[1]/dim(net1)[1]
-      # startvalue_param <- rep(0, length(statistics))
-      # startvalue_param[1] <- qlogis(sum(net2)/(nrow(net2)*(nrow(net2) - 1)))
-      # startvalues <- c(startvalue_rate, startvalue_param)
-      mynet <-
-        RSiena::sienaDependent(array(c(net1, net2), dim = c(dim(net1), 2)))
-      mydata <- RSiena::sienaDataCreate(mynet)
-      myeff <- RSiena::getEffects(mydata)
-      startvalue_rate <- summary(myeff)$initialValue[1]
-      startvalue_param <- rep(0, length(statistics))
-      startvalue_param[1] <- summary(myeff)$initialValue[2]
-      startvalues <- c(startvalue_rate, startvalue_param)
-    }
-  }
-  names(startvalues) <- namesstatistics
+
+}
+
+  ### Phase 2
   if (verbose) {
     print("startvalues: ")
     print(startvalues)
   }
 
-}
-  ### end of initialization
-
-
-  ##initialization of RM
+    ##initialization of RM
   if (verbose) print("start of phase 2")
   x <- startvalues
   dif <- Inf
@@ -347,13 +264,7 @@ ts_estim <- function(ans = NULL,
   update <- 0
   diagdinv <- diag(dinv)
   AC <- 0
-  ##end initialization of RM
-
-
-
-
-
-
+    ##end initialization of RM
 
   while (max(dif) > conv & ite < nite) {
     ite <- ite + 1 # number of iterations
@@ -379,12 +290,24 @@ ts_estim <- function(ans = NULL,
     )
 
     # calculate the observed statistics
+    if (!length(ratebeh)>0) {
     Z <- ts_targets(
       net1 = net1,
       net2 = sims1[[1]],
       ccovar = ccovar,
       statistics = statistics
     )
+    } else {
+      ccovar_n <- ccovar
+      ccovar_n[,2] <- sims1[[1]]$beh_n
+      Z <- ts_targets(
+        net1 = net1,
+        net2 = sims1[[1]]$net_n,
+        ccovar = ccovar_n,
+        statistics = statistics
+      )
+    }
+
     }
 
     if (parallel) {
@@ -407,12 +330,23 @@ ts_estim <- function(ans = NULL,
         )
 
         # calculate the observed statistics
-        ts_targets(
-          net1 = net1,
-          net2 = sims1[[1]],
-          ccovar = ccovar,
-          statistics = statistics
-        )
+        if (!length(ratebeh)>0) {
+          Z <- ts_targets(
+            net1 = net1,
+            net2 = sims1[[1]]$net_n,
+            ccovar = ccovar,
+            statistics = statistics
+          )
+        } else {
+          ccovar_n <- ccovar
+          ccovar_n[,2] <- sims1[[1]]$beh_n
+          Z <- ts_targets(
+            net1 = net1,
+            net2 = sims1[[1]]$net_n,
+            ccovar = ccovar_n,
+            statistics = statistics
+          )
+        }
 
       }
       Z <- colMeans(Zs)
@@ -471,6 +405,7 @@ ts_estim <- function(ans = NULL,
 
   colnames(r) <- namesstatistics
 
+  ### Phase 3 and return
   if (!phase3) {
     return(r)
   } else {
@@ -488,6 +423,7 @@ ts_estim <- function(ans = NULL,
         dist2 = dist2,
         modet1 = modet1,
         modet2 = modet2,
+        verbose = verbose,
         parallel = parallel,
         returnDeps = returnDeps
       )
@@ -516,97 +452,63 @@ ts_targets <-
       stop()
     }
 
-
-    # initialize
-    # networks
-    if (is.null(net1)) {
-      if (!is.null(mydata)) {
-        net1 <- (mydata$depvars$mynet[, , 1])
-      }
-    }
-
-    if (is.null(net2)) {
-      if (!is.null(mydata)) {
-        net2 <- (mydata$depvars$mynet[, , 2])
-      }
-    }
-
-
+    ### initialize
+    # starting networks
+    nets <- ts_netprep(ans=ans, mydata=mydata, net1=net1, net2=net2)
+    net1 <- nets$net1
+    net2 <- nets$net2
     # included statistics
-    if (is.null(statistics)) {
-      if (!is.null(myeff)) {
-        namesstatistics <- myeff$shortName[myeff$include]
-        namesstatistics[namesstatistics == "density"] <- "degree"
-        statistics <- myeff$shortName[myeff$include]
-        statistics[statistics == "density"] <- "degree"
-        statistics <- as.list((paste0("ts_", statistics))[-1])
-        names(statistics) <- namesstatistics[-1]
-        statistics <- lapply(statistics, get)
-        for (i in 1:length(statistics)) {
-          if (myeff$interaction1[myeff$include][i + 1] != "") {
-            statistics[[i]] <-
-              list(statistics[[i]], myeff$interaction1[myeff$include][i + 1])
+    stats <- ts_statprep(ans = ans, myeff = myeff, statistics = statistics)
+    statistics <- stats$statistics
+    namesstatistics <- stats$namesstatistics
+    ratebeh <- stats$ratebeh
+    netstats <- stats$netstats
+    # ccovar (and deps)
+    ccovar <- ts_dataprep(ans= ans, mydata= mydata, ccovar=ccovar)
+    ### end
+
+    # calculate the observed statistics
+     Z <- rep(NA, length(namesstatistics) ) # empty vector
+
+
+     for (j in seq_along(namesstatistics)) {
+       if (namesstatistics[j] == "Rate") {
+        Z[j] <- sum(abs(net2 - net1))
+      } else if (namesstatistics[j] == "Rate beh") {
+        Z[j] <- sum(abs(ccovar[, 2] - ccovar[, 1] ))
+      } else {
+        stat <- statistics[[which(names(statistics) == namesstatistics[j])]]
+
+        if (length(stat) == 1) {
+          #network statistic
+          if (netstats[j]) {
+          # Single-argument statistic function
+          Z[j] <- sum(sapply(1:nrow(net2), function(i) stat(net = net2, ego = i)))
+          } else {
+            #behavior statistic
+            Z[j] <- sum(sapply(1:nrow(net2), function(i) stat(beh = ccovar[,2], ego = i)))
+          }
+          # } else if (length(stat) == 2) {
+        } else {
+          #network statistic
+          if (netstats[j]) {
+          # Two-argument statistic function
+          if (stat[[2]] %in% names(ccovar)) { #hence it is a ccovar
+            Z[j] <- sum(sapply(1:nrow(net2), function(i) stat[[1]](net = net2, ego = i, cov = ccovar[, stat[[2]]])))
+          } else { #it is a depvar
+            depvar <- paste0(stat[[2]],".1") ##I really do not understand why in these statistics to calculate the target value the depvar at wave 1 is used.
+            Z[j] <- sum(sapply(1:nrow(net2), function(i) stat[[1]](net = net2, ego = i, cov = ccovar[,depvar])))
+          }
+          } else {
+            #behavior statistic
+            cov <- NULL
+            if (stat[[2]] %in% names(ccovar)) cov <- ccovar[, stat[[2]]]
+            Z[j] <- sum(sapply(1:nrow(net2), function(i) stat[[1]](beh = ccovar[,2], net = net1, ego = i, cov = cov)))
+            ##I really do not understand why in these statistics to calculate the target value the network at wave 1 is used.
           }
         }
       }
-    } else {
-      namesstatistics <- c("Rate", sapply(statistics, ts_names))
     }
-
-
-
-    # check if there are ccovars stored in ans
-    if (is.null(ccovar)) {
-      if (!is.null(mydata) & length(mydata$cCovars) > 0) {
-        data <-
-          matrix(
-            NA,
-            nrow = length(mydata$cCovars[[1]]),
-            ncol = length(mydata$cCovars)
-          )
-        for (i in 1:length(mydata$cCovars)) {
-          data[, i] <-
-            as.numeric(mydata$cCovars[[i]]) + attr(mydata$cCovars[[i]], "mean")
-        }
-        ccovar <- as.data.frame(data)
-        colnames(ccovar) <- names(mydata$cCovars)
-      }
-    }
-
-    #prepare data
-    ccovar <- ts_prepdata(ccovar)
-
-    # # calculate the observed statistics
-     Z <- rep(NA, length(statistics) + 1) # empty vector
-     Z[1] <- sum(abs(net2 - net1)) # rate
-
-    # for (j in 1:length(statistics)) {
-    #   # we have statistics without and with ccovar
-    #   if (length(statistics[[j]]) == 1) {
-    #     Z[j + 1] <- foreach::foreach(i = 1:nrow(net2), .combine = "c") %dopar%
-    #       statistics[[j]](net = net2, ego = i) |>
-    #       sum()
-    #   }
-    #   if (length(statistics[[j]]) == 2) {
-    #     Z[j + 1] <- foreach::foreach(i = 1:nrow(net2), .combine = "c") %dopar%
-    #       statistics[[j]][[1]](net = net2, ego = i, ccovar[, statistics[[j]][[2]]]) |>
-    #       sum()
-    #   }
-    # }
-
-
-     for (j in seq_along(statistics)) {
-       stat <- statistics[[j]]
-
-       if (length(stat) == 1) {
-         # Single-argument statistic function
-         Z[j + 1] <- sum(sapply(1:nrow(net2), function(i) stat(net2, i)))
-       #} else if (length(stat) == 2) {
-       } else {
-          # Two-argument statistic function
-         Z[j + 1] <- sum(sapply(1:nrow(net2), function(i) stat[[1]](net2, i, ccovar[, stat[[2]]])))
-       }
-     }
 
     #correct target for cycle3
     names(Z) <- namesstatistics
@@ -631,98 +533,68 @@ ts_phase1 <- function(ans = NULL,
                       modet2 = NULL,
                       verbose = TRUE,
                       parallel = FALSE) {
-  # if siena07 is used to estimate a model we simply use the jacobi-matrix stored in that object
+
+    # if siena07 is used to estimate a model we simply use the jacobi-matrix stored in that object
   if (!is.null(ans)) {
     dinv_f1 <- ans$dfra1
     return(dinv_f1)
     stop()
   }
 
+  ### start initialization
+  {
+  #starting networks
+  nets <- ts_netprep(ans=ans, mydata=mydata, net1=net1, net2=net2)
+  net1 <- nets$net1
+  net2 <- nets$net2
+
+  # ccovar (and deps)
+  ccovar <- ts_dataprep(ans= ans, mydata= mydata, ccovar=ccovar)
+
+  # included statistics
+  stats <- ts_statprep(ans = ans, myeff = myeff, statistics = statistics)
+  statistics <- stats$statistics
+  namesstatistics <- stats$namesstatistics
+  ratebeh <- stats$ratebeh
+  netstats <- stats$netstats
+
+  #startvalues (afster ts_statprep)
+  startvalues <- ts_startprep(ans=ans, myeff=myeff, net1 = net1, net2 = net2,
+                              ccovar = ccovar, startvalues= startvalues,
+                              namesstatistics = namesstatistics)
 
 
-  # if we do have mydata and myeff but not ans we fill retrieve necessary objects
-  if (is.null(net1))
-    net1 <- (mydata$depvars$mynet[, , 1])
-  if (is.null(net2))
-    net2 <- (mydata$depvars$mynet[, , 2])
-  if (is.null(statistics)) {
-    # namesstatistics <- myeff$shortName[myeff$include]
-    statistics <- myeff$shortName[myeff$include]
-    statistics[statistics == "density"] <- "degree"
-    statistics <- as.list((paste0("ts_", statistics))[-1])
-    # names(statistics) <- ans$effects$shortName[-1]
-    statistics <- lapply(statistics, get)
-    for (i in 1:length(statistics)) {
-      if (myeff$interaction1[myeff$include][i + 1] != "") {
-        statistics[[i]] <-
-          list(statistics[[i]], myeff$interaction1[myeff$include][i + 1])
-      }
-    }
+
   }
-
-    namesstatistics <- NA
-    namesstatistics <- c("rate", sapply(statistics, ts_names))
-    names(statistics) <- namesstatistics[-1]
-
-
-  # check if there are ccovars stored in mydata
-  if (is.null(ccovar) & length(mydata$cCovars) > 0) {
-    data <-
-      matrix(
-        NA,
-        nrow = length(mydata$cCovars[[1]]),
-        ncol = length(mydata$cCovars)
-      )
-    for (i in 1:length(mydata$cCovars)) {
-      data[, i] <-
-        as.numeric(mydata$cCovars[[i]]) + attr(mydata$cCovars[[i]], "mean")
-    }
-    ccovar <- as.data.frame(data)
-    colnames(ccovar) <- names(mydata$cCovars)
-  }
-
-  # prepare data
-  ccovar <- ts_prepdata(ccovar)
+  ### end of initialization
 
 
   # here we start with the actual phase 1.
-  if (!is.null(myeff)) {
-    startvalues <- summary(myeff)$initialValue
-    } else {
-    # targets <- ts_targets(net1 = net1, net2 = net2, statistics = statistics)
-    # startvalue_rate <- targets[1] / dim(net1)[1]
-    # startvalue_param <- rep(0, length(statistics))
-    # startvalue_param[1] <- qlogis(sum(net2) / (nrow(net2) * (nrow(net2) - 1)))
-    mynet <-
-      RSiena::sienaDependent(array(c(net1, net2), dim = c(dim(net1), 2)))
-    mydata <- RSiena::sienaDataCreate(mynet)
-    myeff <- RSiena::getEffects(mydata)
-    startvalue_rate <- summary(myeff)$initialValue[1]
-    startvalue_param <- rep(0, length(statistics))
-    startvalue_param[1] <- summary(myeff)$initialValue[2]
-    startvalues <- c(startvalue_rate, startvalue_param)
-  }
 
   crn <- runif(itef1, 1 - 2^31, 2^31 - 1) # common random numbers
-  pn <- length(statistics) + 1
-  deviation <- rep(0.1, length(statistics) + 1)
-  deviation[1] <- startvalues[1] / 10
-
+  pn <- length(startvalues)
+  deviation <- rep(0.1, pn)
+  deviation[names(startvalues) == "Rate"] <- startvalues[names(startvalues) == "Rate"] / 10
+  deviation[names(startvalues) == "Rate beh"] <- startvalues[names(startvalues) == "Rate beh"] / 10
 
   if (verbose)
     print("start phase 1")
 
 if (!parallel) {
+  # to save the simulated z-scores
   res <-
     matrix(NA, nrow = itef1, ncol = pn + (pn * pn))
-  # to save the simulated z-scores
+
+
   for (i in 1:itef1) {
-    if (verbose)
-      print(i)
+    if (verbose) print(i)
+
+    # to save the simulated z-scores (for one itef1)
     rest <- rest2 <- rep(NA, pn)
+
     # Zbar
     set.seed(crn[i]) # is this just our crn
-    sim_net <-
+    sims1 <-
       ts_sim(
         net1 = net1,
         ccovar = ccovar,
@@ -734,46 +606,41 @@ if (!parallel) {
         modet1 = modet1,
         modet2 = modet2
       )
-    rest <-
-      ts_targets(net1 = net1,
-                 net2 = sim_net,
-                 ccovar = ccovar,
-                 statistics = statistics)
 
-    # rate
-    startvalues_rate <- startvalues
-    startvalues_rate[1] <- startvalues_rate[1] + deviation[1]
-    set.seed(crn[i]) # is this just our crn
-    sim_net <-
-      ts_sim(
+    # calculate the observed statistics
+    if (!length(ratebeh)>0) {
+      rest <- ts_targets(
         net1 = net1,
+        net2 = sims1$net_n,
         ccovar = ccovar,
-        startvalues = startvalues_rate,
-        statistics = statistics,
-        p2step = p2step,
-        dist1 = dist1,
-        dist2 = dist2,
-        modet1 = modet1,
-        modet2 = modet2
+        statistics = statistics
       )
-    rest2 <-
-      ts_targets(net1 = net1,
-                 net2 = sim_net,
-                 ccovar = ccovar,
-                 statistics = statistics)
-    rest <- c(rest, rest2)
+    } else {
+      ccovar_n <- ccovar
+      ccovar_n[,2] <- sims1$beh_n
+      rest <- ts_targets(
+        net1 = net1,
+        net2 = sims1$net_n,
+        ccovar = ccovar_n,
+        statistics = statistics
+      )
+    }
 
-    # statistics
-    for (j in 1:length(statistics)) {
+    # start chaning the startvalues for rate and statistics
+    for (j in 1:length(startvalues)) {
+      #print(j)
+      #set new startvalues
+      startvalues_n <- startvalues
+      startvalues_n[j] <- startvalues_n[j] + deviation[j]
+
+      #simulate network with new startvalues
+      #set the crn
       set.seed(crn[i])
-      startvalues_param <- startvalues
-      startvalues_param[1+ j] <-
-        startvalues_param[1 + j] + deviation[1 + j]
-      sim_net <-
+      sims1 <-
         ts_sim(
           net1 = net1,
           ccovar = ccovar,
-          startvalues = startvalues_param,
+          startvalues = startvalues_n,
           statistics = statistics,
           p2step = p2step,
           dist1 = dist1,
@@ -781,11 +648,27 @@ if (!parallel) {
           modet1 = modet1,
           modet2 = modet2
         )
-      rest2 <-
-        ts_targets(net1 = net1,
-                   net2 = sim_net,
-                   ccovar = ccovar,
-                   statistics = statistics)
+
+
+      # calculate the observed statistics
+      if (!length(ratebeh)>0) {
+        rest2 <- ts_targets(
+          net1 = net1,
+          net2 = sims1$net_n,
+          ccovar = ccovar,
+          statistics = statistics
+        )
+      } else {
+        ccovar_n <- ccovar
+        ccovar_n[,2] <- sims1$beh_n
+        rest2 <- ts_targets(
+          net1 = net1,
+          net2 = sims1$net_n,
+          ccovar = ccovar_n,
+          statistics = statistics
+        )
+      }
+
       rest <- c(rest, rest2)
     }
     res[i,] <- rest
@@ -793,12 +676,15 @@ if (!parallel) {
   # now we have all z-scores we can calculate the jacobi
 }
 
-  if (parallel) {
-    res <- foreach(i = 1: itef1, .combine="rbind") %dopar% {
+if (parallel) {
+    res <- foreach(i = 1: itef1, .combine="rbind", .verbose = verbose) %dopar% {
+
+      # to save the simulated z-scores (for one itef1)
+      rest <- rest2 <- rep(NA, pn)
 
       # Zbar
-      set.seed(crn[i])
-      sim_net <-
+      set.seed(crn[i]) # is this just our crn
+      sims1 <-
         ts_sim(
           net1 = net1,
           ccovar = ccovar,
@@ -810,67 +696,72 @@ if (!parallel) {
           modet1 = modet1,
           modet2 = modet2
         )
-      rest <-
-        ts_targets(net1 = net1,
-                   net2 = sim_net,
-                   ccovar = ccovar,
-                   statistics = statistics)
 
-      # rate
-      set.seed(crn[i])
-      startvalues_rate <- startvalues
-      startvalues_rate[1] <- startvalues_rate[1] + deviation[1]
-      sim_net <-
-        ts_sim(
+      # calculate the observed statistics
+      if (!length(ratebeh)>0) {
+        rest <- ts_targets(
           net1 = net1,
+          net2 = sims1$net_n,
           ccovar = ccovar,
-          startvalues = startvalues_rate,
-          statistics = statistics,
-          p2step = p2step,
-          dist1 = dist1,
-          dist2 = dist2,
-          modet1 = modet1,
-          modet2 = modet2
+          statistics = statistics
         )
-      rest2 <-
-        ts_targets(net1 = net1,
-                   net2 = sim_net,
-                   ccovar = ccovar,
-                   statistics = statistics)
-      rest <- c(rest, rest2)
+      } else {
+        ccovar_n <- ccovar
+        ccovar_n[,2] <- sims1$beh_n
+        rest <- ts_targets(
+          net1 = net1,
+          net2 = sims1$net_n,
+          ccovar = ccovar_n,
+          statistics = statistics
+        )
+      }
 
-      # statistics
-      rest3 <-
-        foreach(j = 1:length(statistics), .combine="cbind") %do% {
-          set.seed(crn[i])
-          startvalues_param <- startvalues
-          startvalues_param[1+ j] <-
-            startvalues_param[1 + j] + deviation[1 + j]
-          sim_net <-
-            ts_sim(
-              net1 = net1,
-              ccovar = ccovar,
-              startvalues = startvalues_param,
-              statistics = statistics,
-              p2step = p2step,
-              dist1 = dist1,
-              dist2 = dist2,
-              modet1 = modet1,
-              modet2 = modet2
-            )
-          rest3 <-
-            ts_targets(net1 = net1,
-                       net2 = sim_net,
-                       ccovar = ccovar,
-                       statistics = statistics)
+      # start chaning the startvalues for rate and statistics
+      for (j in 1:length(startvalues)) {
+        #print(j)
+        #set new startvalues
+        startvalues_n <- startvalues
+        startvalues_n[j] <- startvalues_n[j] + deviation[j]
+
+        #simulate network with new startvalues
+        #set the crn
+        set.seed(crn[i])
+        sims1 <-
+          ts_sim(
+            net1 = net1,
+            ccovar = ccovar,
+            startvalues = startvalues_n,
+            statistics = statistics,
+            p2step = p2step,
+            dist1 = dist1,
+            dist2 = dist2,
+            modet1 = modet1,
+            modet2 = modet2
+          )
+
+
+        # calculate the observed statistics
+        if (!length(ratebeh)>0) {
+          rest2 <- ts_targets(
+            net1 = net1,
+            net2 = sims1$net_n,
+            ccovar = ccovar,
+            statistics = statistics
+          )
+        } else {
+          ccovar_n <- ccovar
+          ccovar_n[,2] <- sims1$beh_n
+          rest2 <- ts_targets(
+            net1 = net1,
+            net2 = sims1$net_n,
+            ccovar = ccovar_n,
+            statistics = statistics
+          )
         }
-      rest <- c(rest, rest3)
+      rest <- c(rest, rest2)
+      }
       rest
-    }
   }
-
-
-
 
   res_mat <- matrix(NA, nrow = pn, ncol = pn) # the jacobi matrix
   count <- pn + 1
@@ -884,6 +775,7 @@ if (!parallel) {
   return(t(res_mat)) # perhaps return a list with more info, like the deviations and initial values and stuff
 }
 
+}
 
 
 
@@ -914,125 +806,28 @@ ts_phase3 <- function(ans = NULL,
   if (verbose)
     print("start phase 3")
 
-  # retrieve all data from `ans` if provided
-  # otherwise check mydata and myeff.
-  # still no data, then should have been provided via other arguments directly
-  {
+  ### start of initialization
+  #starting networks
+  nets <- ts_netprep(ans=ans, mydata=mydata, net1=net1, net2=net2)
+  net1 <- nets$net1
+  net2 <- nets$net2
+
+  # ccovar (and deps)
+  ccovar <- ts_dataprep(ans= ans, mydata= mydata, ccovar=ccovar)
+
+  # included statistics
+  stats <- ts_statprep(ans = ans, myeff = myeff, statistics = statistics)
+  statistics <- stats$statistics
+  namesstatistics <- stats$namesstatistics
+  ratebeh <- stats$ratebeh
+  netstats <- stats$netstats
+
+  #startvalues (afster ts_statprep)
+  startvalues <- ts_startprep(ans=ans, myeff=myeff, net1 = net1, net2 = net2,
+                              ccovar = ccovar, startvalues= startvalues,
+                              namesstatistics = namesstatistics)
 
 
-    # starting networks
-    if (is.null(net1)) {
-      if (!is.null(ans)) {
-        net1 <- (ans$f$Data1$depvars$mynet)[, , 1]
-      } else if (!is.null(mydata)) {
-        net1 <- (mydata$depvars$mynet[, , 1])
-      }
-    }
-    if (is.null(net2)) {
-      if (!is.null(ans)) {
-        net2 <- (ans$f$Data1$depvars$mynet)[, , 2]
-      } else if (!is.null(mydata)) {
-        net2 <- (mydata$depvars$mynet[, , 2])
-      }
-    }
-
-
-    # included statistics
-    if (is.null(statistics)) {
-      if (!is.null(ans)) {
-        # namesstatistics <- ans$effects$shortName
-        statistics <- ans$effects$shortName
-        statistics[statistics == "density"] <- "degree"
-        statistics <- as.list((paste0("ts_", statistics))[-1])
-        # names(statistics) <- ans$effects$shortName[-1]
-        statistics <- lapply(statistics, get)
-        for (i in 1:length(statistics)) {
-          if (ans$effects$interaction1[i + 1] != "")
-            statistics[[i]] <-
-              list(statistics[[i]], ans$effects$interaction1[i + 1])
-        }
-      } else if (!is.null(myeff)) {
-        # namesstatistics <- myeff$shortName[myeff$include]
-        statistics <- myeff$shortName[myeff$include]
-        statistics[statistics == "density"] <- "degree"
-        statistics <- as.list((paste0("ts_", statistics))[-1])
-        # names(statistics) <- myeff$shortName[myeff$include][-1]
-        statistics <- lapply(statistics, get)
-        for (i in 1:length(statistics)) {
-          if (myeff$interaction1[myeff$include][i + 1] != "") {
-            statistics[[i]] <-
-              list(statistics[[i]], myeff$interaction1[myeff$include][i + 1])
-          }
-        }
-      }
-    }
-
-    namesstatistics <- NA
-    namesstatistics <- c("rate", sapply(statistics, ts_names))
-    names(statistics) <- namesstatistics[-1]
-
-    # check if there are ccovars stored in ans
-    if (is.null(ccovar)) {
-      if (!is.null(ans) & length(ans$f$Data1$cCovars) > 0) {
-        data <-
-          matrix(
-            NA,
-            nrow = length(ans$f$Data1$cCovars[[1]]),
-            ncol = length(ans$f$Data1$cCovars)
-          )
-        for (i in 1:length(ans$f$Data1$cCovars)) {
-          data[, i] <-
-            as.numeric(ans$f$Data1$cCovars[[i]]) + attr(ans$f$Data1$cCovars[[i]], "mean")
-        }
-        ccovar <- as.data.frame(data)
-        colnames(ccovar) <- names(ans$f$Data1$cCovars)
-      } else if (length(mydata$cCovars) > 0) {
-        data <-
-          matrix(
-            NA,
-            nrow = length(mydata$cCovars[[1]]),
-            ncol = length(mydata$cCovars)
-          )
-        for (i in 1:length(mydata$cCovars)) {
-          data[, i] <-
-            as.numeric(mydata$cCovars[[i]]) + attr(mydata$cCovars[[i]], "mean")
-        }
-        ccovar <- as.data.frame(data)
-        colnames(ccovar) <- names(mydata$cCovars)
-      }
-    }
-
-    # prepare dataset
-    ccovar <- ts_prepdata(ccovar)
-
-    if (is.null(startvalues)) {
-      if (!is.null(ans)) {
-        startvalues <- ans$theta
-      } else if (!is.null(myeff)) {
-        startvalues <- summary(myeff)$initialValue
-      } else {
-        # this is far from perfect. ASK TS how he gets initial values
-        # startvalue_rate <- targets[1]/dim(net1)[1]
-        # startvalue_param <- rep(0, length(statistics))
-        # startvalue_param[1] <- qlogis(sum(net2)/(nrow(net2)*(nrow(net2) - 1)))
-        # startvalues <- c(startvalue_rate, startvalue_param)
-        mynet <-
-          RSiena::sienaDependent(array(c(net1, net2), dim = c(dim(net1), 2)))
-        mydata <- RSiena::sienaDataCreate(mynet)
-        myeff <- RSiena::getEffects(mydata)
-        startvalue_rate <- summary(myeff)$initialValue[1]
-        startvalue_param <- rep(0, length(statistics))
-        startvalue_param[1] <- summary(myeff)$initialValue[2]
-        startvalues <- c(startvalue_rate, startvalue_param)
-      }
-    }
-    names(startvalues) <- namesstatistics
-    if (verbose) {
-      print("startvalues: ")
-      print(startvalues)
-    }
-
-    }
   ### end of initialization
 
 
@@ -1041,77 +836,34 @@ ts_phase3 <- function(ans = NULL,
 
 
   crn <- runif(itef3, 1 - 2^31, 2^31 - 1) # common random numbers?
-  pn <- length(statistics) + 1
-  deviation <- rep(0.1, length(statistics) + 1)
-  deviation[1] <- startvalues[1] / 10
+  pn <- length(startvalues)
+  deviation <- rep(0.1, pn)
+  deviation[names(startvalues) == "Rate"] <- startvalues[names(startvalues) == "Rate"] / 10
+  deviation[names(startvalues) == "Rate beh"] <- startvalues[names(startvalues) == "Rate beh"] / 10
 
   if (returnDeps) resnets <-  vector(mode = "list", length = itef3) #list of matrix of simulated networks
 
   res_mat <- matrix(NA, nrow = pn, ncol = pn) # the jacobi matrix
 
   if (!parallel) {
-
+    # to save the simulated z-scores
     res <-
       matrix(NA, nrow = itef3, ncol = pn + (pn * pn))
 
-  for (i in 1:itef3) {
-    if (verbose)
-      print(i)
-    rest <- rest2 <- rep(NA, pn)
-    # Zbar
-    set.seed(crn[i]) # is this just our crn
-    sim_net <-
-      ts_sim(
-        net1 = net1,
-        ccovar = ccovar,
-        startvalues = startvalues,
-        statistics = statistics,
-        p2step = p2step,
-        dist1 = dist1,
-        dist2 = dist2,
-        modet1 = modet1,
-        modet2 = modet2
-      )
-    if (returnDeps) resnets[[i]] <- sim_net
-    rest <-
-      ts_targets(net1 = net1,
-                 net2 = sim_net,
-                 ccovar = ccovar,
-                 statistics = statistics)
 
-    # rate
-    startvalues_rate <- startvalues
-    startvalues_rate[1] <- startvalues_rate[1] + deviation[1]
-    sim_net <-
-      ts_sim(
-        net1 = net1,
-        ccovar = ccovar,
-        startvalues = startvalues_rate,
-        statistics = statistics,
-        p2step = p2step,
-        dist1 = dist1,
-        dist2 = dist2,
-        modet1 = modet1,
-        modet2 = modet2
-      )
-    rest2 <-
-      ts_targets(net1 = net1,
-                 net2 = sim_net,
-                 ccovar = ccovar,
-                 statistics = statistics)
-    rest <- c(rest, rest2)
+    for (i in 1:itef3) {
+      if (verbose) print(i)
 
-    # statistics
-    for (j in 1:length(statistics)) {
-      set.seed(crn[i])
-      startvalues_param <- startvalues
-      startvalues_param[1+ j] <-
-        startvalues_param[1 + j] + deviation[1 + j]
-      sim_net <-
+      # to save the simulated z-scores (for one itef3)
+      rest <- rest2 <- rep(NA, pn)
+
+      # Zbar
+      set.seed(crn[i]) # is this just our crn
+      sims1 <-
         ts_sim(
           net1 = net1,
           ccovar = ccovar,
-          startvalues = startvalues_param,
+          startvalues = startvalues,
           statistics = statistics,
           p2step = p2step,
           dist1 = dist1,
@@ -1119,102 +871,174 @@ ts_phase3 <- function(ans = NULL,
           modet1 = modet1,
           modet2 = modet2
         )
-      rest2 <-
-        ts_targets(net1 = net1,
-                   net2 = sim_net,
-                   ccovar = ccovar,
-                   statistics = statistics)
-      rest <- c(rest, rest2)
-    }
-    res[i,] <- rest
-  }
-  # now we have all z-scores we can calculate the jacobi
-  }
+      if (returnDeps) resnets[[i]] <- sims1$net_n
 
+      # calculate the observed statistics
+      if (!length(ratebeh)>0) {
+        rest <- ts_targets(
+          net1 = net1,
+          net2 = sims1$net_n,
+          ccovar = ccovar,
+          statistics = statistics
+        )
+      } else {
+        ccovar_n <- ccovar
+        ccovar_n[,2] <- sims1$beh_n
+        rest <- ts_targets(
+          net1 = net1,
+          net2 = sims1$net_n,
+          ccovar = ccovar_n,
+          statistics = statistics
+        )
+      }
+
+      # start chaning the startvalues for rate and statistics
+      for (j in 1:length(startvalues)) {
+        #print(j)
+        #set new startvalues
+        startvalues_n <- startvalues
+        startvalues_n[j] <- startvalues_n[j] + deviation[j]
+
+        #simulate network with new startvalues
+        #set the crn
+        set.seed(crn[i])
+        sims1 <-
+          ts_sim(
+            net1 = net1,
+            ccovar = ccovar,
+            startvalues = startvalues_n,
+            statistics = statistics,
+            p2step = p2step,
+            dist1 = dist1,
+            dist2 = dist2,
+            modet1 = modet1,
+            modet2 = modet2
+          )
+
+
+        # calculate the observed statistics
+        if (!length(ratebeh)>0) {
+          rest2 <- ts_targets(
+            net1 = net1,
+            net2 = sims1$net_n,
+            ccovar = ccovar,
+            statistics = statistics
+          )
+        } else {
+          ccovar_n <- ccovar
+          ccovar_n[,2] <- sims1$beh_n
+          rest2 <- ts_targets(
+            net1 = net1,
+            net2 = sims1$net_n,
+            ccovar = ccovar_n,
+            statistics = statistics
+          )
+        }
+
+        rest <- c(rest, rest2)
+      }
+      res[i,] <- rest
+    }
+    # now we have all z-scores we can calculate the jacobi
+  }
 
   if (parallel & !returnDeps) {
 
    res <- foreach(i = 1: itef3, .combine="rbind", .verbose = verbose) %dopar% {
 
-      # Zbar
-      set.seed(crn[i])
-      sim_net <-
-        ts_sim(
-          net1 = net1,
-          ccovar = ccovar,
-          startvalues = startvalues,
-          statistics = statistics,
-          p2step = p2step,
-          dist1 = dist1,
-          dist2 = dist2,
-          modet1 = modet1,
-          modet2 = modet2
-        )
-      rest <-
-        ts_targets(net1 = net1,
-                   net2 = sim_net,
-                   ccovar = ccovar,
-                   statistics = statistics)
+       # to save the simulated z-scores (for one itef1)
+       rest <- rest2 <- rep(NA, pn)
 
-      # rate
-      set.seed(crn[i])
-      startvalues_rate <- startvalues
-      startvalues_rate[1] <- startvalues_rate[1] + deviation[1]
-      sim_net <-
-        ts_sim(
-          net1 = net1,
-          ccovar = ccovar,
-          startvalues = startvalues_rate,
-          statistics = statistics,
-          p2step = p2step,
-          dist1 = dist1,
-          dist2 = dist2,
-          modet1 = modet1,
-          modet2 = modet2
-        )
-      rest2 <-
-        ts_targets(net1 = net1,
-                   net2 = sim_net,
-                   ccovar = ccovar,
-                   statistics = statistics)
-      rest <- c(rest, rest2)
+       # Zbar
+       set.seed(crn[i]) # is this just our crn
+       sims1 <-
+         ts_sim(
+           net1 = net1,
+           ccovar = ccovar,
+           startvalues = startvalues,
+           statistics = statistics,
+           p2step = p2step,
+           dist1 = dist1,
+           dist2 = dist2,
+           modet1 = modet1,
+           modet2 = modet2
+         )
 
-      # statistics
-      rest3 <-
-        foreach(j = 1:length(statistics), .combine="cbind") %do% {
-          set.seed(crn[i])
-          startvalues_param <- startvalues
-          startvalues_param[1+ j] <-
-            startvalues_param[1 + j] + deviation[1 + j]
-          sim_net <-
-            ts_sim(
-              net1 = net1,
-              ccovar = ccovar,
-              startvalues = startvalues_param,
-              statistics = statistics,
-              p2step = p2step,
-              dist1 = dist1,
-              dist2 = dist2,
-              modet1 = modet1,
-              modet2 = modet2
-            )
-          rest3 <-
-            ts_targets(net1 = net1,
-                       net2 = sim_net,
-                       ccovar = ccovar,
-                       statistics = statistics)
-        }
-      rest <- c(rest, rest3)
-      rest
-    }
+       # calculate the observed statistics
+       if (!length(ratebeh)>0) {
+         rest <- ts_targets(
+           net1 = net1,
+           net2 = sims1$net_n,
+           ccovar = ccovar,
+           statistics = statistics
+         )
+       } else {
+         ccovar_n <- ccovar
+         ccovar_n[,2] <- sims1$beh_n
+         rest <- ts_targets(
+           net1 = net1,
+           net2 = sims1$net_n,
+           ccovar = ccovar_n,
+           statistics = statistics
+         )
+       }
+
+       # start chaning the startvalues for rate and statistics
+       for (j in 1:length(startvalues)) {
+         #print(j)
+         #set new startvalues
+         startvalues_n <- startvalues
+         startvalues_n[j] <- startvalues_n[j] + deviation[j]
+
+         #simulate network with new startvalues
+         #set the crn
+         set.seed(crn[i])
+         sims1 <-
+           ts_sim(
+             net1 = net1,
+             ccovar = ccovar,
+             startvalues = startvalues_n,
+             statistics = statistics,
+             p2step = p2step,
+             dist1 = dist1,
+             dist2 = dist2,
+             modet1 = modet1,
+             modet2 = modet2
+           )
+
+
+         # calculate the observed statistics
+         if (!length(ratebeh)>0) {
+           rest2 <- ts_targets(
+             net1 = net1,
+             net2 = sims1$net_n,
+             ccovar = ccovar,
+             statistics = statistics
+           )
+         } else {
+           ccovar_n <- ccovar
+           ccovar_n[,2] <- sims1$beh_n
+           rest2 <- ts_targets(
+             net1 = net1,
+             net2 = sims1$net_n,
+             ccovar = ccovar_n,
+             statistics = statistics
+           )
+         }
+         rest <- c(rest, rest2)
+       }
+       rest
+     }
   }
 
   if (parallel & returnDeps) {
-    restemp <- foreach(i = 1: itef3) %dopar% {
+    restemp <- foreach(i = 1: itef3, .verbose = verbose) %dopar% {
+      # to save the simulated z-scores (for one itef1)
+      rest <- rest2 <- rep(NA, pn)
 
       # Zbar
-      set.seed(crn[i])
-      sim_net <-
+      set.seed(crn[i]) # is this just our crn
+      sims1 <-
         ts_sim(
           net1 = net1,
           ccovar = ccovar,
@@ -1226,63 +1050,74 @@ ts_phase3 <- function(ans = NULL,
           modet1 = modet1,
           modet2 = modet2
         )
-      rest <-
-        ts_targets(net1 = net1,
-                   net2 = sim_net,
-                   ccovar = ccovar,
-                   statistics = statistics)
 
-      # rate
-      set.seed(crn[i])
-      startvalues_rate <- startvalues
-      startvalues_rate[1] <- startvalues_rate[1] + deviation[1]
-      sim_net <-
-        ts_sim(
+      # calculate the observed statistics
+      if (!length(ratebeh)>0) {
+        rest <- ts_targets(
           net1 = net1,
+          net2 = sims1$net_n,
           ccovar = ccovar,
-          startvalues = startvalues_rate,
-          statistics = statistics,
-          p2step = p2step,
-          dist1 = dist1,
-          dist2 = dist2,
-          modet1 = modet1,
-          modet2 = modet2
+          statistics = statistics
         )
-      rest2 <-
-        ts_targets(net1 = net1,
-                   net2 = sim_net,
-                   ccovar = ccovar,
-                   statistics = statistics)
-      rest <- c(rest, rest2)
+      } else {
+        ccovar_n <- ccovar
+        ccovar_n[,2] <- sims1$beh_n
+        rest <- ts_targets(
+          net1 = net1,
+          net2 = sims1$net_n,
+          ccovar = ccovar_n,
+          statistics = statistics
+        )
+      }
 
-      # statistics
-      rest3 <-
-        foreach(j = 1:length(statistics), .combine="cbind") %do% {
-          set.seed(crn[i])
-          startvalues_param <- startvalues
-          startvalues_param[1+ j] <-
-            startvalues_param[1 + j] + deviation[1 + j]
-          sim_net <-
-            ts_sim(
-              net1 = net1,
-              ccovar = ccovar,
-              startvalues = startvalues_param,
-              statistics = statistics,
-              p2step = p2step,
-              dist1 = dist1,
-              dist2 = dist2,
-              modet1 = modet1,
-              modet2 = modet2
-            )
-          rest3 <-
-            ts_targets(net1 = net1,
-                       net2 = sim_net,
-                       ccovar = ccovar,
-                       statistics = statistics)
+      # start changing the startvalues for rate and statistics
+      for (j in 1:length(startvalues)) {
+        #print(j)
+        #set new startvalues
+        startvalues_n <- startvalues
+        startvalues_n[j] <- startvalues_n[j] + deviation[j]
+
+        #simulate network with new startvalues
+        #set the crn
+        set.seed(crn[i])
+        sims1 <-
+          ts_sim(
+            net1 = net1,
+            ccovar = ccovar,
+            startvalues = startvalues_n,
+            statistics = statistics,
+            p2step = p2step,
+            dist1 = dist1,
+            dist2 = dist2,
+            modet1 = modet1,
+            modet2 = modet2
+          )
+
+
+        # calculate the observed statistics
+        if (!length(ratebeh)>0) {
+          rest2 <- ts_targets(
+            net1 = net1,
+            net2 = sims1$net_n,
+            ccovar = ccovar,
+            statistics = statistics
+          )
+        } else {
+          ccovar_n <- ccovar
+          ccovar_n[,2] <- sims1$beh_n
+          rest2 <- ts_targets(
+            net1 = net1,
+            net2 = sims1$net_n,
+            ccovar = ccovar_n,
+            statistics = statistics
+          )
         }
-      rest <- c(rest, rest3)
-      list(rest = rest, simnet = sim_net)
+        rest <- c(rest, rest2)
+        restemp <- list(rest = rest, simnet = sims1$net_n)
+      }
+      restemp
     }
+
     #convert nested list back to res and simnets
     resnets <- lapply(restemp, `[[`, 2)
     res <- do.call(rbind, lapply(restemp, `[[`, 1))
@@ -1317,6 +1152,182 @@ ts_phase3 <- function(ans = NULL,
   } else {
     resultsphase3 <- list(estim = startvalues, covtheta=covtheta, tstat = tstat, tconv.max=tconv.max, zdevs = res, simnets = resnets)
   }
-  #if returndeps include resnets
+
   return(resultsphase3)
 }
+
+ts_dataprep <- function(ans = NULL, mydata = NULL, ccovar=NULL, ...) {
+
+  #### be aware that it could be possible that we have no ccovars but do have depvars. need to correct for that.
+  # check if there are ccovars stored in ans
+  if (is.null(ccovar)) {
+    if (!is.null(ans) & length(ans$f$Data1$cCovars) > 0) {
+      data <-
+        matrix(
+          NA,
+          nrow = length(ans$f$Data1$cCovars[[1]]),
+          ncol = length(ans$f$Data1$cCovars)
+        )
+      for (i in 1:length(ans$f$Data1$cCovars)) {
+        data[, i] <-
+          as.numeric(ans$f$Data1$cCovars[[i]]) + attr(ans$f$Data1$cCovars[[i]], "mean")
+      }
+      ccovar <- as.data.frame(data)
+      colnames(ccovar) <- names(ans$f$Data1$cCovars)
+      if (length(ans$f$Data1$depvars) > 1 ) {
+        dep <- data.frame(unclass(ans$f$Data1$depvars[[2]]))
+        names(dep)[1] <-  paste0(attributes(ans$f$Data1$depvars)$names[2], ".1")
+        names(dep)[2] <-  paste0(attributes(ans$f$Data1$depvars)$names[2], ".2")
+        ccovar <- cbind(dep, ccovar)
+      }
+    } else if (length(mydata$cCovars) > 0) {
+    data <-
+      matrix(
+        NA,
+        nrow = length(mydata$cCovars[[1]]),
+        ncol = length(mydata$cCovars)
+      )
+    for (i in 1:length(mydata$cCovars)) {
+      data[, i] <-
+        as.numeric(mydata$cCovars[[i]]) + attr(mydata$cCovars[[i]], "mean")
+    }
+    ccovar <- as.data.frame(data)
+    colnames(ccovar) <- names(mydata$cCovars)
+    if (length(mydata$depvars) > 1 ) {
+      dep <- data.frame(mydata$depvars[[2]][])
+      names(dep)[1] <-  paste0(attributes(mydata$depvars)$names[2], ".1")
+      names(dep)[2] <-  paste0(attributes(mydata$depvars)$names[2], ".2")
+      ccovar <- cbind(dep, ccovar)
+    }
+    }
+  }
+    # prepare dataset
+  ccovar <- ts_prepdata(ccovar)
+
+  return(ccovar)
+
+}
+
+ts_netprep <- function(ans = NULL, mydata = NULL, net1 = NULL, net2 = NULL, ...) {
+  # starting networks
+  if (is.null(net1)) {
+    if (!is.null(ans)) {
+      net1 <- ans$f$Data1$depvars[[1]][, , 1]
+    } else if (!is.null(mydata)) {
+      net1 <- mydata$depvars[[1]][, , 1]
+    }
+  }
+  if (is.null(net2)) {
+    if (!is.null(ans)) {
+      net2 <- ans$f$Data1$depvars[[1]][, , 2]
+    } else if (!is.null(mydata)) {
+      net2 <- mydata$depvars[[1]][, , 2]
+    }
+  }
+  return(list(net1 = net1, net2 = net2))
+}
+
+ts_statprep <- function(ans = NULL, myeff=NULL, statistics = NULL, ...) {
+  # included statistics
+  if (is.null(statistics)) {
+
+    if (!is.null(ans)) {
+      # namesstatistics <- ans$effects$shortName
+      namesstatistics  <- ans$effects$shortName
+      namesstatistics[namesstatistics == "density"] <- "degree"
+      statistics <- ans$effects$shortName
+      statistics[statistics == "density"] <- "degree"
+      # remove "Rate" from the list
+      statistics <- as.list((paste0("ts_", statistics))[-which(namesstatistics == "Rate")])
+      names(statistics) <- namesstatistics[-which(namesstatistics == "Rate")]
+      statistics <- lapply(statistics, get)
+      # attach interaction1
+      interaction1 <- ans$effects$interaction1[-which(namesstatistics == "Rate")]
+      for (i in 1:length(interaction1)) {
+        if (interaction1[i] != "") {
+          statistics[[i]] <-
+            list(statistics[[i]], interaction1[i])
+        }
+      }
+      if (length(which(namesstatistics == "Rate") == 2)) namesstatistics[which(namesstatistics == "Rate")[2]] <- "Rate beh"
+
+
+    } else if (!is.null(myeff)) {
+      namesstatistics <- myeff$shortName[myeff$include]
+      namesstatistics[namesstatistics == "density"] <- "degree"
+      statistics <- myeff$shortName[myeff$include]
+      statistics[statistics == "density"] <- "degree"
+      # remove "Rate" from the list
+      statistics <- as.list((paste0("ts_", statistics))[-which(namesstatistics == "Rate")])
+      names(statistics) <- namesstatistics[-which(namesstatistics == "Rate")]
+      statistics <- lapply(statistics, get)
+      # attach interaction1
+      interaction1 <- myeff$interaction1[myeff$include][-which(namesstatistics == "Rate")]
+      for (i in 1:length(interaction1)) {
+        if (interaction1[i] != "") {
+          statistics[[i]] <-
+            list(statistics[[i]], interaction1[i])
+        }
+      }
+      if (length(which(namesstatistics == "Rate") == 2)) namesstatistics[which(namesstatistics == "Rate")[2]] <- "Rate beh"
+    }
+  } else {
+    names(statistics) <- sapply(statistics, ts_names)
+    namesstatistics <- c("Rate", sapply(statistics, ts_names))
+    ratebeh <- which(namesstatistics == "linear")
+    if (length(ratebeh) > 0) {
+      namesstatistics <- c(namesstatistics[1:ratebeh - 1], "Rate beh", namesstatistics[ratebeh:length(namesstatistics)])
+    }
+  }
+
+
+  ratebeh <- which(namesstatistics == "linear")
+  netstats <- rep(TRUE, length(namesstatistics))
+  if ("Rate beh" %in% namesstatistics) {
+    netstats[which(namesstatistics == "Rate beh"): length(netstats)] <- FALSE
+  }
+  return(list(statistics = statistics, namesstatistics = namesstatistics, ratebeh=ratebeh, netstats = netstats))
+}
+
+ts_startprep <- function(ans = NULL, myeff=NULL, ccovar=NULL, net1 = NULL, net2 = NULL, startvalues = NULL, namesstatistics = NULL, ...) {
+
+
+  if (is.null(startvalues)) {
+    if (!is.null(ans)) {
+      startvalues <- ans$theta
+    } else if (!is.null(myeff)) {
+      startvalues <- summary(myeff)$initialValue
+    } else {
+      # this is far from perfect. ASK TS how he gets initial values
+      # startvalue_rate <- targets[1]/dim(net1)[1]
+      # startvalue_param <- rep(0, length(statistics))
+      # startvalue_param[1] <- qlogis(sum(net2)/(nrow(net2)*(nrow(net2) - 1)))
+      # startvalues <- c(startvalue_rate, startvalue_param)
+      mynet <-
+        RSiena::sienaDependent(array(c(net1, net2), dim = c(dim(net1), 2)))
+      if ("Rate beh" %in% namesstatistics) {
+        dep_beh <- RSiena::sienaDependent(as.matrix(ccovar[,1:2]), type = "behavior")
+        mydata <- RSiena::sienaDataCreate(mynet, dep_beh)
+      } else {
+        mydata <- RSiena::sienaDataCreate(mynet)
+      }
+
+      myeff <- RSiena::getEffects(mydata)
+
+      startvalues <- rep(0, length(namesstatistics))
+      startvalues[namesstatistics == "Rate"] <- summary(myeff)$initialValue[1]
+      startvalues[namesstatistics == "degree"] <- summary(myeff)$initialValue[summary(myeff)$shortName == "density"]
+      try(startvalues[namesstatistics == "Rate beh"] <- summary(myeff)$initialValue[summary(myeff)$shortName == "Rate" & summary(myeff)$name == "dep_beh"], silent = TRUE)
+      try(startvalues[namesstatistics == "linear"] <- summary(myeff)$initialValue[summary(myeff)$shortName == "linear"], silent = TRUE)
+
+
+
+    }
+  }
+  names(startvalues) <- namesstatistics
+  return(startvalues)
+}
+
+
+
+

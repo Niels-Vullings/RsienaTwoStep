@@ -7,7 +7,7 @@
 \alias{ts_alternative}
 \title{Possible networks after ministep, simstep or twostep}
 \usage{
-ts_alternatives_ministep(net, ego)
+ts_alternatives_ministep(net, ego, dist1 = NULL, modet1 = "degree")
 
 ts_alternatives_simstep(net, ego)
 
@@ -31,14 +31,14 @@ actors. Valid values are 0 and 1.}
 order to be allowed to start a coordination. If \code{NULL} all dyads are
 allowed to start a coordination (i.e. \strong{simultaneity}).}
 
-\item{dist2}{numeric, minimal path length between ego1 and ego2 at time2 in
-order for twostep to be counted as coordination. See \code{DETAILS}.}
-
 \item{modet1}{string indicating the type of ties being evaluated at time1.
 "\code{degree}" considers all ties as undirected. "\code{outdegree}" only allows
 directed paths starting from ego1 and ending at ego2. "\code{indegree}" only
 allows directed paths starting from ego2 and ending at ego1. See:
 \code{DETAILS}.}
+
+\item{dist2}{numeric, minimal path length between ego1 and ego2 at time2 in
+order for twostep to be counted as coordination. See \code{DETAILS}.}
 
 \item{modet2}{string, indicating the type of ties being evaluated at time2.
 "\code{degree}" considers all ties as undirected. "\code{outdegree}" only allows

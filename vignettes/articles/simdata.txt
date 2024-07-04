@@ -1,0 +1,732 @@
+
+
+-----------------------------------
+New Analysis started.
+Date and time: 02/01/2024 11:51:10
+New results follow.
+-----------------------------------
+
+RSiena version 1.3.22 (06 mei 23)
+
+
+@1
+Estimation by stochastic approximation algorithm.
+=================================================
+
+Random initialization of random number stream.
+Current random number seed is 268680.
+Effects object used: myeff 
+Model Type:
+ Standard actor-oriented model 
+Behavioral Model Type:
+ Standard behavior actor-oriented model ('restrict')
+Estimation method: unconditional moment estimation
+.
+
+Time duration for simulations is 1.0.
+Standard errors are estimated with the finite difference method.
+Dolby method (regression on scores) is used.
+Initial value of gain parameter is  0.2000000.
+Reduction factor for gain parameter is  0.5000000.
+Number of subphases in Phase 2 is 4.
+
+Initial parameter values are 
+  1. rate:  basic rate parameter friendship                 6.7768
+  2. eval:  outdegree (density)                            -1.1675
+  3. eval:  reciprocity                                     0.0000
+  4. eval:  transitive triplets                             0.0000
+  5. eval:  3-cycles                                        0.0000
+  6. eval:  smoke similarity                                0.0000
+  7. eval:  alcohol abs. difference                         0.0000
+  8. rate:  rate alcohol period 1                           0.4200
+  9. eval:  alcohol linear shape                           -0.1098
+ 10. eval:  alcohol quadratic shape                         0.0000
+ 11. eval:  alcohol average alter                           0.0000
+ 12. eval:  alcohol: effect from smoke                      0.0000
+
+
+Observed values of target statistics are
+  1. Amount of network change                                           166.0000
+  2. Number of ties                                                     195.0000
+  3. Number of reciprocated ties                                        164.0000
+  4. Number of transitive triplets                                     1283.0000
+  5. 3-cycles                                                           425.0000
+  6. Similarity on smoke                                                 59.2510
+  7. Sum_ties abs.diff alcohol                                           83.0000
+  8. Amount of behavioral change                                         16.0000
+  9. alcohol centered sum                                                -1.0000
+ 10. alcohol sum of cent. squares                                       126.7400
+ 11. alcohol average alters                                              95.8594
+ 12. alcohol x smoke                                                     28.0400
+
+ 12 parameters, 12 statistics
+
+Estimation of derivatives by the finite difference method.
+
+
+@2
+End of stochastic approximation algorithm, phase 3.
+---------------------------------------------------
+
+Total of 3080 iterations.
+Parameter estimates based on 2080 iterations,
+convergence diagnostics, covariance and derivative matrices based on 1000 iterations.
+
+Information for convergence diagnosis.
+Averages, standard deviations, and t-ratios for deviations from targets:
+  1.   2.0360  12.8811   0.1581 
+  2.   2.9900  25.3274   0.1181 
+  3.   0.8800  24.2427   0.0363 
+  4.  10.1480 258.6598   0.0392 
+  5.   2.8170  85.5407   0.0329 
+  6.  -0.1992   7.8218  -0.0255 
+  7.   7.9750  18.4763   0.4316 
+  8.   0.0610   3.4230   0.0178 
+  9.   0.0270   4.2040   0.0064 
+ 10.   0.0226   8.9642   0.0025 
+ 11.   0.3395   9.0829   0.0374 
+ 12.  -0.1163   3.0401  -0.0382 
+
+Good convergence is indicated by the t-ratios being close to zero.
+
+Overall maximum convergence ratio =  1.1544 .
+One or more of the t-statistics are rather large.
+
+
+
+@2
+Estimation Results.
+-------------------
+
+Regular end of estimation algorithm.
+Total of 3080 iteration steps.
+
+
+@3
+Estimates and standard errors
+                             
+Network Dynamics
+ 1. rate:  basic rate parameter friendship                         6.6571  (   1.8290)
+ 2. eval:  outdegree (density)                                    -3.0351  (   0.8748)
+ 3. eval:  reciprocity                                             1.7433  (   0.7584)
+ 4. eval:  transitive triplets                                     0.4831  (   0.6592)
+ 5. eval:  3-cycles                                                0.6207  (   1.2824)
+ 6. eval:  smoke similarity                                        1.4872  (   1.3279)
+ 7. eval:  alcohol abs. difference                                -2.4725  (   6.2448)
+
+Behavior Dynamics
+ 8. rate:  rate alcohol period 1                                   0.8818  (   0.2867)
+ 9. eval:  alcohol linear shape                                   -0.1569  (   0.3916)
+10. eval:  alcohol quadratic shape                                -0.0703  (   0.6814)
+11. eval:  alcohol average alter                                   1.6517  (   2.4905)
+12. eval:  alcohol: effect from smoke                              0.1463  (   0.9634)
+
+
+@3
+Covariance matrices
+                   
+Covariance matrix of estimates (correlations below diagonal):
+     3.345      1.330      0.672     -1.042     -1.886     -1.689     10.174     -0.142      0.006     -0.355      1.365      0.089
+     0.831      0.765      0.215     -0.474     -0.993     -0.851      4.910     -0.072      0.019     -0.141      0.531     -0.016
+     0.484      0.325      0.575     -0.300     -0.383     -0.351      2.399     -0.022     -0.002     -0.111      0.413      0.044
+    -0.865     -0.822     -0.601      0.435      0.616      0.557     -3.802      0.053     -0.012      0.109     -0.414      0.006
+    -0.804     -0.885     -0.394      0.729      1.644      1.062     -7.379      0.113     -0.021      0.076     -0.282      0.181
+    -0.695     -0.732     -0.348      0.637      0.624      1.763     -5.832      0.098      0.003      0.283     -1.204     -0.117
+     0.891      0.899      0.507     -0.924     -0.921     -0.703     38.998     -0.597      0.110     -0.616      2.359     -0.684
+    -0.271     -0.287     -0.099      0.281      0.309      0.258     -0.334      0.082      0.017     -0.040      0.080      0.081
+     0.009      0.055     -0.008     -0.048     -0.041      0.006      0.045      0.148      0.153     -0.026     -0.027     -0.003
+    -0.285     -0.236     -0.215      0.243      0.087      0.313     -0.145     -0.207     -0.098      0.464     -1.564     -0.540
+     0.300      0.244      0.219     -0.252     -0.088     -0.364      0.152      0.112     -0.028     -0.921      6.203      1.864
+     0.051     -0.019      0.060      0.009      0.146     -0.091     -0.114      0.292     -0.008     -0.823      0.777      0.928
+
+Derivative matrix of expected statistics X by parameters and
+covariance/correlation matrix of X can be found using
+summary(ans) within R, or by using the 'verbose' option in Siena07.
+ 
+Total computation time 84.17 seconds.
+
+
+-----------------------------------
+New Analysis started.
+Date and time: 02/01/2024 11:53:22
+New results follow.
+-----------------------------------
+
+RSiena version 1.3.22 (06 mei 23)
+
+
+@1
+Estimation by stochastic approximation algorithm.
+=================================================
+
+Random initialization of random number stream.
+Current random number seed is 623074.
+Effects object used: myeff 
+Model Type:
+ Standard actor-oriented model 
+Behavioral Model Type:
+ Standard behavior actor-oriented model ('restrict')
+Estimation method: unconditional moment estimation
+.
+
+Time duration for simulations is 1.0.
+Standard errors are estimated with the finite difference method.
+Dolby method (regression on scores) is used.
+Initial value of gain parameter is  0.2000000.
+Reduction factor for gain parameter is  0.5000000.
+Number of subphases in Phase 2 is 4.
+
+Initial parameter values are 
+  1. rate:  basic rate parameter friendship                 6.6571
+  2. eval:  outdegree (density)                            -3.0351
+  3. eval:  reciprocity                                     1.7433
+  4. eval:  transitive triplets                             0.4831
+  5. eval:  3-cycles                                        0.6207
+  6. eval:  smoke similarity                                1.4872
+  7. eval:  alcohol abs. difference                        -2.4725
+  8. rate:  rate alcohol period 1                           0.8818
+  9. eval:  alcohol linear shape                           -0.1569
+ 10. eval:  alcohol quadratic shape                        -0.0703
+ 11. eval:  alcohol average alter                           1.6517
+ 12. eval:  alcohol: effect from smoke                      0.1463
+
+
+Observed values of target statistics are
+  1. Amount of network change                                           166.0000
+  2. Number of ties                                                     195.0000
+  3. Number of reciprocated ties                                        164.0000
+  4. Number of transitive triplets                                     1283.0000
+  5. 3-cycles                                                           425.0000
+  6. Similarity on smoke                                                 59.2510
+  7. Sum_ties abs.diff alcohol                                           83.0000
+  8. Amount of behavioral change                                         16.0000
+  9. alcohol centered sum                                                -1.0000
+ 10. alcohol sum of cent. squares                                       126.7400
+ 11. alcohol average alters                                              95.8594
+ 12. alcohol x smoke                                                     28.0400
+
+ 12 parameters, 12 statistics
+
+Estimation of derivatives by the finite difference method.
+
+
+@2
+End of stochastic approximation algorithm, phase 3.
+---------------------------------------------------
+
+Total of 3010 iterations.
+Parameter estimates based on 2010 iterations,
+convergence diagnostics, covariance and derivative matrices based on 1000 iterations.
+
+Information for convergence diagnosis.
+Averages, standard deviations, and t-ratios for deviations from targets:
+  1.   0.6320  11.7800   0.0537 
+  2.   0.6360  23.0852   0.0276 
+  3.   0.7080  22.3809   0.0316 
+  4.   8.3090 227.4778   0.0365 
+  5.   2.7840  75.3142   0.0370 
+  6.  -0.0065   7.0419  -0.0009 
+  7.   0.2290  16.9118   0.0135 
+  8.  -0.0460   3.3662  -0.0137 
+  9.   0.1380   3.9758   0.0347 
+ 10.   0.4026   8.7849   0.0458 
+ 11.   0.4361   8.8862   0.0491 
+ 12.   0.0966   2.9251   0.0330 
+
+Good convergence is indicated by the t-ratios being close to zero.
+
+Overall maximum convergence ratio =  0.1627 .
+
+
+
+@2
+Estimation Results.
+-------------------
+
+Regular end of estimation algorithm.
+Total of 3010 iteration steps.
+
+
+@3
+Estimates and standard errors
+                             
+Network Dynamics
+ 1. rate:  basic rate parameter friendship                         6.2284  (   1.1504)
+ 2. eval:  outdegree (density)                                    -4.2332  (   5.3695)
+ 3. eval:  reciprocity                                             2.0706  (   1.1783)
+ 4. eval:  transitive triplets                                     0.6331  (   0.7055)
+ 5. eval:  3-cycles                                                1.3847  (   5.6178)
+ 6. eval:  smoke similarity                                        3.0671  (   9.7928)
+ 7. eval:  alcohol abs. difference                                -5.2127  (   9.8859)
+
+Behavior Dynamics
+ 8. rate:  rate alcohol period 1                                   0.8779  (   0.2827)
+ 9. eval:  alcohol linear shape                                   -0.1570  (   0.4456)
+10. eval:  alcohol quadratic shape                                -0.0399  (   0.5019)
+11. eval:  alcohol average alter                                   1.6242  (   2.4853)
+12. eval:  alcohol: effect from smoke                              0.2347  (   0.8028)
+
+
+@3
+Covariance matrices
+                   
+Covariance matrix of estimates (correlations below diagonal):
+     1.324      5.002     -0.026      0.419     -5.182     -8.861      9.340     -0.019     -0.103      0.080     -1.128     -0.136
+     0.810     28.831     -1.000      2.764    -29.705    -51.169     52.390     -0.193     -0.637      0.566     -6.832     -0.960
+    -0.019     -0.158      1.388     -0.151      0.721      1.824     -1.405      0.019      0.046      0.052     -0.370     -0.083
+     0.516      0.730     -0.181      0.498     -3.169     -5.354      4.852     -0.020     -0.079      0.035     -0.553     -0.048
+    -0.802     -0.985      0.109     -0.800     31.559     52.610    -54.521      0.218      0.673     -0.588      7.067      1.000
+    -0.786     -0.973      0.158     -0.775      0.956     95.899    -92.288      0.309      1.242     -0.782     10.920      1.229
+     0.821      0.987     -0.121      0.696     -0.982     -0.953     97.731     -0.408     -1.161      1.166    -12.919     -1.974
+    -0.059     -0.127      0.057     -0.099      0.137      0.112     -0.146      0.080      0.035     -0.040      0.097      0.052
+    -0.201     -0.266      0.089     -0.252      0.269      0.285     -0.264      0.276      0.199     -0.015     -0.012     -0.053
+     0.139      0.210      0.087      0.097     -0.209     -0.159      0.235     -0.279     -0.067      0.252     -0.993     -0.321
+    -0.394     -0.512     -0.126     -0.315      0.506      0.449     -0.526      0.137     -0.010     -0.796      6.177      1.417
+    -0.147     -0.223     -0.087     -0.084      0.222      0.156     -0.249      0.231     -0.147     -0.797      0.710      0.645
+
+Derivative matrix of expected statistics X by parameters and
+covariance/correlation matrix of X can be found using
+summary(ans) within R, or by using the 'verbose' option in Siena07.
+ 
+Total computation time 77.33 seconds.
+
+
+-----------------------------------
+New Analysis started.
+Date and time: 03/01/2024 11:09:24
+New results follow.
+-----------------------------------
+
+RSiena version 1.3.22 (06 mei 23)
+
+
+@1
+Estimation by stochastic approximation algorithm.
+=================================================
+
+Random initialization of random number stream.
+Current random number seed is 759704.
+Effects object used: myeff 
+Model Type:
+ Standard actor-oriented model 
+Behavioral Model Type:
+ Standard behavior actor-oriented model ('restrict')
+Estimation method: unconditional moment estimation
+.
+
+Time duration for simulations is 1.0.
+Standard errors are estimated with the finite difference method.
+Dolby method (regression on scores) is used.
+Initial value of gain parameter is  0.2000000.
+Reduction factor for gain parameter is  0.5000000.
+Number of subphases in Phase 2 is 4.
+
+Initial parameter values are 
+  1. rate:  basic rate parameter friendship                 7.5520
+  2. eval:  outdegree (density)                             0.3902
+  3. eval:  reciprocity                                     0.0000
+  4. eval:  transitive triplets                             0.0000
+  5. eval:  3-cycles                                        0.0000
+  6. eval:  smoke similarity                                0.0000
+  7. eval:  alcohol abs. difference                         0.0000
+  8. rate:  rate alcohol period 1                           0.5000
+  9. eval:  alcohol linear shape                            0.1828
+ 10. eval:  alcohol quadratic shape                         0.0000
+ 11. eval:  alcohol average alter                           0.0000
+ 12. eval:  alcohol: effect from smoke                      0.0000
+
+
+Observed values of target statistics are
+  1. Amount of network change                                           185.0000
+  2. Number of ties                                                     340.0000
+  3. Number of reciprocated ties                                        264.0000
+  4. Number of transitive triplets                                     1899.0000
+  5. 3-cycles                                                           613.0000
+  6. Similarity on smoke                                                 80.5531
+  7. Sum_ties abs.diff alcohol                                          199.0000
+  8. Amount of behavioral change                                         20.0000
+  9. alcohol centered sum                                                 2.0000
+ 10. alcohol sum of cent. squares                                       167.0600
+ 11. alcohol average alters                                             144.2066
+ 12. alcohol x smoke                                                     29.6200
+
+ 12 parameters, 12 statistics
+
+Estimation of derivatives by the finite difference method.
+
+
+@2
+End of stochastic approximation algorithm, phase 3.
+---------------------------------------------------
+
+Total of 3070 iterations.
+Parameter estimates based on 2070 iterations,
+convergence diagnostics, covariance and derivative matrices based on 1000 iterations.
+
+Information for convergence diagnosis.
+Averages, standard deviations, and t-ratios for deviations from targets:
+  1.  -0.7540  15.1285  -0.0498 
+  2.  -1.8320  15.6041  -0.1174 
+  3.  -2.4500  15.2741  -0.1604 
+  4. -35.8320 171.6468  -0.2088 
+  5. -14.9850  56.9706  -0.2630 
+  6.  -3.1016   5.2318  -0.5928 
+  7.   3.0660  14.8316   0.2067 
+  8.   1.9720   3.1615   0.6238 
+  9.  -0.6620   3.8197  -0.1733 
+ 10.  -9.6005   8.0982  -1.1855 
+ 11. -17.0117   8.5790  -1.9830 
+ 12.  -0.7454   2.8097  -0.2653 
+
+Good convergence is indicated by the t-ratios being close to zero.
+
+Overall maximum convergence ratio =  2.7697 .
+One or more of the t-statistics are rather large.
+Convergence of the algorithm is doubtful.
+
+
+
+@2
+Estimation Results.
+-------------------
+
+Regular end of estimation algorithm.
+Total of 3070 iteration steps.
+
+
+@3
+Estimates and standard errors
+                             
+Network Dynamics
+ 1. rate:  basic rate parameter friendship                         4.2941  (   0.6488)
+ 2. eval:  outdegree (density)                                    -4.5497  (  21.1407)
+ 3. eval:  reciprocity                                             2.5908  (  19.9296)
+ 4. eval:  transitive triplets                                     2.0125  (  14.4313)
+ 5. eval:  3-cycles                                                4.2051  (  17.8001)
+ 6. eval:  smoke similarity                                       10.2983  (  69.3854)
+ 7. eval:  alcohol abs. difference                                -2.1690  (  11.9386)
+
+Behavior Dynamics
+ 8. rate:  rate alcohol period 1                                   1.2923  (   0.6123)
+ 9. eval:  alcohol linear shape                                   -0.5485  (  10.4475)
+10. eval:  alcohol quadratic shape                                -2.4474  (  13.1775)
+11. eval:  alcohol average alter                                 116.7531  ( 557.1589)
+12. eval:  alcohol: effect from smoke                             -0.9789  (  18.2189)
+
+
+@3
+Covariance matrices
+                   
+Covariance matrix of estimates (correlations below diagonal):
+     0.421    -11.470     10.914      7.679      9.756     37.391     -6.368     -0.196     -2.806     -3.144   -301.041     -9.150
+    -0.836    446.929   -419.247   -304.204   -374.094  -1466.017    248.193      7.254    131.374    147.208  11102.753    352.341
+     0.844     -0.995    397.190    284.666    351.946   1375.193   -233.752     -6.772   -122.138   -135.807 -10558.375   -331.316
+     0.820     -0.997      0.990    208.262    254.587    999.457   -170.485     -4.735    -92.935   -105.155  -7574.582   -242.447
+     0.845     -0.994      0.992      0.991    316.842   1227.103   -210.139     -5.909   -109.401   -123.654  -9508.190   -299.487
+     0.831     -0.999      0.994      0.998      0.994   4814.328   -816.742    -23.325   -440.902   -496.770 -36354.573  -1161.552
+    -0.822      0.983     -0.982     -0.990     -0.989     -0.986    142.530      3.547     78.244     89.278   6386.613    203.114
+    -0.494      0.560     -0.555     -0.536     -0.542     -0.549      0.485      0.375     -0.816     -1.563    172.715      3.777
+    -0.414      0.595     -0.587     -0.616     -0.588     -0.608      0.627     -0.128    109.151    125.029   2822.812    125.228
+    -0.368      0.528     -0.517     -0.553     -0.527     -0.543      0.567     -0.194      0.908    173.646   3252.715    170.457
+    -0.833      0.943     -0.951     -0.942     -0.959     -0.940      0.960      0.506      0.485      0.443 310426.019   9239.350
+    -0.774      0.915     -0.912     -0.922     -0.923     -0.919      0.934      0.339      0.658      0.710      0.910    331.930
+
+Derivative matrix of expected statistics X by parameters and
+covariance/correlation matrix of X can be found using
+summary(ans) within R, or by using the 'verbose' option in Siena07.
+ 
+Total computation time 155.11 seconds.
+
+
+-----------------------------------
+New Analysis started.
+Date and time: 03/01/2024 11:14:45
+New results follow.
+-----------------------------------
+
+RSiena version 1.3.22 (06 mei 23)
+
+
+@1
+Estimation by stochastic approximation algorithm.
+=================================================
+
+Random initialization of random number stream.
+Current random number seed is 133407.
+Effects object used: myeff 
+Model Type:
+ Standard actor-oriented model 
+Behavioral Model Type:
+ Standard behavior actor-oriented model ('restrict')
+Estimation method: unconditional moment estimation
+.
+
+Time duration for simulations is 1.0.
+Standard errors are estimated with the finite difference method.
+Dolby method (regression on scores) is used.
+Initial value of gain parameter is  0.2000000.
+Reduction factor for gain parameter is  0.5000000.
+Number of subphases in Phase 2 is 4.
+
+Initial parameter values are 
+  1. rate:  basic rate parameter friendship                 4.2941
+  2. eval:  outdegree (density)                            -4.5497
+  3. eval:  reciprocity                                     2.5908
+  4. eval:  transitive triplets                             2.0125
+  5. eval:  3-cycles                                        4.2051
+  6. eval:  smoke similarity                               10.2983
+  7. eval:  alcohol abs. difference                        -2.1690
+  8. rate:  rate alcohol period 1                           1.2923
+  9. eval:  alcohol linear shape                           -0.5485
+ 10. eval:  alcohol quadratic shape                        -2.4474
+ 11. eval:  alcohol average alter                         116.7531
+ 12. eval:  alcohol: effect from smoke                     -0.9789
+
+
+Observed values of target statistics are
+  1. Amount of network change                                           185.0000
+  2. Number of ties                                                     340.0000
+  3. Number of reciprocated ties                                        264.0000
+  4. Number of transitive triplets                                     1899.0000
+  5. 3-cycles                                                           613.0000
+  6. Similarity on smoke                                                 80.5531
+  7. Sum_ties abs.diff alcohol                                          199.0000
+  8. Amount of behavioral change                                         20.0000
+  9. alcohol centered sum                                                 2.0000
+ 10. alcohol sum of cent. squares                                       167.0600
+ 11. alcohol average alters                                             144.2066
+ 12. alcohol x smoke                                                     29.6200
+
+ 12 parameters, 12 statistics
+
+Estimation of derivatives by the finite difference method.
+
+
+@2
+End of stochastic approximation algorithm, phase 3.
+---------------------------------------------------
+
+Total of 3010 iterations.
+Parameter estimates based on 2010 iterations,
+convergence diagnostics, covariance and derivative matrices based on 1000 iterations.
+
+Information for convergence diagnosis.
+Averages, standard deviations, and t-ratios for deviations from targets:
+  1.  -184.8220   0.4153 -445.0139 
+  2.  -172.8760   0.4059 -425.8639 
+  3.  -133.9740   0.4237 -316.2162 
+  4. -1542.0090   2.7547 -559.7688 
+  5.  -493.6910   0.9243 -534.1108 
+  6.   -45.9242   0.1407 -326.4131 
+  7.  -100.9290   0.3689 -273.5865 
+  8.    28.3790   4.8484    5.8533 
+  9.   -24.2870   4.9243   -4.9321 
+ 10.  -127.2305   5.3619  -23.7286 
+ 11.  -120.8485   3.8654  -31.2638 
+ 12.   -23.8419   4.0202   -5.9305 
+
+Good convergence is indicated by the t-ratios being close to zero.
+
+Overall maximum convergence ratio =  606.3673 .
+One or more of the t-statistics are rather large.
+Convergence of the algorithm is doubtful.
+
+
+
+@2
+Estimation Results.
+-------------------
+
+Regular end of estimation algorithm.
+Total of 3010 iteration steps.
+
+
+@3
+Estimates and standard errors
+                             
+Network Dynamics
+ 1. rate:  basic rate parameter friendship                         0.0035  (   0.0098)
+ 2. eval:  outdegree (density)                                  -542.7137  (  29.6555)
+ 3. eval:  reciprocity                                           207.0211  (  42.4988)
+ 4. eval:  transitive triplets                                   561.4827  ( 148.9805)
+ 5. eval:  3-cycles                                              404.5929  (  56.9347)
+ 6. eval:  smoke similarity                                      688.4638  (  12.3833)
+ 7. eval:  alcohol abs. difference                              -191.9347  (  33.7002)
+
+Behavior Dynamics
+ 8. rate:  rate alcohol period 1                                   2.1724  (   0.4077)
+ 9. eval:  alcohol linear shape                                 -549.9863  (  41.5602)
+10. eval:  alcohol quadratic shape                              -497.5565  ( 442.8023)
+11. eval:  alcohol average alter                                 337.8166  ( 394.9666)
+12. eval:  alcohol: effect from smoke                           -206.9172  ( 346.9742)
+
+
+@3
+Covariance matrices
+                   
+Covariance matrix of estimates (correlations below diagonal):
+     0.000     -0.034     -0.069     -0.166     -0.047     -0.008     -0.047      0.000      0.006     -0.150     -0.185     -0.022
+    -0.119    879.449    761.312   2635.654    816.764    140.359    530.395      0.045    -84.458    230.851    377.370    179.338
+    -0.166      0.604   1806.149   2787.497   1143.311     -2.361    160.047     -0.774    -34.226    982.054    504.347    197.579
+    -0.114      0.597      0.440  22195.198   7409.468    750.684   1349.243      3.223   -250.743    465.525   2143.606    550.684
+    -0.085      0.484      0.473      0.874   3241.564    264.274    467.932      1.048    -74.625    657.823   1220.993   -286.093
+    -0.067      0.382     -0.004      0.407      0.375    153.346     93.592      0.184    -19.707   -195.420    -74.380    114.047
+    -0.143      0.531      0.112      0.269      0.244      0.224   1135.705      0.230    -80.375    457.986    519.753   -135.569
+     0.047      0.004     -0.045      0.053      0.045      0.036      0.017      0.166     -5.602     21.308     26.511      4.862
+     0.015     -0.069     -0.019     -0.040     -0.032     -0.038     -0.057     -0.331   1727.248  -8244.115 -10395.841    510.080
+    -0.035      0.018      0.052      0.007      0.026     -0.036      0.031      0.118     -0.448 196073.883 105188.343  21128.331
+    -0.048      0.032      0.030      0.036      0.054     -0.015      0.039      0.165     -0.633      0.601 155998.654  25951.771
+    -0.006      0.017      0.013      0.011     -0.014      0.027     -0.012      0.034      0.035      0.138      0.189 120391.072
+
+Derivative matrix of expected statistics X by parameters and
+covariance/correlation matrix of X can be found using
+summary(ans) within R, or by using the 'verbose' option in Siena07.
+ 
+Total computation time 29.75 seconds.
+
+
+-----------------------------------
+New Analysis started.
+Date and time: 03/01/2024 11:15:29
+New results follow.
+-----------------------------------
+
+RSiena version 1.3.22 (06 mei 23)
+
+
+@1
+Estimation by stochastic approximation algorithm.
+=================================================
+
+Random initialization of random number stream.
+Current random number seed is 778263.
+Effects object used: myeff 
+Model Type:
+ Standard actor-oriented model 
+Behavioral Model Type:
+ Standard behavior actor-oriented model ('restrict')
+Estimation method: unconditional moment estimation
+.
+
+Time duration for simulations is 1.0.
+Standard errors are estimated with the finite difference method.
+Dolby method (regression on scores) is used.
+Initial value of gain parameter is  0.2000000.
+Reduction factor for gain parameter is  0.5000000.
+Number of subphases in Phase 2 is 4.
+
+Initial parameter values are 
+  1. rate:  basic rate parameter friendship                 7.5520
+  2. eval:  outdegree (density)                             0.3902
+  3. eval:  reciprocity                                     0.0000
+  4. eval:  transitive triplets                             0.0000
+  5. eval:  3-cycles                                        0.0000
+  6. eval:  smoke similarity                                0.0000
+  7. eval:  alcohol abs. difference                         0.0000
+  8. rate:  rate alcohol period 1                           0.5000
+  9. eval:  alcohol linear shape                            0.1828
+ 10. eval:  alcohol quadratic shape                         0.0000
+ 11. eval:  alcohol average alter                           0.0000
+ 12. eval:  alcohol: effect from smoke                      0.0000
+
+
+Observed values of target statistics are
+  1. Amount of network change                                           185.0000
+  2. Number of ties                                                     340.0000
+  3. Number of reciprocated ties                                        264.0000
+  4. Number of transitive triplets                                     1899.0000
+  5. 3-cycles                                                           613.0000
+  6. Similarity on smoke                                                 80.5531
+  7. Sum_ties abs.diff alcohol                                          199.0000
+  8. Amount of behavioral change                                         20.0000
+  9. alcohol centered sum                                                 2.0000
+ 10. alcohol sum of cent. squares                                       167.0600
+ 11. alcohol average alters                                             144.2066
+ 12. alcohol x smoke                                                     29.6200
+
+ 12 parameters, 12 statistics
+
+Estimation of derivatives by the finite difference method.
+
+
+@2
+End of stochastic approximation algorithm, phase 3.
+---------------------------------------------------
+
+Total of 3080 iterations.
+Parameter estimates based on 2080 iterations,
+convergence diagnostics, covariance and derivative matrices based on 1000 iterations.
+
+Information for convergence diagnosis.
+Averages, standard deviations, and t-ratios for deviations from targets:
+  1.  -0.1550  16.1073  -0.0096 
+  2.  -1.6190  16.7045  -0.0969 
+  3.  -2.3200  16.1105  -0.1440 
+  4. -40.8250 186.5761  -0.2188 
+  5. -16.5530  61.7950  -0.2679 
+  6.  -2.5632   4.9686  -0.5159 
+  7.   2.7170  14.5166   0.1872 
+  8.   1.7410   3.1771   0.5480 
+  9.  -0.3910   4.0628  -0.0962 
+ 10.  -9.3726   8.0815  -1.1598 
+ 11. -17.0611   8.4196  -2.0264 
+ 12.  -1.0474   2.7230  -0.3847 
+
+Good convergence is indicated by the t-ratios being close to zero.
+
+Overall maximum convergence ratio =  2.7346 .
+One or more of the t-statistics are rather large.
+Convergence of the algorithm is doubtful.
+
+
+
+@2
+Estimation Results.
+-------------------
+
+Regular end of estimation algorithm.
+Total of 3080 iteration steps.
+
+
+@3
+Estimates and standard errors
+                             
+Network Dynamics
+ 1. rate:  basic rate parameter friendship                         4.2913  (   0.5797)
+ 2. eval:  outdegree (density)                                    -4.0623  (  17.0630)
+ 3. eval:  reciprocity                                             2.4435  (   2.7812)
+ 4. eval:  transitive triplets                                     1.7591  (   8.9218)
+ 5. eval:  3-cycles                                                3.5479  (  13.2416)
+ 6. eval:  smoke similarity                                        9.0596  (  46.6777)
+ 7. eval:  alcohol abs. difference                                -1.9821  (   8.2054)
+
+Behavior Dynamics
+ 8. rate:  rate alcohol period 1                                   1.2736  (   0.9514)
+ 9. eval:  alcohol linear shape                                    0.1430  ( 102.9923)
+10. eval:  alcohol quadratic shape                                -3.1084  ( 160.7660)
+11. eval:  alcohol average alter                                 139.9844  (2372.3678)
+12. eval:  alcohol: effect from smoke                             -2.5693  ( 157.6711)
+
+
+@3
+Covariance matrices
+                   
+Covariance matrix of estimates (correlations below diagonal):
+      0.336       7.314      -0.943      -3.910      -5.624     -20.346       3.540       0.385     -45.226      71.543   -1023.752      69.893
+      0.740     291.145     -42.131    -151.510    -224.563    -795.605     138.071      14.104   -1716.774    2661.333  -37403.804    2620.858
+     -0.585      -0.888       7.735      21.407      33.203     114.524     -20.247      -1.943     244.893    -372.567    5182.710    -369.511
+     -0.756      -0.995       0.863      79.599     116.392     414.394     -72.496      -7.351     893.281   -1383.030   19342.304   -1362.751
+     -0.733      -0.994       0.902       0.985     175.341     614.531    -107.009     -10.857    1327.969   -2060.916   29029.718   -2028.114
+     -0.752      -0.999       0.882       0.995       0.994    2178.809    -378.347     -38.865    4717.067   -7327.803  103188.936   -7210.149
+      0.744       0.986      -0.887      -0.990      -0.985      -0.988      67.329       6.623    -812.071    1252.994  -17446.110    1235.996
+      0.698       0.869      -0.734      -0.866      -0.862      -0.875       0.848       0.905     -89.573     138.002   -2033.063     136.329
+     -0.758      -0.977       0.855       0.972       0.974       0.981      -0.961      -0.914   10607.414  -16407.679  232706.832  -16186.823
+      0.768       0.970      -0.833      -0.964      -0.968      -0.976       0.950       0.902      -0.991   25845.713 -371764.866   25302.847
+     -0.744      -0.924       0.786       0.914       0.924       0.932      -0.896      -0.901       0.952      -0.975 5628128.963 -361782.759
+      0.765       0.974      -0.843      -0.969      -0.971      -0.980       0.955       0.909      -0.997       0.998      -0.967   24860.190
+
+Derivative matrix of expected statistics X by parameters and
+covariance/correlation matrix of X can be found using
+summary(ans) within R, or by using the 'verbose' option in Siena07.
+ 
+Total computation time 70.6 seconds.

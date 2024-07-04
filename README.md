@@ -1,11 +1,27 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
-
-<a href="https://jochemtolsma.github.io/RsienaTwoStep/"><img src="man/figures/logo.png" align="left" height="139" /></a>
+<!--
+[![R-CMD-check](https://github.com/JochemTolsma/RsienaTwoStep/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/JochemTolsma/RsienaTwoStep/actions/workflows/R-CMD-check.yaml)  
+&#10;  [![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
+-->
 
 ------------------------------------------------------------------------
 
-# 1. GOAL
+<!-- badges: start -->
+
+<a href="https://github.com/r-lib/pkgdown/actions"
+class="pkgdown-devel"><img
+src="https://github.com/r-lib/pkgdown/workflows/R-CMD-check/badge.svg"
+alt="R-CMD-check" /></a>
+
+[![Lifecycle:
+experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
+<!-- badges: end -->
+
+# 1. RsienaTwoStep
+
+\<img src=“man/figures/logo.png” align=“right”, alt = ““, width=”120”
+/\>
 
 The goal of `RsienaTwoStep` is to provide a method to asses the extent
 to which results obtained by `RSiena::siena07()` depend on the validity
@@ -81,7 +97,7 @@ library(RsienaTwoStep)
 ## 3.1. Our network
 
 ``` r
-net1g <- igraph::graph_from_adjacency_matrix(net1, mode="directed")
+net1g <- igraph::graph_from_adjacency_matrix(ts_net1, mode="directed")
 plot(net1g)
 ```
 
@@ -96,12 +112,12 @@ faster.
 library(doParallel)
 #> Loading required package: iterators
 #> Loading required package: parallel
-#stopCluster(my.cluster) 
 n.cores <- parallel::detectCores() - 1  #save one core for other work
 # create the cluster
 my.cluster <- parallel::makeCluster(n.cores, type = "PSOCK")
 # register it to be used by %dopar%
 doParallel::registerDoParallel(cl = my.cluster)
+#stopCluster(my.cluster) 
 ```
 
 ## 3.3. Degree and reciprocity
@@ -120,11 +136,12 @@ tie-changes. Below we simulate according to the traditional ministep
 assumption, a twostep assumption and a simstep assumption.
 
 ``` r
-sims1 <- ts_sims(nsims=1000, parallel=TRUE, net=net1, rate=10, statistics=list(ts_degree, ts_recip), parameters=c(-1,2), p2step=c(1,0,0), chain=FALSE) #ministep only (one actor can make one tie change)
+#the first value of the startvalues arg refers to the rate parameter
+sims1 <- ts_sims(net1=ts_net1, startvalues=c(10,-1,2), statistics=list(ts_degree, ts_recip), p2step=c(1,0,0), parallel=TRUE) #ministep only (one actor can make one tie change)
 
-sims2 <- ts_sims(nsims=1000, parallel=TRUE, net=net1, rate=10, statistics=list(ts_degree, ts_recip), parameters=c(-1,2), p2step=c(0,1,0), chain=FALSE) #twostep-simultaneity (two random actors can make one tie change simultaneously)
+sims2 <- ts_sims(net1=ts_net1, startvalues=c(10,-1,2), statistics=list(ts_degree, ts_recip), p2step=c(0,1,0), parallel=TRUE) #twostep-simultaneity (two random actors can make one tie change simultaneously)
 
-sims3 <- ts_sims(nsims=1000, parallel=TRUE, net=net1, rate=10, statistics=list(ts_degree, ts_recip), parameters=c(-1,2), p2step=c(0,0,1), chain=FALSE) #simstep (one actor can make two tie changes simultaneously)
+sims3 <- ts_sims(net1=ts_net1, startvalues=c(10,-1,2), statistics=list(ts_degree, ts_recip), p2step=c(0,0,1), parallel=TRUE) #simstep (one actor can make two tie changes simultaneously)
 ```
 
 ### 3.3.2. Network census
@@ -179,10 +196,8 @@ p
     results.
 
 <!--- 
-
-What is special about using `README.Rmd` instead of just `README.md`? You can include R chunks like so:
-
-
+&#10;What is special about using `README.Rmd` instead of just `README.md`? You can include R chunks like so:
+&#10;
 ```r
 summary(cars)
 #>      speed           dist       
@@ -193,13 +208,8 @@ summary(cars)
 #>  3rd Qu.:19.0   3rd Qu.: 56.00  
 #>  Max.   :25.0   Max.   :120.00
 ```
-
-You'll still need to render `README.Rmd` regularly, to keep `README.md` up-to-date. `devtools::build_readme()` is handy for this. You could also use GitHub Actions to re-render `README.Rmd` every time you push. An example workflow can be found here: <https://github.com/r-lib/actions/tree/v1/examples>.
-
-You can also embed plots, for example:
-
-<img src="man/figures/README-pressure-1.png" width="100%" />
-
-In that case, don't forget to commit and push the resulting figure files, so they display on GitHub and CRAN.
-
--->
+&#10;You'll still need to render `README.Rmd` regularly, to keep `README.md` up-to-date. `devtools::build_readme()` is handy for this. You could also use GitHub Actions to re-render `README.Rmd` every time you push. An example workflow can be found here: <https://github.com/r-lib/actions/tree/v1/examples>.
+&#10;You can also embed plots, for example:
+&#10;<img src="man/figures/README-pressure-1.png" width="100%" />
+&#10;In that case, don't forget to commit and push the resulting figure files, so they display on GitHub and CRAN.
+&#10;-->

@@ -298,6 +298,7 @@ To demonstrate the network evolution:
 
 ```{r}
 #in startvalues the first value refers to the rate parameter, the subsequent values to the statistics of statistics
+
 ts_sims(startvalues = c(2,-1,2), net1=ts_net2, statistics=list(ts_degree, ts_recip),nsims=1, p2step=c(1,0,0), chain = TRUE )
 ```
 

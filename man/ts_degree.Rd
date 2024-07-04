@@ -15,7 +15,7 @@
 \alias{ts_altX}
 \alias{ts_diffX}
 \alias{ts_simX}
-\alias{ts_absdiffX}
+\alias{ts_absDiffX}
 \alias{ts_sameX}
 \alias{ts_egoXaltX}
 \title{Network Statistics}
@@ -48,16 +48,18 @@ ts_diffX(net, ego, cov)
 
 ts_simX(net, ego, cov)
 
-ts_absdiffX(net, ego, cov)
+ts_absDiffX(net, ego, cov)
 
 ts_sameX(net, ego, cov)
 
 ts_egoXaltX(net, ego, cov)
 }
 \arguments{
-\item{net}{matrix, the adjacency matrix representing the relations between actors. Valid values are 0 and 1.}
+\item{net}{matrix, the adjacency matrix representing the relations between
+actors. Valid values are 0 and 1.}
 
-\item{ego}{numeric, the ego for which we want to calculate the network statistic.}
+\item{ego}{numeric, the ego for which we want to calculate the network
+statistic.}
 
 \item{cov}{numeric, covariate scores}
 }
@@ -65,12 +67,17 @@ ts_egoXaltX(net, ego, cov)
 numeric value
 }
 \description{
-These functions calculate the respective network statistic for ego. When multiplied with the importance of each statistic (the 'parameters') this constitutes the network evaluation of ego. See: \code{\link[=ts_eval]{ts_eval()}}.
+These functions calculate the respective network statistic for
+ego. When multiplied with the importance of each statistic (the
+'parameters') this constitutes the network evaluation of ego. See:
+\code{\link[=ts_eval]{ts_eval()}}.
 }
 \details{
-For examples on how to use these statistics see: \code{vignette("1.Introduction_RsienaTwoStep", package="RsienaTwoStep")}.
+For examples on how to use these statistics see:
+\code{vignette("1.Introduction_RsienaTwoStep", package="RsienaTwoStep")}.
 
-For the mathematical definition of these network statistics see chapter 12 of the RSiena manual \insertCite{ripley2022manual}{RsienaTwoStep}.
+For the mathematical definition of these network statistics see chapter 12
+of the RSiena manual \insertCite{ripley2022manual}{RsienaTwoStep}.
 }
 \examples{
 ts_degree(net=ts_net1, ego=3)
@@ -81,5 +88,8 @@ ts_degree(net=ts_net1, ego=3)
 }
 \seealso{
 \code{\link[=ts_eval]{ts_eval()}}
+
+Other networkstatistics: 
+\code{\link{ts_linear}()}
 }
 \concept{networkstatistics}

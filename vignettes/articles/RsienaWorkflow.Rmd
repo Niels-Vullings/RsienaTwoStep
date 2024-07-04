@@ -430,7 +430,7 @@ With different models I mean models with the same statistics but using different
 I also think this is a nice workflow if we want to test robustness of ministep model: 
 
 1. estimate ministep model (with SE, and fit statistics)  
-2. estimate twostep models (fase2 only)  
+2. estimate twostep models (phase2 only)  
     a. simultaneity  
     b. strict coordination  
     c. weak coordination  

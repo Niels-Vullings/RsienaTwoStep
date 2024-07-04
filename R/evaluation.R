@@ -39,12 +39,45 @@ ts_eval <- function(net, ego, statistics, ccovar = NULL, parameters) {
     #} else if (length(stat) == 2) { #we only have stats of length 1 or 2
     } else {
       # Two-argument statistic function
+      if (stat[[2]] %in% names(ccovar)) { #hence it is a ccovar
       s <- s + parameters[j] * stat[[1]](net, ego, ccovar[, stat[[2]]])
+      } else { #it is a depvar
+          s <- s + parameters[j] * stat[[1]](net, ego, ccovar[, 1])
+        }
     }
   }
 
   return(s)
 }
+
+
+ts_eval_beh <- function(beh, net, ego, statistics, ccovar = NULL, parameters) {
+
+  # prepare dataset
+  ccovar <- ts_prepdata(ccovar)
+
+  # Initialize the result
+  s <- 0
+
+  # Iterate over behavior statistics
+  for (j in seq_along(statistics)) {
+    stat <- statistics[[j]]
+
+    if (length(stat) == 1) {
+      # Single argument statistic function
+      s <- s + parameters[j] * stat(beh, ego)
+      #} else if (length(stat) == 2) { #we only have stats of length 1 or 2
+    } else {
+      # Two-argument statistic function
+      cov <- NULL
+      if (stat[[2]] %in% names(ccovar)) cov <- ccovar[, stat[[2]]]
+      s <- s + parameters[j] * stat[[1]](beh, net, ego, cov)
+    }
+  }
+
+  return(s)
+}
+
 
 # #faster?
 # #' @export

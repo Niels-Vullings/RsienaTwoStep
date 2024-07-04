@@ -57,94 +57,25 @@ ts_sims <- function(ans = NULL,
                     verbose = TRUE,
                     parallel = FALSE
                     ) {
+
   #### initialize function
 
-  if (is.null(net1)) {
-    if (!is.null(ans)) {
-      net1 <- (ans$f$Data1$depvars$mynet)[, , 1]
-    } else if (!is.null(mydata)) {
-      net1 <- (mydata$depvars$mynet[, , 1])
-    }
-  }
+  # starting networks
+  nets <- ts_netprep(ans=ans, mydata=mydata, net1=net1)
+  net1 <- nets$net1
 
   # included statistics
-  if (is.null(statistics)) {
-    if (!is.null(ans)) {
-      # namesstatistics <- ans$effects$shortName
-      statistics <- ans$effects$shortName
-      statistics[statistics == "density"] <- "degree"
-      statistics <- as.list((paste0("ts_", statistics))[-1])
-      # names(statistics) <- ans$effects$shortName[-1]
-      statistics <- lapply(statistics, get)
-      for (i in 1:length(statistics)) {
-        if (ans$effects$interaction1[i + 1] != "") {
-          statistics[[i]] <-
-            list(statistics[[i]], ans$effects$interaction1[i + 1])
-        }
-      }
-    } else if (!is.null(myeff)) {
-      # namesstatistics <- myeff$shortName[myeff$include]
-      statistics <- myeff$shortName[myeff$include]
-      statistics[statistics == "density"] <- "degree"
-      statistics <- as.list((paste0("ts_", statistics))[-1])
-      # names(statistics) <- myeff$shortName[myeff$include][-1]
-      statistics <- lapply(statistics, get)
-      for (i in 1:length(statistics)) {
-        if (myeff$interaction1[myeff$include][i + 1] != "") {
-          statistics[[i]] <-
-            list(statistics[[i]], myeff$interaction1[myeff$include][i + 1])
-        }
-      }
-    }
-  }
+  stats <- ts_statprep(ans = ans, myeff = myeff, statistics = statistics)
+  statistics <- stats$statistics
+  namesstatistics <- stats$namesstatistics
+  ratebeh <- stats$ratebeh
+  netstats <- stats$netstats
 
-  namesstatistics <- NA
-  namesstatistics <- c("rate", sapply(statistics, ts_names))
-  names(statistics) <- namesstatistics[-1]
+  #startvalues (afster ts_statprep)
+  startvalues <- ts_startprep(ans=ans, myeff=myeff, startvalues= startvalues, namesstatistics = namesstatistics)
 
-  # check if there are ccovars stored in ans
-  if (is.null(ccovar)) {
-    if (!is.null(ans) & length(ans$f$Data1$cCovars) > 0) {
-      data <-
-        matrix(
-          NA,
-          nrow = length(ans$f$Data1$cCovars[[1]]),
-          ncol = length(ans$f$Data1$cCovars)
-        )
-      for (i in 1:length(ans$f$Data1$cCovars)) {
-        data[, i] <-
-          as.numeric(ans$f$Data1$cCovars[[i]]) +
-          attr(ans$f$Data1$cCovars[[i]], "mean")
-      }
-      ccovar <- as.data.frame(data)
-      colnames(ccovar) <- names(ans$f$Data1$cCovars)
-    } else if (length(mydata$cCovars) > 0) {
-      data <-
-        matrix(
-          NA,
-          nrow = length(mydata$cCovars[[1]]),
-          ncol = length(mydata$cCovars)
-        )
-      for (i in 1:length(mydata$cCovars)) {
-        data[, i] <-
-          as.numeric(mydata$cCovars[[i]]) + attr(mydata$cCovars[[i]], "mean")
-      }
-      ccovar <- as.data.frame(data)
-      colnames(ccovar) <- names(mydata$cCovars)
-    }
-  }
-
-
-  if (is.null(startvalues)) {
-    if (!is.null(ans)) {
-      startvalues <- ans$theta
-    } else if (!is.null(myeff)) {
-      startvalues <- summary(myeff)$initialValue
-    }
-  }
-
-  # prepare dataset
-  ccovar <- ts_prepdata(ccovar)
+  # ccovar (and deps)
+  ccovar <- ts_dataprep(ans= ans, mydata= mydata, ccovar=ccovar)
 
 
   ### end of initialization
@@ -208,96 +139,27 @@ ts_sim <- function(
 
   ###I have experimented with doing the evaluations of the alternative networks in parallel.
   ###But the sapply function remains faster than parSapply or foreach.
-
+  ###Need to tweak if behavioral only model.
 
   ###Initialize function
 
-  if (is.null(net1)) {
-    if (!is.null(ans)) {
-      net1 <- (ans$f$Data1$depvars$mynet)[, , 1]
-    } else if (!is.null(mydata)) {
-      net1 <- (mydata$depvars$mynet[, , 1])
-    }
-  }
+  # starting networks
+  nets <- ts_netprep(ans=ans, mydata=mydata, net1=net1)
+  net1 <- nets$net1
 
   # included statistics
-  if (is.null(statistics)) {
-    if (!is.null(ans)) {
-      # namesstatistics <- ans$effects$shortName
-      statistics <- ans$effects$shortName
-      statistics[statistics == "density"] <- "degree"
-      statistics <- as.list((paste0("ts_", statistics))[-1])
-      # names(statistics) <- ans$effects$shortName[-1]
-      statistics <- lapply(statistics, get)
-      for (i in 1:length(statistics)) {
-        if (ans$effects$interaction1[i + 1] != "") {
-          statistics[[i]] <-
-            list(statistics[[i]], ans$effects$interaction1[i + 1])
-        }
-      }
-    } else if (!is.null(myeff)) {
-      # namesstatistics <- myeff$shortName[myeff$include]
-      statistics <- myeff$shortName[myeff$include]
-      statistics[statistics == "density"] <- "degree"
-      statistics <- as.list((paste0("ts_", statistics))[-1])
-      # names(statistics) <- myeff$shortName[myeff$include][-1]
-      statistics <- lapply(statistics, get)
-      for (i in 1:length(statistics)) {
-        if (myeff$interaction1[myeff$include][i + 1] != "") {
-          statistics[[i]] <-
-            list(statistics[[i]], myeff$interaction1[myeff$include][i + 1])
-        }
-      }
-    }
-  }
+  stats <- ts_statprep(ans = ans, myeff = myeff, statistics = statistics)
+  statistics <- stats$statistics
+  namesstatistics <- stats$namesstatistics
+  ratebeh <- stats$ratebeh
+  netstats <- stats$netstats
 
-  namesstatistics <- NA
-  namesstatistics <- c("rate", sapply(statistics, ts_names))
-  names(statistics) <- namesstatistics[-1]
+  #startvalues (afster ts_statprep)
+  startvalues <- ts_startprep(ans=ans, myeff=myeff, startvalues= startvalues, namesstatistics = namesstatistics)
 
-  # check if there are ccovars stored in ans
-  if (is.null(ccovar)) {
-    if (!is.null(ans) & length(ans$f$Data1$cCovars) > 0) {
-      data <-
-        matrix(
-          NA,
-          nrow = length(ans$f$Data1$cCovars[[1]]),
-          ncol = length(ans$f$Data1$cCovars)
-        )
-      for (i in 1:length(ans$f$Data1$cCovars)) {
-        data[, i] <-
-          as.numeric(ans$f$Data1$cCovars[[i]]) +
-          attr(ans$f$Data1$cCovars[[i]], "mean")
-      }
-      ccovar <- as.data.frame(data)
-      colnames(ccovar) <- names(ans$f$Data1$cCovars)
-    } else if (length(mydata$cCovars) > 0) {
-      data <-
-        matrix(
-          NA,
-          nrow = length(mydata$cCovars[[1]]),
-          ncol = length(mydata$cCovars)
-        )
-      for (i in 1:length(mydata$cCovars)) {
-        data[, i] <-
-          as.numeric(mydata$cCovars[[i]]) + attr(mydata$cCovars[[i]], "mean")
-      }
-      ccovar <- as.data.frame(data)
-      colnames(ccovar) <- names(mydata$cCovars)
-    }
-  }
+  # ccovar (and deps)
+  ccovar <- ts_dataprep(ans= ans, mydata= mydata, ccovar=ccovar)
 
-
-  if (is.null(startvalues)) {
-    if (!is.null(ans)) {
-      startvalues <- ans$theta
-    } else if (!is.null(myeff)) {
-      startvalues <- summary(myeff)$initialValue
-    }
-  }
-
-  # prepare dataset
-  ccovar <- ts_prepdata(ccovar)
 
 
   ###End of Initialization
@@ -305,19 +167,49 @@ ts_sim <- function(
   rate <- startvalues[1]
   parameters <- startvalues[-1]
   nministep <- rate * nrow(net1) + 1
+  nministepb <- Inf
   net_n <- net1
+  ccovar_n <- ccovar
   nets <- list()
+  #if only network part
+  parametersn <- parameters
+  statisticsn <- statistics
+
+  # if we have a behavioral part
+  if (length(ratebeh) > 0) {
+    rateb <- startvalues[namesstatistics == "Rate beh"]
+    nministepb <- rateb * nrow(net1) + 1
+    beh_n <- ccovar[,1]
+    behs <- list()
+    #split statistics and parameters in network and behavior part
+    parametersn <- startvalues[2:(which(namesstatistics == "Rate beh") -1)]
+    parametersb <- startvalues[(which(namesstatistics == "Rate beh") +1):length(namesstatistics)]
+    statisticsn <- statistics[1:(which(names(statistics) == "linear")-1)]
+    statisticsb <- statistics[which(names(statistics) == "linear"):length(names(statistics))]
+  }
+
   #it would be nice if I could preallocate the nets list, but since I can mix p2steps with ministeps this is not easy.
   # if (chain & normal == 1) nets <- vector("list", length = nministep -1 )
   # if (chain & normal != 1) nets <- vector("list", length = nministep/2 )
   ministep <- 1
+  ministepb <- 1
   iteration <- 1
-  while (ministep < nministep) {
+  typestep <- 1
+  typesteps <- 0
+  while ((ministep < nministep) & (ministepb < nministepb)) {
+
     # normal ministep or 2step?
     normal <- sample(c(1, 2, 3), 1, prob = p2step) #improve! we do not need to sample if no mixing.
 
-    # normal model
-    if (normal == 1) {
+    # net change or beh change
+    if (length(ratebeh) > 0) {
+    typestep <- sample(c(1,2), 1, prob = c(rate, rateb))
+    typesteps <- c(typesteps, typestep)
+    }
+
+    #network change
+    if (typestep == 1) {
+      if (normal == 1) {
       # sample agent
       ego <- ts_select(net1)
       # options
@@ -327,10 +219,10 @@ ts_sim <- function(
         sapply(
           options,
           FUN = ts_eval,
-          ccovar = ccovar,
+          ccovar = ccovar_n,
           ego = ego,
-          statistics = statistics,
-          parameters = parameters
+          statistics = statisticsn,
+          parameters = parametersn
         )
 
       # #eval <- eval - max(eval)
@@ -350,10 +242,11 @@ ts_sim <- function(
         )]]
 
       if (chain) {
-        nets[[ministep]] <- net_n
+        nets[[iteration]] <- net_n
       }
+      iteration <- iteration + 1
       ministep <- ministep + 1
-    } else if (normal == 2) {  # model with simultaneity
+    } else if (normal == 2) {  # twostep
       results <-
         ts_alternatives_twostep(
           net = net_n,
@@ -380,20 +273,20 @@ ts_sim <- function(
           sapply(
             options,
             FUN = ts_eval,
-            ccovar = ccovar,
+            ccovar = ccovar_n,
             ego = egos[1],
-            statistics = statistics,
-            parameters = parameters
+            statistics = statisticsn,
+            parameters = parametersn
           )
         # evaluations ego2
         eval2 <-
           sapply(
             options,
             FUN = ts_eval,
-            ccovar = ccovar,
+            ccovar = ccovar_n,
             ego = egos[2],
-            statistics = statistics,
-            parameters = parameters
+            statistics = statisticsn,
+            parameters = parametersn
           )
         # pick new network
         eval <- eval1 + eval2
@@ -414,8 +307,7 @@ ts_sim <- function(
         ministep <- ministep + 2
 
       }
-    } else if (normal == 3) {
-    # model with two simultaneous ministeps of the same ego
+    } else if (normal == 3) { #simstep
       # sample agent
       ego <- ts_select(net1)
       # options
@@ -425,10 +317,10 @@ ts_sim <- function(
         sapply(
           options,
           FUN = ts_eval,
-          ccovar = ccovar,
+          ccovar = ccovar_n,
           ego = ego,
-          statistics = statistics,
-          parameters = parameters
+          statistics = statisticsn,
+          parameters = parametersn
         )
 
       # pick new network
@@ -445,10 +337,156 @@ ts_sim <- function(
       iteration <- iteration + 1
       ministep <- ministep + 2
     }
+    }
+
+    #behavior change
+    if (typestep == 2) {
+      if (normal == 1) {
+        # sample agent
+        ego <- ts_select(net1)
+        # options
+        options <- ts_alternatives_ministep_beh(beh = beh_n, ego = ego)
+        # evaluations
+        eval <-
+          sapply(
+            options,
+            FUN = ts_eval_beh,
+            net = net_n,
+            ccovar = ccovar_n,
+            ego = ego,
+            statistics = statisticsb,
+            parameters = parametersb
+          )
+
+        # #eval <- eval - max(eval)
+        # # pick new network
+        # net_n <-
+        #   options[[sample(1:length(eval),
+        #     size = 1,
+        #     prob = exp(eval) / sum(exp(eval))
+        #   )]]
+
+
+        # # pick new behavior
+        beh_n <-
+          options[[sample(1:length(eval),
+                          size = 1,
+                          prob = exp(eval)
+          )]]
+        ccovar_n[,1] <- beh_n
+        if (chain) {
+          behs[[iteration]] <- beh_n
+        }
+        iteration <- iteration + 1
+        ministepb <- ministepb + 1
+      } else if (normal == 2) {  # twostep
+        results <-  ts_alternatives_twostep_beh(beh = beh_n, net=net_n, dist1 = dist1, modet1 = modet1)
+        egos <- results[[1]] # sampled dyad
+        options <-
+          results[[2]] # all possible future networks after the twostep
+        if (is.null(egos) & is.null(options)) {
+          if (chain) {
+            behs[[iteration]] <- beh_n
+          }
+          iteration <- iteration + 1
+        }
+
+        if (!is.null(egos) &
+            !is.null(options)) {
+          # check if it was possible to sample agents
+          # evaluations ego1
+          eval1 <-
+            sapply(
+              options,
+              FUN = ts_eval_beh,
+              net = net_n,
+              ccovar = ccovar_n,
+              ego = egos[1],
+              statistics = statisticsb,
+              parameters = parametersb
+            )
+          # evaluations ego2
+          eval2 <-
+            sapply(
+              options,
+              FUN = ts_eval_beh,
+              net = net_n,
+              ccovar = ccovar_n,
+              ego = egos[2],
+              statistics = statisticsb,
+              parameters = parametersb
+            )
+          # pick new behavior
+          eval <- eval1 + eval2
+
+
+          #McFadden choice function.
+          eval <- eval - max(eval)
+          beh_n <-
+            options[[sample(1:length(eval),
+                            size = 1,
+                            prob = exp(eval)
+            )]]
+          ccovar_n[,1] <- beh_n
+          if (chain) {
+            behs[[iteration]] <- beh_n
+          }
+          iteration <- iteration + 1
+          ministepb <- ministepb + 2
+
+        }
+      } else if (normal == 3) {
+        # model with two simultaneous ministeps of the same ego
+        # sample agent
+        ego <- ts_select(net1)
+        # options
+        options <- ts_alternatives_simstep_beh(beh = beh_n, ego = ego)
+        # evaluations
+        eval <-
+          sapply(
+            options,
+            FUN = ts_eval_beh,
+            net = net_n,
+            ccovar = ccovar_n,
+            ego = ego,
+            statistics = statisticsb,
+            parameters = parametersb
+          )
+
+        # pick new network
+        eval <- eval - max(eval)
+        beh_n <-
+          options[[sample(1:length(eval),
+                          size = 1,
+                          prob = exp(eval)
+          )]]
+        ccovar_n[,1] <- beh_n
+        if (chain) {
+          behs[[iteration]] <- beh_n
+        }
+        iteration <- iteration + 1
+        ministepb <- ministepb + 2
+      }
+    }
+
   }
-  if (chain) {
-    return(nets)
+
+
+
+  # return depends on chain and ratebeh
+  if (!length(ratebeh) > 0) {
+    if (chain) {
+      return(list(final = list(net_n = net_n), chain = list(nets = nets)))
+    } else {
+      return(net_n)
+    }
   } else {
-    return(net_n)
+    if (chain) {
+      typesteps <- typesteps[-1]
+      return(list(final = list(net_n = net_n, beh_n = beh_n), chain = list(nets = nets, behs = behs, typesteps = typesteps)))
+    } else {
+      return(list(net_n = net_n, beh_n = beh_n))
+    }
   }
+
 }
