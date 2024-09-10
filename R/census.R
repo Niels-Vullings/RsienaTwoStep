@@ -76,7 +76,7 @@ ts_dyads <- function(sims, net1, simtype="notypespecified", forplot=TRUE) {
     # t2 <- t2
     diag(net2) = NA #exclude the diagonal, not relevant data
 
-    flips <- net1 + t(net2) - net2 #subtract s502 to ensure that Mutual ties are not included
+    flips <- net1 + t(net2) - net2 #subtract net2 to ensure that Mutual ties are not included
 
     jumpst1 <- net1 + t(net1) #t1 plus its transpose lead to a value of 2 for mutual ties
     stablet1 <- jumpst1 #use this for stable assymetric ties
@@ -130,9 +130,9 @@ ts_dyads <- function(sims, net1, simtype="notypespecified", forplot=TRUE) {
 
   if (forplot == TRUE) { #bit clumsy
 
-    df <- df %>% tidyr::pivot_longer(cols = !c(simnet,type),
-                                     names_to = "x",
-                                     values_to = "y")
+    df <- tidyr::pivot_longer(df, cols = !c(simnet,type),
+                              names_to = "x",
+                              values_to = "y")
   }
 
   return(df)
@@ -189,9 +189,9 @@ ts_triads <- function(sims, net1, simtype="notypespecified", forplot=TRUE) {
 
   if (forplot == TRUE) {
 
-    df <- df %>% tidyr::pivot_longer(cols = !c(simnet,type),
-                                     names_to = "x",
-                                     values_to = "y")
+    df <- tidyr::pivot_longer(df, cols = !c(simnet,type),
+                              names_to = "x",
+                              values_to = "y")
   }
 
   return(df)
